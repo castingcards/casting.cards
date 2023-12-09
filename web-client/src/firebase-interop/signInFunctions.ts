@@ -39,6 +39,7 @@ let existingUser: User | null = null;
 const existingUserJSON = localStorage.getItem('user');
 if (existingUserJSON) {
   existingUser = JSON.parse(existingUserJSON);
+  console.log(existingUser);
 }
 
 export {
