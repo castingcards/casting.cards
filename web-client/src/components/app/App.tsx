@@ -1,11 +1,11 @@
 import React from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 
 import './App.css';
 
-import {Login} from './Login';
-import {Decks} from './Decks';
-import {HomePage} from './HomePage';
+import {Login} from '../header/Login';
+import {Decks} from '../decks/Decks';
+import {HomePage} from '../home-page/HomePage';
 
 
 function AppRoutes() {

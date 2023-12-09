@@ -1,6 +1,6 @@
 import React from 'react';
 import "./Login.css";
-import { signIn, signOut, existingUser } from './signInFunctions';
+import { signIn, signOut, existingUser } from '../../firebase-interop/signInFunctions';
 
 export function Login() {
   const [user, setUser]: any = React.useState(existingUser);
