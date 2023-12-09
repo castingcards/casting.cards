@@ -1,4 +1,5 @@
 import React from 'react';
+import "./Login.css";
 import { signIn, signOut, existingUser } from './signInFunctions';
 
 export function Login() {
@@ -10,15 +11,16 @@ export function Login() {
 
   if (user) {
     return (
-      <div>
-        <p>Welcome, {user.displayName} ({user.email})</p>
+      <div className="login-bar">
+        <p>Welcome, {user.displayName}</p>
         <button onClick={() => {signOut(); setUser(null);}}>Log Out</button>
       </div>
     );
   }
 
   return (
-    <div>
+    <div className="login-bar">
+      <p>Log in to get started</p>
       <button onClick={handleLogin}>Log In</button>
     </div>
   );

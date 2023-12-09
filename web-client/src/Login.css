@@ -1,0 +1,15 @@
+.login-bar {
+    background-color: #272781;
+    color: #ffffff;
+}
+
+.login-bar p
+{
+    display: inline-block;
+}
+
+.login-bar button {
+    float: right;
+    margin-right: 10px;
+    margin-top: 15px;
+}
