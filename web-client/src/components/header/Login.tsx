@@ -1,19 +1,34 @@
 import React from 'react';
-import "./Login.css";
-import { signIn, signOut, existingUser } from '../../firebase-interop/signInFunctions';
+import { useAuthState, useSignOut } from 'react-firebase-hooks/auth';
 
+import {auth} from '../../firebase-interop/firebaseInit';
+import {signIn} from '../../firebase-interop/signInFunctions';
+import "./Login.css";
+
+console.log("Login.tsx: auth", auth);
 export function Login() {
-  const [user, setUser]: any = React.useState(existingUser);
+  const [user, loading, error] = useAuthState(auth);
+  const [signOut] = useSignOut(auth);
 
   const handleLogin = React.useCallback(() => {
-    signIn().then(setUser);
+    signIn();
   }, []);
+
+  if (loading) {
+    return <div className="login-bar">
+      <p> </p>
+    </div>;
+  }
+
+  if (error) {
+    console.error("Login.tsx: error", error);
+  }
 
   if (user) {
     return (
       <div className="login-bar">
-        <p>Welcome, {user.displayName}</p>
-        <button onClick={() => {signOut(); setUser(null);}}>Log Out</button>
+        <p>Logged In: {user.displayName}</p>
+        <button onClick={() => signOut()}>Log Out</button>
       </div>
     );
   }
@@ -21,7 +36,8 @@ export function Login() {
   return (
     <div className="login-bar">
       <p>Log in to get started</p>
-      <button onClick={handleLogin}>Log In</button>
+      <button onClick={handleLogin}>Log In
+      </button>
     </div>
   );
 }
