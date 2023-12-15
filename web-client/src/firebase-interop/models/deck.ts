@@ -1,4 +1,4 @@
-import { collection, getDocs, addDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
 import {db} from "../firebaseInit";
 
 export type Deck = {
@@ -10,9 +10,11 @@ export type Deck = {
 };
 
 const collectionName = "decks";
+ const decksCollection = collection(db, collectionName);
 
-export async function getDecks(): Promise<Array<Deck>> {
-    const querySnapshot = await getDocs(collection(db, collectionName));
+export async function getMyDecks(uid: string): Promise<Array<Deck>> {
+    const myDecksQuery = query(decksCollection, where("uid", "==", uid));
+    const querySnapshot = await getDocs(myDecksQuery);
 
     const decks: Array<Deck> = [];
     querySnapshot.forEach((doc) => {

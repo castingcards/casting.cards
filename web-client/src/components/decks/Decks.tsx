@@ -1,7 +1,15 @@
 import React from "react";
+
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+
 import { useAuthState } from 'react-firebase-hooks/auth';
 
-import {getDecks, addDeck} from "../../firebase-interop/models/deck";
+import {getMyDecks, addDeck} from "../../firebase-interop/models/deck";
 import { auth } from "../../firebase-interop/firebaseInit";
 
 import type {Deck} from "../../firebase-interop/models/deck";
@@ -26,7 +34,7 @@ export function Decks() {
     if (!user) {
       return;
     }
-    getDecks().then(decks => {
+    getMyDecks(user.uid).then(decks => {
       console.log("GET DECKS!", decks)
       setDecks(decks);
     });
@@ -38,13 +46,30 @@ export function Decks() {
     });
   }, [decks, user]);
 
-  return <div>
-    <h1>Decks</h1>
-    {user && <button onClick={makeDeck}>Create Deck</button>
-    }
-    <p>Here are your decks!</p>
-    <ul>
-      {decks.map(deck => <li key={deck.id}>{deck.name}</li>)}
-    </ul>
-  </div>;
+  return (
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems={"center"}
+    >
+      <Box sx={{maxWidth: 800}}>
+        <Typography variant="h2" gutterBottom>Decks</Typography>
+
+        {user && <Button variant="outlined" onClick={makeDeck}>Create Deck</Button>}
+
+        <Typography variant="h3">Here are your decks!</Typography>
+
+        <List>
+          {decks.map(deck => (
+            <ListItem key={deck.id} sx={{backgroundColor: "#EEEEEE"}}>
+              <ListItemText
+                primary={deck.name}
+                secondary={deck.cards.length + " cards"}
+              />
+            </ListItem>)
+            )}
+        </List>
+      </Box>
+    </Box>
+  );
 }

@@ -1,4 +1,7 @@
 import { Link } from 'react-router-dom';
+
+import Button from '@mui/material/Button';
+
 import './HomePage.css';
 
 
@@ -6,9 +9,9 @@ export function HomePage() {
   return <header className="App-header">
       <img src="/magic-table-logo.webp" className="App-logo" alt="logo" />
       <p>
-        <Link to="/decks">
+        <Button component={Link} to="/decks">
           See your decks!
-        </Link>
+        </Button>
       </p>
     </header>;
 }
