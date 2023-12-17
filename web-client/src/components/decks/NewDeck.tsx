@@ -21,7 +21,6 @@ async function importDeckText(uid: string, deckName: string, deckText: string) {
 
     const deck = {
         uid,
-        id: "auto-deck-" + Math.random(), // TODO use a real id
         name: deckName,
         cards: cardDetails,
         importText: deckText,
@@ -32,7 +31,7 @@ async function importDeckText(uid: string, deckName: string, deckText: string) {
 }
 
 
-export function NewDeck({onNewDeck}: {onNewDeck: (deck: Deck) => void}) {
+export function NewDeck() {
     const [user] = useAuthState(auth);
     const [deckName, setDeckName] = React.useState("");
     const [deckText, setDeckText] = React.useState("");
@@ -40,13 +39,11 @@ export function NewDeck({onNewDeck}: {onNewDeck: (deck: Deck) => void}) {
 
     const importDeck = React.useCallback(() => {
         importDeckText(user?.uid || "", deckName, deckText).then(deck => {
-            onNewDeck(deck);
             setDeckName("");
             setDeckText("");
             setFormExpanded(false);
         });
-    }, [user, onNewDeck, deckName, deckText]);
-
+    }, [user, deckName, deckText]);
 
     return (
         <Accordion expanded={formExpanded} onChange={(e, newExpanded) => setFormExpanded(newExpanded)}>

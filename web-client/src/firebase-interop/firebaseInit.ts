@@ -1,7 +1,10 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, collection, doc } from "firebase/firestore";
+
+
+import type {QueryDocumentSnapshot, SnapshotOptions, DocumentData} from "firebase/firestore";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -42,5 +45,22 @@ export const auth = getAuth();
 // Initialize Cloud Firestore and get a reference to the service
 export const db = getFirestore(app);
 
+export function converter<T>() {
+  return {
+    toFirestore(data: T): DocumentData {
+      return data as DocumentData;
+    },
+    fromFirestore(snap: QueryDocumentSnapshot, options: SnapshotOptions): T {
+      return snap.data(options) as T;
+    },
+  };
+}
 
+export function typedCollection<T>(collectionPath: string) {
+  return collection(db, collectionPath).withConverter(converter<T>());
+}
 
+export function typedDoc<T>(collectionPath: string) {
+  const closedConverter = converter<T>();
+  return (docPath: string) => doc(db, collectionPath, docPath).withConverter(closedConverter);
+}

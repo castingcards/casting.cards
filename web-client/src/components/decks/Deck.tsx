@@ -10,10 +10,12 @@ import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
 import Button from '@mui/material/Button';
 
+
 import {doc} from 'firebase/firestore';
+import {db, converter} from "../../firebase-interop/firebaseInit";
+
+import {updateDeck, deckDoc} from "../../firebase-interop/models/deck";
 import {useDocument} from 'react-firebase-hooks/firestore';
-import {db} from "../../firebase-interop/firebaseInit";
-import {updateDeck} from "../../firebase-interop/models/deck";
 
 import type {Deck} from "../../firebase-interop/models/deck";
 import type {Card as ScryfallCard} from "scryfall-sdk";
@@ -35,31 +37,32 @@ function isCommander(card: ScryfallCard, deck: Deck): boolean {
 }
 
 export function ViewDeck() {
-    const { deckId } = useParams();
-    const [value, loading] = useDocument(doc(db, "decks", deckId || ""));
+    const {deckId} = useParams();
+    const [deck, loading] = useDocument(deckDoc(deckId || ""));
 
     const makeCommander = React.useCallback(
-        (deck: Deck, card: ScryfallCard) => updateDeck({
+        (deck: Deck, card: ScryfallCard) => updateDeck(deckId ?? "", {
             ...deck,
             commanderId: card.id,
         }),
-        []
+        [deckId],
     );
 
     if (loading) {
         return <div>Loading...</div>;
     }
 
-    const deck = value?.data() as Deck | undefined;
     if (!deck) {
         return <div>Deck not found</div>;
     }
-    deck.id = value?.id;
 
-    console.log("deck", deck)
+    const deckData = deck.data();
+    if (!deckData) {
+        return <div>Deck not found</div>;
+    }
 
-    const cards = deck.cards.filter(card => !!card) ?? [];
-    const commanderCard = deck.commanderId && cards.find(card => card.scryfallDetails.id === deck.commanderId);
+    const cards = deck.data()?.cards.filter(card => !!card) ?? [];
+    const commanderCard = deckData.commanderId && cards.find(card => card.scryfallDetails.id === deckData.commanderId);
     if (commanderCard) {
         cards.splice(cards.indexOf(commanderCard), 1);
         cards.unshift(commanderCard);
@@ -67,34 +70,36 @@ export function ViewDeck() {
 
     return (
         <Box>
-            <Typography variant="h2" gutterBottom>{deck?.name}</Typography>
+            <Typography variant="h2" gutterBottom>{deckData.name}</Typography>
             <Grid container spacing={2}>
-                {cards.map(card => (
-                    <Grid item key={card.scryfallDetails.id} xs={6} sm={4} md={3} lg={2}>
-                        <Card sx={{maxWidth: 300, backgroundColor: isCommander(card.scryfallDetails, deck) ? "#AAA" : "white"}}>
-                            <CardMedia
-                                component="img"
-                                image={card.scryfallDetails.image_uris?.normal}
-                                alt={card.scryfallDetails.name}
-                            />
-                            <CardContent>
-                                <Typography variant="h5">{card.scryfallDetails.name} ({card.count})</Typography>
-                                <Typography variant="body2">{card.scryfallDetails.type_line}</Typography>
-                                {isCommander(card.scryfallDetails, deck) && <Typography variant="body2">COMMANDER</Typography>}
-                            </CardContent>
-                            <CardActions>
-                                {canBeCommander(card.scryfallDetails) &&
-                                !isCommander(card.scryfallDetails, deck) &&
-                                    <Button
-                                        size="small"
-                                        onClick={() => makeCommander(deck, card.scryfallDetails)}
-                                    >
-                                        Make Commander
-                                    </Button>}
-                            </CardActions>
-                        </Card>
-                    </Grid>
-                ))}
+                {cards.map(card => {
+                    const cardIsCommander = isCommander(card.scryfallDetails, deckData);
+                    const cardCanBeCommander = canBeCommander(card.scryfallDetails);
+                    return (
+                        <Grid item key={card.scryfallDetails.id} xs={6} sm={4} md={3} lg={2}>
+                            <Card sx={{maxWidth: 300, backgroundColor: cardIsCommander ? "#AAA" : "white"}}>
+                                <CardMedia
+                                    component="img"
+                                    image={card.scryfallDetails.image_uris?.normal}
+                                    alt={card.scryfallDetails.name}
+                                />
+                                <CardContent>
+                                    <Typography variant="h5">{card.scryfallDetails.name} ({card.count})</Typography>
+                                    <Typography variant="body2">{card.scryfallDetails.type_line}</Typography>
+                                    {cardIsCommander && <Typography variant="body2">COMMANDER</Typography>}
+                                </CardContent>
+                                <CardActions>
+                                    {cardCanBeCommander && !cardIsCommander &&
+                                        <Button
+                                            size="small"
+                                            onClick={() => makeCommander(deckData, card.scryfallDetails)}
+                                        >
+                                            Make Commander
+                                        </Button>}
+                                </CardActions>
+                            </Card>
+                        </Grid>
+                )})}
             </Grid>
         </Box>
     );

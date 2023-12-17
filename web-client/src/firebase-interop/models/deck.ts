@@ -1,5 +1,5 @@
-import { collection, query, where, getDocs, addDoc, setDoc, doc } from "firebase/firestore";
-import {db} from "../firebaseInit";
+import {query, where, addDoc, setDoc } from "firebase/firestore";
+import {typedCollection, typedDoc} from "../firebaseInit";
 
 import type {Card} from "scryfall-sdk";
 
@@ -9,36 +9,17 @@ export type CardReference = {
 };
 
 export type Deck = {
-  id?: string;
+  uid: string;
   name: string;
   cards: Array<CardReference>;
   importText: string;
-  uid: string;
   commanderId?: string;
 };
 
-const collectionName = "decks";
-const decksCollection = collection(db, collectionName);
+export const decksCollection = typedCollection<Deck>("decks");
+export const deckDoc = typedDoc<Deck>("decks");
 
-export async function getMyDecks(uid: string): Promise<Array<Deck>> {
-    const myDecksQuery = query(decksCollection, where("uid", "==", uid));
-    const querySnapshot = await getDocs(myDecksQuery);
-
-    const decks: Array<Deck> = [];
-    querySnapshot.forEach((doc) => {
-        const {name, cards, uid, importText, commanderId} = doc.data();
-
-        decks.push({
-            id: doc.id,
-            name,
-            cards,
-            uid,
-            importText,
-            commanderId,
-        });
-    });
-    return decks;
-}
+export const myDecksQuery = (uid: string) => query(decksCollection, where("uid", "==", uid));
 
 export function cardsToShuffle(deck: Deck): Array<any> {
     const cardList: Array<any> = [];
@@ -50,23 +31,18 @@ export function cardsToShuffle(deck: Deck): Array<any> {
     return cardList;
 }
 
+// TODO: I'm not sure we need these functions anymore. Clean this up
 export async function addDeck(deck: Deck): Promise<void> {
     try {
-        const docRef = await addDoc(collection(db, collectionName), deck);
-        console.log("Document written with ID: ", docRef.id);
+        await addDoc(decksCollection, deck);
     } catch (e) {
         console.error("Error adding document: ", e);
     }
 }
 
-export async function updateDeck(deck: Deck): Promise<void> {
+export async function updateDeck(deckId: string, deck: Deck): Promise<void> {
     try {
-        if (!deck.id) {
-            throw new Error("Deck must have an ID to update");
-        }
-        console.log("Updating deck", deck);
-        const docRef = await setDoc(doc(db, collectionName, deck.id), deck);
-        console.log("Document written: ", docRef);
+        await setDoc(deckDoc(deckId), deck);
     } catch (e) {
         console.error("Error adding document: ", e);
     }

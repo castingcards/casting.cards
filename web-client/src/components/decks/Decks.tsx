@@ -8,29 +8,27 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 
 import { useAuthState } from 'react-firebase-hooks/auth';
+import { useCollection } from 'react-firebase-hooks/firestore';
 
-import {getMyDecks} from "../../firebase-interop/models/deck";
 import {auth} from "../../firebase-interop/firebaseInit";
 import {NewDeck} from "./NewDeck"
-import {cardsToShuffle} from "../../firebase-interop/models/deck";
-
-import type {Deck} from "../../firebase-interop/models/deck";
+import {cardsToShuffle, myDecksQuery} from "../../firebase-interop/models/deck";
 
 export function Decks() {
   const [user] = useAuthState(auth);
+  const [decks, loading, error] = useCollection(myDecksQuery(user?.uid || ""));
 
-  // TODO use collection watcher instread of this
-  const [decks, setDecks] = React.useState<Array<Deck>>([]);
+  if (error) {
+    return <strong>Error: {JSON.stringify(error)}</strong>;
+  }
 
-  React.useEffect(() => {
-    if (!user) {
-      return;
-    }
-    getMyDecks(user.uid).then(decks => {
-      console.log("GET DECKS!", decks)
-      setDecks(decks);
-    });
-  }, [user]);
+  if (loading) {
+    return <span>Loading Decks...</span>
+  }
+
+  if (!decks) {
+    return <span>No decks found</span>;
+  }
 
   return (
     <Box
@@ -41,20 +39,17 @@ export function Decks() {
       <Box sx={{maxWidth: 800}}>
         <Typography variant="h2" gutterBottom>Decks</Typography>
 
-        {user && <NewDeck onNewDeck={deck => setDecks([
-          ...decks,
-          deck,
-        ])}/>}
+        {user && <NewDeck />}
 
         <Typography variant="h3">Here are your decks!</Typography>
 
         <List>
-          {decks.map(deck => (
+          {decks.docs.map(deck => (
             <ListItem key={deck.id} sx={{backgroundColor: "#EEEEEE"}}>
               <Link to={`/decks/${deck.id}`}>
                 <ListItemText
-                  primary={deck.name}
-                  secondary={cardsToShuffle(deck).length + " cards"}
+                  primary={deck.data().name}
+                  secondary={cardsToShuffle(deck.data()).length + " cards"}
                 />
               </Link>
             </ListItem>)
