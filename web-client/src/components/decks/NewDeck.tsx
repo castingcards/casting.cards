@@ -12,24 +12,23 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from "../../firebase-interop/firebaseInit";
 
 import {addDeck} from "../../firebase-interop/models/deck";
+import {importCardDetails} from "../../business-logic/import-cards";
 
 import type {Deck} from "../../firebase-interop/models/deck";
 
-async function createNewDeck(
-    uid: string,
-    name: string,
-    importText: string,
-): Promise<Deck> {
-  const deck = {
-    uid,
-    id: "auto-deck-" + Math.random(), // TODO use a real id
-    name,
-    cards: [],
-    importText,
-  };
-  console.log("createNewDeck", deck);
-  await addDeck(deck);
-  return deck;
+async function importDeckText(uid: string, deckName: string, deckText: string) {
+    const cardDetails = await importCardDetails(deckText);
+
+    const deck = {
+        uid,
+        id: "auto-deck-" + Math.random(), // TODO use a real id
+        name: deckName,
+        cards: cardDetails,
+        importText: deckText,
+    };
+
+    await addDeck(deck);
+    return deck;
 }
 
 
@@ -39,14 +38,15 @@ export function NewDeck({onNewDeck}: {onNewDeck: (deck: Deck) => void}) {
     const [deckText, setDeckText] = React.useState("");
     const [formExpanded, setFormExpanded] = React.useState(false);
 
-    const makeDeck = React.useCallback(() => {
-        createNewDeck(user?.uid || "", deckName, deckText).then(deck => {
+    const importDeck = React.useCallback(() => {
+        importDeckText(user?.uid || "", deckName, deckText).then(deck => {
             onNewDeck(deck);
             setDeckName("");
             setDeckText("");
             setFormExpanded(false);
         });
     }, [user, onNewDeck, deckName, deckText]);
+
 
     return (
         <Accordion expanded={formExpanded} onChange={(e, newExpanded) => setFormExpanded(newExpanded)}>
@@ -62,7 +62,7 @@ export function NewDeck({onNewDeck}: {onNewDeck: (deck: Deck) => void}) {
                             id="deck-text" label="Deck Import Text" multiline rows={20}
                             value={deckText} onChange={e => setDeckText(e.target.value)}
                         />
-                        <Button variant="outlined" onClick={makeDeck}>Create Deck</Button>
+                        <Button variant="outlined" onClick={importDeck}>Import Deck</Button>
                     </Stack>
                 </Box>
             </AccordionDetails>

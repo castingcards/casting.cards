@@ -9,8 +9,9 @@ import ListItemText from '@mui/material/ListItemText';
 import { useAuthState } from 'react-firebase-hooks/auth';
 
 import {getMyDecks} from "../../firebase-interop/models/deck";
-import { auth } from "../../firebase-interop/firebaseInit";
+import {auth} from "../../firebase-interop/firebaseInit";
 import {NewDeck} from "./NewDeck"
+import {cardsToShuffle} from "../../firebase-interop/models/deck";
 
 import type {Deck} from "../../firebase-interop/models/deck";
 
@@ -51,7 +52,7 @@ export function Decks() {
             <ListItem key={deck.id} sx={{backgroundColor: "#EEEEEE"}}>
               <ListItemText
                 primary={deck.name}
-                secondary={deck.cards.length + " cards"}
+                secondary={cardsToShuffle(deck).length + " cards"}
               />
             </ListItem>)
             )}
