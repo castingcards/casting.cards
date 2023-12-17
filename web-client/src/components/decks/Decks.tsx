@@ -1,4 +1,5 @@
 import React from "react";
+import {Link} from 'react-router-dom';
 
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -50,10 +51,12 @@ export function Decks() {
         <List>
           {decks.map(deck => (
             <ListItem key={deck.id} sx={{backgroundColor: "#EEEEEE"}}>
-              <ListItemText
-                primary={deck.name}
-                secondary={cardsToShuffle(deck).length + " cards"}
-              />
+              <Link to={`/decks/${deck.id}`}>
+                <ListItemText
+                  primary={deck.name}
+                  secondary={cardsToShuffle(deck).length + " cards"}
+                />
+              </Link>
             </ListItem>)
             )}
         </List>
