@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore, collection, doc } from "firebase/firestore";
+import { getAuth, connectAuthEmulator } from "firebase/auth";
+import { getFirestore, collection, doc, connectFirestoreEmulator } from "firebase/firestore";
 
 
 import type {QueryDocumentSnapshot, SnapshotOptions, DocumentData} from "firebase/firestore";
@@ -44,6 +44,13 @@ export const auth = getAuth();
 
 // Initialize Cloud Firestore and get a reference to the service
 export const db = getFirestore(app);
+
+// TODO(miguel): wire this up with an env var to tell if we are in dev or prod
+// eslint-disable-next-line no-restricted-globals
+if (location.hostname === "localhost") {
+  connectAuthEmulator(auth, "http://127.0.0.1:9099")
+  connectFirestoreEmulator(db, "127.0.0.1", 8080);
+}
 
 export function converter<T>() {
   return {

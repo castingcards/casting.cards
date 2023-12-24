@@ -15,7 +15,6 @@ import {auth} from '../../firebase-interop/firebaseInit';
 import {signIn} from '../../firebase-interop/signInFunctions';
 import "./Login.css";
 
-console.log("Login.tsx: auth", auth);
 export function Login() {
   const [user, loading, error] = useAuthState(auth);
   const [signOut] = useSignOut(auth);

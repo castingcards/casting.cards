@@ -22,3 +22,6 @@
 /web-client/npm-debug.log*
 /web-client/yarn-debug.log*
 /web-client/yarn-error.log*
+
+.localdev
+*.log

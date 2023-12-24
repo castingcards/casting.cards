@@ -8,7 +8,7 @@ const mtgDecklistParser = require("mtg-decklist-parser");
 export async function importCardDetails(deckText: string): Promise<Array<CardReference>> {
     const parsed = new mtgDecklistParser.Decklist(deckText);
     const identifiers = parsed.deck.map((card: any) => {
-        if (card.set && card.set.length >= 3 && card.set <= 6 && card.collectors) {
+        if (card.set && card.set.length >= 3 && card.set.length <= 6 && card.collectors) {
             return Scry.CardIdentifier.bySet(card.set, card.collectors);
         }
 
