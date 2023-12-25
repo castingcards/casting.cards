@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Deck xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <NetDeckID>0</NetDeckID>
+  <PreconstructedDeckID>0</PreconstructedDeckID>
+  <Cards CatID="116732" Quantity="4" Sideboard="false" Name="Up the Beanstalk" Annotation="0"/>
+  <Cards CatID="110270" Quantity="4" Sideboard="false" Name="Invasion of Zendikar" Annotation="0"/>
+  <Cards CatID="109890" Quantity="4" Sideboard="false" Name="Sunfall" Annotation="0"/>
+  <Cards CatID="106149" Quantity="3" Sideboard="false" Name="Atraxa, Grand Unifier" Annotation="0"/>
+  <Cards CatID="79624" Quantity="1" Sideboard="false" Name="Plains" Annotation="0"/>
+  <Cards CatID="79624" Quantity="2" Sideboard="false" Name="Plains" Annotation="0"/>
+  <Cards CatID="79626" Quantity="1" Sideboard="false" Name="Island" Annotation="0"/>
+  <Cards CatID="102482" Quantity="4" Sideboard="false" Name="Archangel of Wrath" Annotation="0"/>
+  <Cards CatID="98741" Quantity="4" Sideboard="false" Name="Ziatora's Proving Ground" Annotation="0"/>
+  <Cards CatID="98734" Quantity="4" Sideboard="false" Name="Spara's Headquarters" Annotation="0"/>
+  <Cards CatID="98719" Quantity="4" Sideboard="false" Name="Jetmir's Garden" Annotation="0"/>
+  <Cards CatID="98539" Quantity="4" Sideboard="false" Name="Topiary Stomper" Annotation="0"/>
+  <Cards CatID="98239" Quantity="2" Sideboard="false" Name="Depopulate" Annotation="0"/>
+  <Cards CatID="79628" Quantity="1" Sideboard="false" Name="Swamp" Annotation="0"/>
+  <Cards CatID="79630" Quantity="1" Sideboard="false" Name="Mountain" Annotation="0"/>
+  <Cards CatID="79632" Quantity="3" Sideboard="false" Name="Forest" Annotation="0"/>
+  <Cards CatID="98135" Quantity="1" Sideboard="false" Name="Boseiju, Who Endures" Annotation="0"/>
+  <Cards CatID="103396" Quantity="4" Sideboard="false" Name="Leyline Binding" Annotation="0"/>
+  <Cards CatID="102806" Quantity="4" Sideboard="false" Name="Herd Migration" Annotation="0"/>
+  <Cards CatID="44245" Quantity="3" Sideboard="false" Name="Cavern of Souls" Annotation="0"/>
+  <Cards CatID="44245" Quantity="1" Sideboard="false" Name="Cavern of Souls" Annotation="0"/>
+  <Cards CatID="106051" Quantity="1" Sideboard="false" Name="Nissa, Ascended Animist" Annotation="0"/>
+  <Cards CatID="109580" Quantity="2" Sideboard="true" Name="Chrome Host Seedshark" Annotation="0"/>
+  <Cards CatID="55941" Quantity="2" Sideboard="true" Name="Negate" Annotation="0"/>
+  <Cards CatID="102548" Quantity="2" Sideboard="true" Name="Temporary Lockdown" Annotation="0"/>
+  <Cards CatID="98259" Quantity="2" Sideboard="true" Name="Knockout Blow" Annotation="0"/>
+  <Cards CatID="106045" Quantity="2" Sideboard="true" Name="Jace, the Perfected Mind" Annotation="0"/>
+  <Cards CatID="66237" Quantity="1" Sideboard="true" Name="Obstinate Baloth" Annotation="0"/>
+  <Cards CatID="98239" Quantity="1" Sideboard="true" Name="Depopulate" Annotation="0"/>
+  <Cards CatID="110168" Quantity="3" Sideboard="true" Name="Lithomantic Barrage" Annotation="0"/>
+</Deck>

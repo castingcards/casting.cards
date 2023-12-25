@@ -1,0 +1,1 @@
+Domain decklist from https://www.mtggoldfish.com/archetype/standard-domain-mid#paper

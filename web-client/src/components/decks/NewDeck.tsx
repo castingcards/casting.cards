@@ -12,7 +12,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from "../../firebase-interop/firebaseInit";
 
 import {addDeck} from "../../firebase-interop/models/deck";
-import {importCardDetails} from "../../business-logic/import-cards";
+import {importCardDetails} from "../../import/import-cards";
 
 import type {Deck} from "../../firebase-interop/models/deck";
 
