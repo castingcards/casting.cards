@@ -12,43 +12,61 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from "../../firebase-interop/firebaseInit";
 
 import {addDeck} from "../../firebase-interop/models/deck";
-import {importCardDetails} from "../../import/import-cards";
-
-import type {Deck} from "../../firebase-interop/models/deck";
+import {fromText} from "../../import/from-text";
+import {fromUrl} from "../../import/from-url";
 
 async function importDeckText(uid: string, deckName: string, deckText: string) {
-    const cardDetails = await importCardDetails(deckText);
-
-    const deck = {
-        uid,
-        name: deckName,
-        cards: cardDetails,
-        importText: deckText,
-    };
-
-    await addDeck(deck);
+    const deck = await fromText(deckText);
+    await addDeck(uid, deck.withName(deckName).withSource(deckText));
     return deck;
 }
 
+async function importFromURL(uid: string, deckURL: string) {
+    const deck = await fromUrl(deckURL);
+    await addDeck(uid, deck.withSource(deckURL));
+    return deck;
+}
 
 export function NewDeck() {
     const [user] = useAuthState(auth);
     const [deckName, setDeckName] = React.useState("");
     const [deckText, setDeckText] = React.useState("");
+    const [deckUrl, setDeckUrl] = React.useState("");
     const [formExpanded, setFormExpanded] = React.useState(false);
 
     const importDeck = React.useCallback(() => {
-        importDeckText(user?.uid || "", deckName, deckText).then(deck => {
-            setDeckName("");
-            setDeckText("");
-            setFormExpanded(false);
-        });
-    }, [user, deckName, deckText]);
+        if (user?.uid && deckText) {
+            importDeckText(user.uid, deckName, deckText).then(deck => {
+                setDeckName("");
+                setDeckText("");
+                setFormExpanded(false);
+            });
+        }
+    }, [user?.uid, deckName, deckText]);
+
+    const importDeckFromURL = React.useCallback(() => {
+        if (user?.uid && deckUrl) {
+            importFromURL(user.uid, deckUrl).then(() => {
+                setDeckUrl("");
+                setFormExpanded(false);
+            });
+        }
+    }, [user?.uid, deckUrl]);
 
     return (
         <Accordion expanded={formExpanded} onChange={(e, newExpanded) => setFormExpanded(newExpanded)}>
             <AccordionSummary>Add New Deck</AccordionSummary>
             <AccordionDetails>
+                <Box component="form">
+                    <Stack direction="column" spacing={2}>
+                        <TextField
+                            id="deck-url" label="From URL"
+                            value={deckUrl} onChange={e => setDeckUrl(e.target.value)}
+                        />
+                        <Button variant="outlined" onClick={importDeckFromURL}>Import Deck</Button>
+                    </Stack>
+                </Box>
+
                 <Box component="form">
                     <Stack direction="column" spacing={2}>
                         <TextField

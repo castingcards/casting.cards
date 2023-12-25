@@ -1,11 +1,10 @@
 import * as Scry from "scryfall-sdk";
 
-import type {Card} from "scryfall-sdk";
+import {Deck, CardReference} from "../firebase-interop/models/deck";
 
-import type { CardReference } from "../firebase-interop/models/deck";
 const mtgDecklistParser = require("mtg-decklist-parser");
 
-export async function importCardDetails(deckText: string): Promise<Array<CardReference>> {
+export async function fromText(deckText: string): Promise<Deck> {
     const parsed = new mtgDecklistParser.Decklist(deckText);
     const identifiers = parsed.deck.map((card: any) => {
         if (card.set && card.set.length >= 3 && card.set.length <= 6 && card.collectors) {
@@ -21,11 +20,11 @@ export async function importCardDetails(deckText: string): Promise<Array<CardRef
         console.log("Not found", cards.not_found);
     }
 
-    return parsed.deck.map((card: any, i: number) => {
-        const scryCard: Card = JSON.parse(JSON.stringify(cards[i]));
-        return {
-            count: card.amount,
-            scryfallDetails: scryCard,
-        }
-    });
+    return new Deck(
+        "",
+        parsed.deck.map((card: any, i: number) => {
+            return new CardReference(card.amount, cards[i]);
+        }),
+        "",
+    );
 }

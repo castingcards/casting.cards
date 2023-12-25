@@ -41,10 +41,13 @@ export function ViewDeck() {
     const [deck, loading] = useDocument(deckDoc(deckId || ""));
 
     const makeCommander = React.useCallback(
-        (deck: Deck, card: ScryfallCard) => updateDeck(deckId ?? "", {
-            ...deck,
-            commanderId: card.id,
-        }),
+        (deck: Deck, card: ScryfallCard) => {
+            if (deckId) {
+                updateDeck(deckId, deck.withCommanderId(card.id))
+            } else {
+                // handle error... Must have a deckId.
+            }
+        },
         [deckId],
     );
 
