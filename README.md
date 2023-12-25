@@ -13,12 +13,15 @@ authentication integration.
 To run the magic table in your local dev, you need to first start the
 emulators.  Open up a shell in the top level project dir and run:
 ```
+cd backend
+npm install
 npm start
 ```
 
 In a second shell, start the UI:
 ```
 cd web-client
+npm install
 npm start
 ```
 
