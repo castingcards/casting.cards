@@ -1,16 +1,21 @@
-import * as archidekt from "./archidekt"
-import {Deck} from "../firebase-interop/models/deck"
+import {ArchidektUrlImporter} from "./archidekt"
+import {Deck} from "../firebase-interop/models/deck";
 
-export async function fromUrl(deckURL: string): Promise<Deck> {
-  if (archidekt.test(deckURL)) {
-    return archidekt.getFromURL(deckURL);
-  }
-
-  throw new Error(`Unsupported URL: ${deckURL}`);
+export interface UrlImporter {
+  test(url: string): boolean
+  getFromURL(url: string): Promise<Deck>
 }
 
-// TODO(miguel): Add an importer interface registration system.
-// const _importers: Array<IImporter> = [];
-// export function registerImporter(importer: IImporter) {
-//   _importers.push(importerFunc);
-// }
+const _importers: Array<UrlImporter> = [
+  new ArchidektUrlImporter(),
+];
+
+export async function fromUrl(deckURL: string): Promise<Deck> {
+  const importer = _importers.find(imp => imp.test(deckURL));
+
+  if (!importer) {
+    throw new Error(`Unsupported URL: ${deckURL}`);
+  }
+
+  return importer.getFromURL(deckURL);
+}
