@@ -4,8 +4,8 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /decks/{deckId} {
       allow read: if request.auth.uid != null;
-      allow create: if request.auth.uid != null; // TODO: security problem; allows someone to create decks for other users
-      allow write: if request.auth.uid != null; // TODO: why not work? resource.uid == request.auth.uid;
+      allow create: if request.auth.uid == request.resource.data.userId;
+      allow write: if request.auth.uid == resource.data.userId;
     }
   }
 }

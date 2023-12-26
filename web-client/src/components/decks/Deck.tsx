@@ -72,7 +72,6 @@ export function ViewDeck() {
         cards.unshift(commanderCard);
     }
 
-    console.log(cards)
     return (
         <Box>
             <Typography variant="h2" gutterBottom>{deckData.name}</Typography>
