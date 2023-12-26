@@ -12,8 +12,8 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from "../../firebase-interop/firebaseInit";
 
 import {addDeck} from "../../firebase-interop/models/deck";
-import {fromText} from "../../import/from-text";
-import {fromUrl} from "../../import/from-url";
+import {fromText} from "../../importer/from-text";
+import {fromUrl} from "../../importer/from-url";
 
 async function importDeckText(uid: string, deckName: string, deckText: string) {
     const deck = await fromText(deckText);
