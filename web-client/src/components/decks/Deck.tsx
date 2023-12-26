@@ -10,10 +10,6 @@ import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
 import Button from '@mui/material/Button';
 
-
-import {doc} from 'firebase/firestore';
-import {db, converter} from "../../firebase-interop/firebaseInit";
-
 import {updateDeck, deckDoc} from "../../firebase-interop/models/deck";
 import {useDocument} from 'react-firebase-hooks/firestore';
 
@@ -26,6 +22,10 @@ function canBeCommander(card: ScryfallCard): boolean {
     }
 
     if (card.type_line.includes("Legendary Creature")) {
+        return true;
+    }
+
+    if (card.oracle_text?.toLowerCase().includes("can be your commander")) {
         return true;
     }
 
@@ -72,6 +72,7 @@ export function ViewDeck() {
         cards.unshift(commanderCard);
     }
 
+    console.log(cards)
     return (
         <Box>
             <Typography variant="h2" gutterBottom>{deckData.name}</Typography>
