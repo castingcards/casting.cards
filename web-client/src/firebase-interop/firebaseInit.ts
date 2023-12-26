@@ -52,22 +52,32 @@ if (location.hostname === "localhost") {
   connectFirestoreEmulator(db, "127.0.0.1", 8080);
 }
 
-export function converter<T>() {
+class Factory {
+    create<T>(type: (new (...args : any[]) => T)): T {
+        return new type();
+    }
+}
+
+const factory = new Factory();
+
+export function converter<T>(type: (new (...args : any[]) => T)) {
   return {
     toFirestore(data: T): DocumentData {
-      return data as DocumentData;
+      return JSON.parse(JSON.stringify(data)) as DocumentData;
     },
     fromFirestore(snap: QueryDocumentSnapshot, options: SnapshotOptions): T {
-      return snap.data(options) as T;
+      const result: T = factory.create(type);
+      const data = snap.data(options) as any;
+      return Object.assign(result as any, data);
     },
   };
 }
 
-export function typedCollection<T>(collectionPath: string) {
-  return collection(db, collectionPath).withConverter(converter<T>());
+export function typedCollection<T>(collectionPath: string, type: (new (...args : any[]) => T)) {
+  return collection(db, collectionPath).withConverter(converter<T>(type));
 }
 
-export function typedDoc<T>(collectionPath: string) {
-  const closedConverter = converter<T>();
+export function typedDoc<T>(collectionPath: string, type: (new (...args : any[]) => T)) {
+  const closedConverter = converter<T>(type);
   return (docPath: string) => doc(db, collectionPath, docPath).withConverter(closedConverter);
 }

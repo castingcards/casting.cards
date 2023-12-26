@@ -35,7 +35,7 @@ export class Deck {
     return this;
   }
 
-  withUserID(userId: string) {
+withUserID(userId: string) {
     this.userId = userId;
     return this;
   }
@@ -51,8 +51,8 @@ export class Deck {
   }
 };
 
-export const decksCollection = typedCollection<Deck>("decks");
-export const deckDoc = typedDoc<Deck>("decks");
+export const decksCollection = typedCollection("decks", Deck);
+export const deckDoc = typedDoc("decks", Deck);
 
 export const myDecksQuery = (uid: string) => query(decksCollection, where("userId", "==", uid));
 
@@ -72,11 +72,7 @@ export async function addDeck(userId: string, deck: Deck): Promise<void> {
   }
 
   try {
-    const doc = {
-      ...JSON.parse(JSON.stringify(deck)),
-      userId,
-    };
-    await addDoc(decksCollection, doc);
+    await addDoc(decksCollection, deck.withUserID(userId));
   } catch (e) {
     console.error("Error adding document: ", e);
   }

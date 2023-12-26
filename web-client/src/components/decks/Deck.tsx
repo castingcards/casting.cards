@@ -42,6 +42,7 @@ export function ViewDeck() {
 
     const makeCommander = React.useCallback(
         (deck: Deck, card: ScryfallCard) => {
+            console.log("Making commander", deck, card)
             if (deckId) {
                 updateDeck(deckId, deck.withCommanderId(card.id))
             } else {
