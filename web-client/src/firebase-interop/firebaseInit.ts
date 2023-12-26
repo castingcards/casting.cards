@@ -1,10 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAuth, connectAuthEmulator } from "firebase/auth";
-import { getFirestore, collection, doc, connectFirestoreEmulator } from "firebase/firestore";
-
-
-import type {QueryDocumentSnapshot, SnapshotOptions, DocumentData} from "firebase/firestore";
+import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -50,34 +47,4 @@ export const db = getFirestore(app);
 if (location.hostname === "localhost") {
   connectAuthEmulator(auth, "http://127.0.0.1:9099")
   connectFirestoreEmulator(db, "127.0.0.1", 8080);
-}
-
-class Factory {
-    create<T>(type: (new (...args : any[]) => T)): T {
-        return new type();
-    }
-}
-
-const factory = new Factory();
-
-export function converter<T>(type: (new (...args : any[]) => T)) {
-  return {
-    toFirestore(data: T): DocumentData {
-      return JSON.parse(JSON.stringify(data)) as DocumentData;
-    },
-    fromFirestore(snap: QueryDocumentSnapshot, options: SnapshotOptions): T {
-      const result: T = factory.create(type);
-      const data = snap.data(options) as any;
-      return Object.assign(result as any, data);
-    },
-  };
-}
-
-export function typedCollection<T>(collectionPath: string, type: (new (...args : any[]) => T)) {
-  return collection(db, collectionPath).withConverter(converter<T>(type));
-}
-
-export function typedDoc<T>(collectionPath: string, type: (new (...args : any[]) => T)) {
-  const closedConverter = converter<T>(type);
-  return (docPath: string) => doc(db, collectionPath, docPath).withConverter(closedConverter);
 }

@@ -1,5 +1,5 @@
 import { query, where, addDoc, setDoc } from "firebase/firestore";
-import { typedCollection, typedDoc } from "../firebaseInit";
+import { BaseModel, typedCollection, typedDoc } from "../baseModel";
 
 import type { Card } from "scryfall-sdk";
 
@@ -13,7 +13,7 @@ export class CardReference {
   }
 };
 
-export class Deck {
+export class Deck extends BaseModel {
   name: string;
   cards: Array<CardReference>;
   commanderId: string;
@@ -22,6 +22,8 @@ export class Deck {
   source: string;
 
   constructor(name: string, cards: Array<CardReference>, commanderId: string) {
+    super();
+
     this.name = name || "<unknown>";
     this.cards = cards;
     this.commanderId = commanderId;
@@ -35,7 +37,7 @@ export class Deck {
     return this;
   }
 
-withUserID(userId: string) {
+  withUserID(userId: string) {
     this.userId = userId;
     return this;
   }
@@ -48,6 +50,13 @@ withUserID(userId: string) {
   withCommanderId(commanderId: string) {
     this.commanderId = commanderId;
     return this;
+  }
+
+  fromObject(obj: any): Deck {
+    return new Deck(obj.name, obj.cards, obj.commanderId)
+      .withCommanderId(obj.commanderId)
+      .withSource(obj.source)
+      .withUserID(obj.userId);
   }
 };
 

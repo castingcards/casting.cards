@@ -1,11 +1,12 @@
-import { query, where, addDoc, setDoc } from "firebase/firestore";
-import { typedCollection, typedDoc } from "../firebaseInit";
+import { query, addDoc } from "firebase/firestore";
+import { typedCollection, typedDoc, BaseModel } from "../baseModel";
 
-export class Game {
+export class Game extends BaseModel {
   name: string;
   ownerUserId: string;
 
   constructor(name: string, ownerUserId?: string) {
+    super();
     this.name = name || "<unknown>";
     this.ownerUserId = ownerUserId || "<unknown>";
   }
@@ -18,6 +19,10 @@ export class Game {
   withOwnerUserID(ownerUserId: string) {
     this.ownerUserId = ownerUserId;
     return this;
+  }
+
+  fromObject(obj: any): Game {
+    return new Game(obj.name, obj.ownerUserId);
   }
 };
 
