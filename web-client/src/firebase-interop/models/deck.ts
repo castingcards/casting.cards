@@ -28,7 +28,7 @@ export class Deck extends BaseModel {
     this.cards = cards;
     this.commanderId = commanderId;
 
-    this.userId = ""
+    this.userId = "";
     this.source = "";
   }
 
@@ -65,8 +65,8 @@ export const deckDoc = typedDoc("decks", Deck);
 
 export const myDecksQuery = (uid: string) => query(decksCollection, where("userId", "==", uid));
 
-export function cardsToShuffle(deck: Deck): Array<any> {
-  const cardList: Array<any> = [];
+export function cardsToShuffle(deck: Deck): Array<Card> {
+  const cardList: Array<Card> = [];
   deck.cards.forEach((card) => {
     for (let i = 0; i < card.count; i++) {
       cardList.push(card.scryfallDetails);
