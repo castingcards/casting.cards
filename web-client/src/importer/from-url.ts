@@ -1,4 +1,5 @@
-import {ArchidektUrlImporter} from "./archidekt"
+import {ArchidektUrlImporter} from "./archidekt";
+import {InfiniteTCGPlayerImporter} from "./infinite-tcgplayer";
 import {Deck} from "../firebase-interop/models/deck";
 
 export interface UrlImporter {
@@ -8,6 +9,7 @@ export interface UrlImporter {
 
 const _importers: Array<UrlImporter> = [
   new ArchidektUrlImporter(),
+  new InfiniteTCGPlayerImporter(),
 ];
 
 export async function fromUrl(deckURL: string): Promise<Deck> {
