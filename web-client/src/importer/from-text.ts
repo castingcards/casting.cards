@@ -25,6 +25,5 @@ export async function fromText(deckText: string): Promise<Deck> {
         parsed.deck.map((card: any, i: number) => {
             return new CardReference(card.amount, cards[i]);
         }),
-        "",
     );
 }

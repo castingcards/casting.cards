@@ -6,27 +6,43 @@ import type { Card } from "scryfall-sdk";
 export class CardReference {
   count: number;
   scryfallDetails: Card;
+  isCommander: boolean;
 
-  constructor(count: number, scryfallDetails: Card) {
+  constructor(count: number, scryfallDetails: Card, isCommander: boolean = false) {
     this.count = count;
     this.scryfallDetails = scryfallDetails;
+    this.isCommander = isCommander;
+  }
+
+  canBeCommander(): boolean {
+    if (this.scryfallDetails.legalities.commander !== "legal") {
+        return false;
+    }
+
+    if (this.scryfallDetails.type_line.includes("Legendary Creature")) {
+        return true;
+    }
+
+    if (this.scryfallDetails.oracle_text?.toLowerCase().includes("can be your commander")) {
+        return true;
+    }
+
+    return false;
   }
 };
 
 export class Deck extends BaseModel {
   name: string;
   cards: Array<CardReference>;
-  commanderId: string;
 
   userId: string;
   source: string;
 
-  constructor(name: string, cards: Array<CardReference>, commanderId: string) {
+  constructor(name: string, cards: Array<CardReference> = []) {
     super();
 
     this.name = name || "<unknown>";
     this.cards = cards;
-    this.commanderId = commanderId;
 
     this.userId = "";
     this.source = "";
@@ -47,14 +63,18 @@ export class Deck extends BaseModel {
     return this;
   }
 
-  withCommanderId(commanderId: string) {
-    this.commanderId = commanderId;
+  withCardReferences(cards: Array<CardReference>) {
+    this.cards = cards;
     return this;
   }
 
   fromObject(obj: any): Deck {
-    return new Deck(obj.name, obj.cards, obj.commanderId)
-      .withCommanderId(obj.commanderId)
+    const cardReferences = obj.cards.map((card: any) => {
+      return new CardReference(card.count, card.scryfallDetails, card.isCommander);
+    });
+
+    return new Deck(obj.name, obj.cards)
+      .withCardReferences(cardReferences)
       .withSource(obj.source)
       .withUserID(obj.userId);
   }

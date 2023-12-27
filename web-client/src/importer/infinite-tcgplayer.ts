@@ -74,7 +74,7 @@ export class InfiniteTCGPlayerImporter {
       return new CardReference(cardIDToQuantityMapping[cardKey], cards[i])
     })
 
-    return new Deck(deckData.result.deck.name, cardReferences, "");
+    return new Deck(deckData.result.deck.name, cardReferences);
   }
 
   test(deckURL: string): boolean {

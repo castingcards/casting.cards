@@ -52,7 +52,7 @@ export class ArchidektUrlImporter {
       return new CardReference(cardmeta.quantity, cards[i])
     })
 
-    return new Deck(deckData.name, cardReferences, "");
+    return new Deck(deckData.name, cardReferences);
   }
 
   test(deckURL: string): boolean {
