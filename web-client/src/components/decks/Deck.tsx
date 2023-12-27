@@ -64,7 +64,7 @@ export function ViewDeck() {
                             <Card sx={{maxWidth: 300, backgroundColor: card.isCommander ? "#AAA" : "white"}}>
                                 <CardMedia
                                     component="img"
-                                    image={card.scryfallDetails.image_uris?.normal}
+                                    image={card.imageForCard()}
                                     alt={card.scryfallDetails.name}
                                 />
                                 <CardContent>

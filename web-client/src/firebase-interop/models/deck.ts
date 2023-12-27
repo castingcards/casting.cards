@@ -14,6 +14,14 @@ export class CardReference {
     this.isCommander = isCommander;
   }
 
+  imageForCard() {
+    const image_uris = this.scryfallDetails.image_uris
+      ? this.scryfallDetails.image_uris
+      : this.scryfallDetails.card_faces[0].image_uris;
+
+    return image_uris?.normal || "";
+}
+
   canBeCommander(): boolean {
     if (this.scryfallDetails.legalities.commander !== "legal") {
         return false;
