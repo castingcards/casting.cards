@@ -12,6 +12,9 @@ export function HomePage() {
         <Button component={Link} to="/decks">
           See your decks!
         </Button>
+        <Button component={Link} to="/games">
+          Create or Join a game!
+        </Button>
       </p>
     </header>;
 }
