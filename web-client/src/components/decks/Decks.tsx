@@ -12,7 +12,7 @@ import { useCollection } from 'react-firebase-hooks/firestore';
 
 import {auth} from "../../firebase-interop/firebaseInit";
 import {NewDeck} from "./NewDeck"
-import {cardsToShuffle, myDecksQuery} from "../../firebase-interop/models/deck";
+import {myDecksQuery} from "../../firebase-interop/models/deck";
 
 export function Decks() {
   const [user] = useAuthState(auth);
@@ -44,16 +44,18 @@ export function Decks() {
         <Typography variant="h3">Here are your decks!</Typography>
 
         <List>
-          {decks.docs.map(deck => (
-            <ListItem key={deck.id} sx={{backgroundColor: "#EEEEEE"}}>
-              <Link to={`/decks/${deck.id}`}>
+          {decks.docs.map(deckReference => {
+            const deckId = deckReference.id;
+            const deck = deckReference.data();
+            return (<ListItem key={deckId} sx={{backgroundColor: "#EEEEEE"}}>
+              <Link to={`/decks/${deckId}`}>
                 <ListItemText
-                  primary={deck.data().name}
-                  secondary={cardsToShuffle(deck.data()).length + " cards"}
+                  primary={deck.name}
+                  secondary={deck.allCards().length + " cards"}
                 />
               </Link>
             </ListItem>)
-            )}
+          })}
         </List>
       </Box>
     </Box>

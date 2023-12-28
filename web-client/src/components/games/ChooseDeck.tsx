@@ -8,9 +8,10 @@ import FormControl from "@mui/material/FormControl";
 
 import {useCollection} from 'react-firebase-hooks/firestore';
 import {myDecksQuery} from "../../firebase-interop/models/deck";
-import {updateGame} from "../../firebase-interop/models/game";
+import {PlayerState, updateGame} from "../../firebase-interop/models/game";
 
 import type {Game} from "../../firebase-interop/models/game";
+import type {Deck} from "../../firebase-interop/models/deck";
 
 type Props = {
     gameId: string;
@@ -25,10 +26,25 @@ export function ChooseDeck({gameId, game, uid}: Props) {
     const addDeckToGame = React.useCallback(
         (deckId: string) => {
             setChosenDeck(deckId);
-            game.withDeck(uid, deckId);
+
+            const player = game.getPlayer(uid);
+
+            const decks = decksResource?.docs ?? [];
+            const deckReference = decks.find(deck => deck.id === deckId);
+            if (!deckReference) {
+                throw new Error("Deck not found");
+            }
+
+            const deck = deckReference.data();
+            if (!deck) {
+                throw new Error("Deck not found");
+            }
+
+            player.withDeck(deckId, deck);
+
             updateGame(gameId, game);
         },
-        [gameId, game, uid],
+        [gameId, game, uid, decksResource?.docs],
     );
 
 

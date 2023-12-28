@@ -1,4 +1,5 @@
 import { query, where, addDoc, setDoc } from "firebase/firestore";
+import ShuffleSeed from "shuffle-seed";
 import { BaseModel, typedCollection, typedDoc } from "../baseModel";
 
 import type { Card } from "scryfall-sdk";
@@ -76,6 +77,22 @@ export class Deck extends BaseModel {
     return this;
   }
 
+  allCards(): Array<Card> {
+    const cardList: Array<Card> = [];
+    this.cards.forEach((card) => {
+      for (let i = 0; i < card.count; i++) {
+        cardList.push(card.scryfallDetails);
+      }
+    });
+    return cardList;
+  }
+
+  shuffle(cardIds: Array<string>): Array<string> {
+    const shuffleSeed = Math.floor(Math.random() * 1000000);
+    const shuffledCards: Array<string> = ShuffleSeed.shuffle(cardIds, shuffleSeed);
+    return shuffledCards;
+  }
+
   fromObject(obj: any): Deck {
     const cardReferences = obj.cards.map((card: any) => {
       return new CardReference(card.count, card.scryfallDetails, card.isCommander);
@@ -92,17 +109,6 @@ export const decksCollection = typedCollection("decks", Deck);
 export const deckDoc = typedDoc("decks", Deck);
 
 export const myDecksQuery = (uid: string) => query(decksCollection, where("userId", "==", uid));
-
-export function cardsToShuffle(deck: Deck): Array<Card> {
-  const cardList: Array<Card> = [];
-  deck.cards.forEach((card) => {
-    for (let i = 0; i < card.count; i++) {
-      cardList.push(card.scryfallDetails);
-    }
-  });
-  return cardList;
-}
-
 export async function addDeck(userId: string, deck: Deck): Promise<void> {
   if (!userId) {
     throw new Error("Must provide a userId");
