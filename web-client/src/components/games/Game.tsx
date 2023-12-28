@@ -7,7 +7,7 @@ import {gameDoc} from '../../firebase-interop/models/game';
 import {auth} from '../../firebase-interop/firebaseInit';
 import {useAuthState} from 'react-firebase-hooks/auth';
 
-import {ChooseDeck} from './ChooseDeck';
+import {GameBoard} from './GameBoard';
 
 export function ViewGame() {
     const {gameId} = useParams();
@@ -35,15 +35,5 @@ export function ViewGame() {
         return <div>Waiting for players...</div>;
     }
 
-    const myDeckId = game.getDeck(user.uid);
-    if (!myDeckId) {
-        return <ChooseDeck game={game} gameId={gameId} uid={user.uid} />;
-    }
-
-    return (
-        <div>
-            <h1>{game.name}</h1>
-            <h2>{myDeckId}</h2>
-        </div>
-    )
+    return <GameBoard gameId={gameId} game={game} uid={user.uid} />;
 }
