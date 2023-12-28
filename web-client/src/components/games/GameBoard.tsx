@@ -1,9 +1,12 @@
 import React from "react";
-import { useDocument } from "react-firebase-hooks/firestore";
+import Box from '@mui/material/Box';
+import Typeogrophy from '@mui/material/Typography';
+import {Paper} from "@mui/material";
+import {styled} from '@mui/material/styles';
 
 import { ChooseDeck } from "./ChooseDeck";
 
-import { deckDoc } from "../../firebase-interop/models/deck";
+
 import type { Game } from "../../firebase-interop/models/game";
 
 type Props = {
@@ -12,28 +15,31 @@ type Props = {
     uid: string;
 }
 
+const Library = styled(Paper)(({ theme }) => ({
+  width: 120,
+  height: 120,
+  padding: theme.spacing(2),
+  ...theme.typography.body2,
+  textAlign: 'center',
+}));
+
 export function GameBoard({gameId, game, uid}: Props) {
     const player = game.getPlayer(uid);
-    const [myDeckSnapshot, loading, error] = useDocument(player.deckId ? deckDoc(player.deckId) : null);
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
-
-    if (error) {
-        return <div>Error: {JSON.stringify(error)}</div>;
-    }
-
-    if (!myDeckSnapshot) {
+    if (!player.deckId) {
         return <ChooseDeck game={game} gameId={gameId} uid={uid} />;
     }
 
-    //const myDeck = myDeckSnapshot.data();
-
     return (
-        <div>
+        <Box>
             <h1>{game.name}</h1>
-            <h2>{myDeckSnapshot.id}</h2>
-        </div>
+            <h2>Player: {player.playerId}</h2>
+
+            <Box>
+                <Library variant="outlined">
+                    <Typeogrophy variant="body1">Library ({player.shuffledLibraryCardIds.length})</Typeogrophy>
+                </Library>
+            </Box>
+        </Box>
     );
 }
