@@ -51,7 +51,7 @@ export function ViewDeck() {
 
     return (
         <Box>
-            <Typography variant="h2" gutterBottom>{deck.name}</Typography>
+            <Typography variant="h4" gutterBottom>{deck.name}</Typography>
             <Grid container spacing={2}>
                 {cards.map(card => {
                     const cardCanBeCommander = card.canBeCommander();

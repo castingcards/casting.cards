@@ -1,7 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
-import './App.css';
+import Grid from '@mui/material/Unstable_Grid2';
 
 import {Login} from '../header/Login';
 import {Decks} from '../decks/Decks';
@@ -10,25 +10,28 @@ import {Games} from '../games/Games';
 import {ViewGame} from '../games/Game';
 import {HomePage} from '../home-page/HomePage';
 
+function PaddedContainer({children}: {children: React.ReactNode}): React.ReactElement {
+  return <div style={{padding:"12px 0"}}>{children}</div>
+}
 
-function AppRoutes() {
+function AppRoutes(): React.ReactElement {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
-      <Route path="/decks" element={<Decks />} />
-      <Route path="/decks/:deckId" element={<ViewDeck />} />
-      <Route path="/games" element={<Games />} />
-      <Route path="/games/:gameId" element={<ViewGame />} />
+      <Route path="/decks" element={<PaddedContainer><Decks /></PaddedContainer>} />
+      <Route path="/decks/:deckId" element={<PaddedContainer><ViewDeck /></PaddedContainer>} />
+      <Route path="/games" element={<PaddedContainer><Games /></PaddedContainer>} />
+      <Route path="/games/:gameId" element={<PaddedContainer><ViewGame /></PaddedContainer>} />
     </Routes>
   );
 }
 
-function App() {
+function App(): React.ReactElement {
   return (
-    <div className="App">
+    <Grid container direction="column" justifyContent="center" textAlign="center">
       <Login />
       <AppRoutes />
-    </div>
+    </Grid>
   );
 }
 

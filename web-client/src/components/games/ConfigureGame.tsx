@@ -1,8 +1,9 @@
-import React from "react";
+import * as React from "react";
 
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
+import Grid from '@mui/material/Unstable_Grid2';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
@@ -10,6 +11,7 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 
 import { ChooseDeck } from "./ChooseDeck";
 
@@ -22,7 +24,7 @@ type Props = {
   onImReady: () => void,
 };
 
-export function ConfigureGame({game, userId, onImReady}: Props) {
+export function ConfigureGame({game, userId, onImReady}: Props): React.ReactElement {
   const [newPlayerId, setNewPlayerId] = React.useState<string>("");
   const [selectedDeckId, setSelectedDeckId] = React.useState<string>("");
 
@@ -39,16 +41,15 @@ export function ConfigureGame({game, userId, onImReady}: Props) {
   }, [userId, game, onImReady]);
 
   return (
-    <Box
-        display="flex"
-        justifyContent="center"
-        alignItems={"center"}
-    >
-      <Box
-        sx={{maxWidth: 800}}>
+    <Grid container
+      columns={{ xs: 4, sm: 8, md: 12 }}
+      justifyContent="center">
+      <Grid xs={4} sm={4} md={4}>
+        <Typography variant="h4" gutterBottom>Game {game.name}</Typography>
+
         {userId === game.ownerUserId ?
           <Accordion expanded={true}>
-            <AccordionSummary>Add Player</AccordionSummary>
+            <AccordionSummary>Players</AccordionSummary>
             <AccordionDetails>
                 <Box component="form">
                     <Stack direction="column" spacing={2}>
@@ -77,9 +78,13 @@ export function ConfigureGame({game, userId, onImReady}: Props) {
         }
 
         <ChooseDeck game={game} uid={userId} onDeckSelected={setSelectedDeckId}/>
+        {/**
+         * TODO(miguel): this is a lil gross to have br here...  Change to use
+         * padding.
+         */}
         <br/>
         <Button variant="outlined" disabled={!selectedDeckId} onClick={imReady}>I am ready!</Button>
-      </Box>
-    </Box>
+      </Grid>
+    </Grid>
   );
 }

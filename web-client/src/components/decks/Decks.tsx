@@ -1,11 +1,12 @@
-import React from "react";
+import * as React from "react";
 import {Link} from 'react-router-dom';
 
-import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
+
+import {CenterLayout} from '../layouts/Center';
 
 import {useAuthState} from 'react-firebase-hooks/auth';
 import {useCollection} from 'react-firebase-hooks/firestore';
@@ -14,7 +15,7 @@ import {auth} from "../../firebase-interop/firebaseInit";
 import {NewDeck} from "./NewDeck"
 import {myDecksQuery} from "../../firebase-interop/models/deck";
 
-export function Decks() {
+function DecksContent(): React.ReactElement {
   const [user] = useAuthState(auth);
   const [decks, loading, error] = useCollection(myDecksQuery(user?.uid || ""));
 
@@ -31,18 +32,9 @@ export function Decks() {
   }
 
   return (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems={"center"}
-    >
-      <Box sx={{maxWidth: 800}}>
-        <Typography variant="h2" gutterBottom>Decks</Typography>
-
+    <>
+        <Typography variant="h4" gutterBottom>Decks</Typography>
         {user && <NewDeck />}
-
-        <Typography variant="h3">Here are your decks!</Typography>
-
         <List>
           {decks.docs.map(deckReference => {
             const deckId = deckReference.id;
@@ -57,7 +49,10 @@ export function Decks() {
             </ListItem>)
           })}
         </List>
-      </Box>
-    </Box>
+    </>
   );
+}
+
+export function Decks(): React.ReactElement {
+  return <CenterLayout><DecksContent/></CenterLayout>;
 }
