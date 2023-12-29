@@ -36,9 +36,9 @@ function GamesContent(): React.ReactElement {
     return (
         <>
             <Grid container justifyContent="space-between">
-                <Typography variant="h4" gutterBottom>Games</Typography><small>{user?.uid}</small>
+                <Typography variant="h4" gutterBottom>Games</Typography>
+                <Typography variant="body2" color="text.secondary">{user?.uid}</Typography>
             </Grid>
-
             {user && <NewGame />}
             <List>
                 {games.docs.map(game => (

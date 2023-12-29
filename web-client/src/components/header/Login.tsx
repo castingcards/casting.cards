@@ -9,7 +9,10 @@ import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import MenuIcon from '@mui/icons-material/Menu';
+import WidgetsIcon from '@mui/icons-material/Widgets';
 import Link from '@mui/material/Link';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 
 import { useAuthState, useSignOut } from 'react-firebase-hooks/auth';
 
@@ -67,12 +70,13 @@ export function Login() {
               open={!!appMenuAnchorEl}
               onClose={closeAppMenuButton}
               onClick={closeAppMenuButton}
-              sx={{ flexBasis: 400 }}
             >
-              <MenuItem onClick={closeAppMenuButton}>
+              <MenuItem onClick={closeAppMenuButton} sx={{ minWidth: 150 }}>
+                <ListItemIcon><WidgetsIcon fontSize="small"/></ListItemIcon>
                 <Link href="/decks" underline="none">Decks</Link>
               </MenuItem>
               <MenuItem onClick={closeAppMenuButton}>
+                <ListItemIcon><PlayCircleOutlineIcon fontSize="small"/></ListItemIcon>
                 <Link href="/games" underline="none">Games</Link>
               </MenuItem>
           </Menu>
