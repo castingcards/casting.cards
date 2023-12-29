@@ -32,6 +32,7 @@ export class PlayerState {
     deckId: string = "";
     cardIds: Array<string> = [];
     shuffledLibraryCardIds: Array<string> = [];
+    handCardIds: Array<string> = [];
     poisonCounters: number = 0;
 
     playedCards: Array<CardPosition> = [];
@@ -50,6 +51,7 @@ export class PlayerState {
         this.cardIds = obj.cardIds;
         this.shuffledLibraryCardIds = obj.shuffledLibraryCardIds;
         this.poisonCounters = obj.poisonCounters;
+        this.handCardIds = obj.handCardIds;
         this.playedCards = obj.playedCards.map((card: any) => {
             const cardPosition = new CardPosition(card.cardId, card.x, card.y);
             cardPosition.fromObject(card);

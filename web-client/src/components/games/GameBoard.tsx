@@ -1,11 +1,9 @@
 import React from "react";
 import Box from '@mui/material/Box';
-import Typeogrophy from '@mui/material/Typography';
-import {Paper} from "@mui/material";
-import {styled} from '@mui/material/styles';
 
 import { ChooseDeck } from "./ChooseDeck";
-
+import { Library } from "./Library";
+import { Hand } from "./Hand";
 
 import type { Game } from "../../firebase-interop/models/game";
 
@@ -15,13 +13,6 @@ type Props = {
     uid: string;
 }
 
-const Library = styled(Paper)(({ theme }) => ({
-  width: 120,
-  height: 120,
-  padding: theme.spacing(2),
-  ...theme.typography.body2,
-  textAlign: 'center',
-}));
 
 export function GameBoard({gameId, game, uid}: Props) {
     const player = game.getPlayer(uid);
@@ -36,9 +27,8 @@ export function GameBoard({gameId, game, uid}: Props) {
             <h2>Player: {player.playerId}</h2>
 
             <Box>
-                <Library variant="outlined">
-                    <Typeogrophy variant="body1">Library ({player.shuffledLibraryCardIds.length})</Typeogrophy>
-                </Library>
+                <Library player={player} />
+                <Hand player={player} />
             </Box>
         </Box>
     );
