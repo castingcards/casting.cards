@@ -11,13 +11,13 @@ import {auth} from "../../firebase-interop/firebaseInit";
 import {useAuthState} from 'react-firebase-hooks/auth';
 import {useCollection} from 'react-firebase-hooks/firestore';
 
-import {allGamesQuery} from '../../firebase-interop/models/game';
+import {myGamesQuery} from '../../firebase-interop/models/game';
 
 import {NewGame} from './NewGame';
 
 export function Games() {
     const [user] = useAuthState(auth);
-    const [games, loading, error] = useCollection(allGamesQuery());
+    const [games, loading, error] = useCollection(myGamesQuery(user?.uid || ""));
 
     if (error) {
         return <strong>Error: {JSON.stringify(error)}</strong>;

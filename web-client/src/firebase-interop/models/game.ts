@@ -1,4 +1,4 @@
-import {query, addDoc} from "firebase/firestore";
+import {query, where, addDoc} from "firebase/firestore";
 import {typedCollection, typedDoc, BaseModel} from "../baseModel";
 
 import {Deck} from "./deck"
@@ -79,12 +79,14 @@ export class Game extends BaseModel {
   ownerUserId: string;
   numPlayers: number = 0;
   players: Array<PlayerState> = [];
+  playersId: Array<string> = [];
 
   constructor(name: string, ownerUserId: string) {
     super();
     this.name = name || "<unknown>";
     this.ownerUserId = ownerUserId;
     this.players = [new PlayerState(ownerUserId)];
+    this.playersId = [ownerUserId];
   }
 
   collectionPath(): string {
@@ -121,6 +123,7 @@ export class Game extends BaseModel {
   fromObject(obj: any): Game {
     const game = new Game(obj.name, obj.ownerUserId)
         .withNumPlayers(obj.numPlayers);
+    game.playersId = obj.playersId;
 
     game.players = obj.players.map((player: any) => {
         return PlayerState.fromObject(player);
@@ -134,6 +137,7 @@ export const gamesCollection = typedCollection(COLLECTION_PATH, Game);
 export const gameDoc = typedDoc(COLLECTION_PATH, Game);
 
 export const allGamesQuery = () => query(gamesCollection);
+export const myGamesQuery = (userId: string) => query(gamesCollection, where("playersId", "array-contains", userId));
 
 export async function addGame(game: Game): Promise<void> {
   if (!game.ownerUserId) {

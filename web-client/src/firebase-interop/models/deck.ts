@@ -114,7 +114,7 @@ export class Deck extends BaseModel {
 export const decksCollection = typedCollection(COLLECTION_PATH, Deck);
 export const deckDoc = typedDoc(COLLECTION_PATH, Deck);
 
-export const myDecksQuery = (uid: string) => query(decksCollection, where("userId", "==", uid));
+export const myDecksQuery = (userId: string) => query(decksCollection, where("userId", "==", userId));
 export async function addDeck(userId: string, deck: Deck): Promise<void> {
   if (!userId) {
     throw new Error("Must provide a userId");
