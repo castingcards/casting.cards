@@ -52,6 +52,13 @@ export class PlayerState {
         return this
     }
 
+    drawCard() {
+        const drawnCard = this.shuffledLibraryCardIds.shift();
+        if (drawnCard) {
+            this.handCardIds.push(drawnCard!);
+        }
+    }
+
     static fromObject(obj: any): PlayerState {
         const playerState = new PlayerState(obj.playerId);
         playerState.life = obj.life;

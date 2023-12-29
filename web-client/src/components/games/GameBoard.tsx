@@ -12,7 +12,6 @@ type Props = {
     uid: string;
 }
 
-
 export function GameBoard({game, uid}: Props) {
     const player = game.getPlayer(uid);
 
@@ -26,7 +25,7 @@ export function GameBoard({game, uid}: Props) {
             <h2>Player: {player.playerId}</h2>
 
             <Box>
-                <Library player={player} />
+                <Library game={game} player={player} />
                 <Hand player={player} />
             </Box>
         </Box>
