@@ -10,7 +10,7 @@ import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
 import Button from '@mui/material/Button';
 
-import {updateDeck, deckDoc} from "../../firebase-interop/models/deck";
+import {deckDoc} from "../../firebase-interop/models/deck";
 import {useDocument} from 'react-firebase-hooks/firestore';
 
 import {Deck} from "../../firebase-interop/models/deck";
@@ -21,15 +21,11 @@ export function ViewDeck() {
     const [deckSnapshot, loading] = useDocument(deckDoc(deckId || ""));
 
     const makeCommander = React.useCallback(
-        (deck: Deck, card: CardReference) => {
+        async (deck: Deck, card: CardReference) => {
             card.isCommander = true;
-            if (deckId) {
-                updateDeck(deckId, deck)
-            } else {
-                // handle error... Must have a deckId.
-            }
+            await deck.save();
         },
-        [deckId],
+        [],
     );
 
     if (loading) {

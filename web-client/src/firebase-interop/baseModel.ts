@@ -1,4 +1,4 @@
-import { collection, doc } from "firebase/firestore";
+import { collection, doc, getDoc, setDoc } from "firebase/firestore";
 import type {
   QueryDocumentSnapshot,
   SnapshotOptions,
@@ -6,16 +6,68 @@ import type {
 } from "firebase/firestore";
 
 import {db} from "./firebaseInit";
+import { WidthWide } from "@mui/icons-material";
+
+class Foo {
+    static create<T extends typeof Foo>(this: T): InstanceType<T> {
+        return new this() as InstanceType<T>
+    }
+
+}
+
+class Bar extends Foo { }
+
+const b = Bar.create()
+
 
 // All firestore models need to meet this interface so that we can consistently
 // have methods to setialize data before storing in firestore, which requires
 // data to be plain objects.
 export class BaseModel {
-  toObject(): any {
-    return JSON.parse(JSON.stringify(this));
+  id?: string = "";
+
+  withId(id: string) {
+    this.id = id;
+    return this;
   }
+
+  collectionPath(): string {
+    throw new Error("BaseModel:collectionPath - Must implement");
+  }
+
+  toObject(): any {
+    const copy = {...this};
+    delete copy.id;
+    return JSON.parse(JSON.stringify(copy));
+  }
+
   fromObject(obj: any): any {
     throw new Error("BaseModel:fromObject - Must implement");
+  }
+
+  static async load<T extends typeof BaseModel>(this: T, id: string): Promise<InstanceType<T> | undefined> {
+    if (!id) {
+      throw new Error("Must have an id to load");
+    }
+
+    const result = new this() as InstanceType<T>;
+    const documentReference = await getDoc(doc(db, result.collectionPath(), id));
+
+    if (documentReference.exists()) {
+      const data = documentReference.data();
+      if (data) {
+        return result.fromObject(data).withId(documentReference.id);
+      }
+    } else {
+      throw new Error("Document does not exist");
+    }
+  }
+
+  async save(): Promise<void> {
+    if (!this.id) {
+      throw new Error("Must have an id to save");
+    }
+    return setDoc(doc(db, this.collectionPath(), this.id), this.toObject());
   }
 }
 
@@ -25,7 +77,7 @@ export function converter<T extends BaseModel>(type: (new (...args : any[]) => T
       return m.toObject() as DocumentData;
     },
     fromFirestore(snap: QueryDocumentSnapshot, options: SnapshotOptions): T {
-      return type.prototype.fromObject(snap.data(options));
+      return type.prototype.fromObject(snap.data(options)).withId(snap.id);
     },
   };
 }

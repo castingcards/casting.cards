@@ -8,17 +8,16 @@ import { Hand } from "./Hand";
 import type { Game } from "../../firebase-interop/models/game";
 
 type Props = {
-    gameId: string;
     game: Game;
     uid: string;
 }
 
 
-export function GameBoard({gameId, game, uid}: Props) {
+export function GameBoard({game, uid}: Props) {
     const player = game.getPlayer(uid);
 
     if (!player.deckId) {
-        return <ChooseDeck game={game} gameId={gameId} uid={uid} />;
+        return <ChooseDeck game={game} uid={uid} />;
     }
 
     return (

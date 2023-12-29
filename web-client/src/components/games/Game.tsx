@@ -35,5 +35,5 @@ export function ViewGame() {
         return <div>Waiting for players...</div>;
     }
 
-    return <GameBoard gameId={gameId} game={game} uid={user.uid} />;
+    return <GameBoard game={game} uid={user.uid} />;
 }

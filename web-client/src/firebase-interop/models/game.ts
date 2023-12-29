@@ -1,7 +1,9 @@
-import { query, addDoc, setDoc } from "firebase/firestore";
+import { query, addDoc } from "firebase/firestore";
 import { typedCollection, typedDoc, BaseModel } from "../baseModel";
 
-import type { Deck } from "./deck";
+import {Deck} from "./deck"
+
+const COLLECTION_PATH = "games";
 export class CardPosition {
     constructor(cardId: string, x: number, y: number, z: number = 0) {
         this.cardId = cardId;
@@ -16,6 +18,8 @@ export class CardPosition {
     flipped: boolean = false;
 
     fromObject(obj: any): CardPosition {
+        this.x = obj.x;
+        this.y = obj.y;
         this.z = obj.z;
         this.flipped = obj.flipped;
         return this;
@@ -37,15 +41,21 @@ export class PlayerState {
 
     playedCards: Array<CardPosition> = [];
 
-    withDeck(deckId: string, deck: Deck) {
-        this.deckId = deckId;
+    async chooseDeck(deckId: string) {
+        const deck = await Deck.load(deckId);
+        if (!deck) {
+            throw new Error(`Deck ${deckId} not found`);
+        }
+
         const allCardIds = deck.allCards().map(card => card.id);
+        this.deckId = deckId;
         this.cardIds = allCardIds;
         this.shuffledLibraryCardIds = deck.shuffle(allCardIds);
         return this
     }
 
     fromObject(obj: any): PlayerState {
+        this.playerId = obj.playerId;
         this.life = obj.life;
         this.deckId = obj.deckId;
         this.cardIds = obj.cardIds;
@@ -72,6 +82,10 @@ export class Game extends BaseModel {
     this.name = name || "<unknown>";
     this.ownerUserId = ownerUserId;
     this.players = [new PlayerState(ownerUserId)];
+  }
+
+  collectionPath(): string {
+    return COLLECTION_PATH;;
   }
 
   withName(name: string) {
@@ -115,8 +129,8 @@ export class Game extends BaseModel {
   }
 };
 
-export const gamesCollection = typedCollection("games", Game);
-export const gameDoc = typedDoc("games", Game);
+export const gamesCollection = typedCollection(COLLECTION_PATH, Game);
+export const gameDoc = typedDoc(COLLECTION_PATH, Game);
 
 export const allGamesQuery = () => query(gamesCollection);
 
@@ -129,13 +143,5 @@ export async function addGame(game: Game): Promise<void> {
     await addDoc(gamesCollection, game);
   } catch (e) {
     console.error("Error adding document: ", e);
-  }
-}
-
-export async function updateGame(gameId: string, game: Game): Promise<void> {
-  try {
-    await setDoc(gameDoc(gameId), game);
-  } catch (e) {
-    console.error("Error updating document: ", e);
   }
 }
