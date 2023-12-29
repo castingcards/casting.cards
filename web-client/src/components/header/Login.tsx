@@ -6,8 +6,10 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import MenuIcon from '@mui/icons-material/Menu';
-
+import Link from '@mui/material/Link';
 
 import { useAuthState, useSignOut } from 'react-firebase-hooks/auth';
 
@@ -18,6 +20,14 @@ import "./Login.css";
 export function Login() {
   const [user, loading, error] = useAuthState(auth);
   const [signOut] = useSignOut(auth);
+  const [appMenuAnchorEl, setAppMenuAnchorEl] = React.useState<null | HTMLElement>(null);
+
+  const openAppMenuButton = (evt: React.MouseEvent<HTMLElement>) => {
+    setAppMenuAnchorEl(evt.currentTarget);
+  };
+  const closeAppMenuButton = () => {
+    setAppMenuAnchorEl(null);
+  };
 
   const handleLogin = React.useCallback(() => {
     signIn();
@@ -42,16 +52,30 @@ export function Login() {
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
-
           <IconButton
               size="large"
               edge="start"
               color="inherit"
               aria-label="menu"
               sx={{ mr: 2 }}
+              onClick={openAppMenuButton}
             >
-              <MenuIcon />
+            <MenuIcon />
           </IconButton>
+          <Menu
+              anchorEl={appMenuAnchorEl}
+              open={!!appMenuAnchorEl}
+              onClose={closeAppMenuButton}
+              onClick={closeAppMenuButton}
+              sx={{ flexBasis: 400 }}
+            >
+              <MenuItem onClick={closeAppMenuButton}>
+                <Link href="/decks" underline="none">Decks</Link>
+              </MenuItem>
+              <MenuItem onClick={closeAppMenuButton}>
+                <Link href="/games" underline="none">Games</Link>
+              </MenuItem>
+          </Menu>
 
           <Typography
             variant="h6"
