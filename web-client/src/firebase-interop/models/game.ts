@@ -17,12 +17,10 @@ export class CardPosition {
     z: number = 0;
     flipped: boolean = false;
 
-    fromObject(obj: any): CardPosition {
-        this.x = obj.x;
-        this.y = obj.y;
-        this.z = obj.z;
-        this.flipped = obj.flipped;
-        return this;
+    static fromObject(obj: any): CardPosition {
+        const cardPosition = new CardPosition(obj.cardId, obj.x, obj.y, obj.z);
+        cardPosition.flipped = obj.flipped;
+        return cardPosition;
     }
 }
 
@@ -54,20 +52,18 @@ export class PlayerState {
         return this
     }
 
-    fromObject(obj: any): PlayerState {
-        this.playerId = obj.playerId;
-        this.life = obj.life;
-        this.deckId = obj.deckId;
-        this.cardIds = obj.cardIds;
-        this.shuffledLibraryCardIds = obj.shuffledLibraryCardIds;
-        this.poisonCounters = obj.poisonCounters;
-        this.handCardIds = obj.handCardIds;
-        this.playedCards = obj.playedCards.map((card: any) => {
-            const cardPosition = new CardPosition(card.cardId, card.x, card.y);
-            cardPosition.fromObject(card);
-            return cardPosition;
+    static fromObject(obj: any): PlayerState {
+        const playerState = new PlayerState(obj.playerId);
+        playerState.life = obj.life;
+        playerState.deckId = obj.deckId;
+        playerState.cardIds = obj.cardIds;
+        playerState.shuffledLibraryCardIds = obj.shuffledLibraryCardIds;
+        playerState.poisonCounters = obj.poisonCounters;
+        playerState.handCardIds = obj.handCardIds;
+        playerState.playedCards = obj.playedCards.map((card: any) => {
+            return CardPosition.fromObject(card);
         });
-        return this;
+        return playerState;
     }
 }
 
@@ -120,9 +116,7 @@ export class Game extends BaseModel {
         .withNumPlayers(obj.numPlayers);
 
     game.players = obj.players.map((player: any) => {
-        const playerState = new PlayerState(player.playerId);
-        playerState.fromObject(player);
-        return playerState;
+        return PlayerState.fromObject(player);
     });
 
     return game;
