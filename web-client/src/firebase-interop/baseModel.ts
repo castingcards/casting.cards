@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, setDoc } from "firebase/firestore";
+import {collection, doc, getDoc, setDoc} from "firebase/firestore";
 import type {
   QueryDocumentSnapshot,
   SnapshotOptions,
@@ -6,7 +6,6 @@ import type {
 } from "firebase/firestore";
 
 import {db} from "./firebaseInit";
-import { WidthWide } from "@mui/icons-material";
 
 class Foo {
     static create<T extends typeof Foo>(this: T): InstanceType<T> {

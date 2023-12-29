@@ -4,7 +4,7 @@ import { Paper } from "@mui/material";
 import Typeogrophy from '@mui/material/Typography';
 import {styled} from '@mui/material/styles';
 
-import type { PlayerState } from "../../firebase-interop/models/game";
+import type {PlayerState} from "../../firebase-interop/models/game";
 
 const HandCard = styled(Paper)(({ theme }) => ({
   width: "100%",

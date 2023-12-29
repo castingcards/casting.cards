@@ -7,8 +7,8 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { useCollection } from 'react-firebase-hooks/firestore';
+import {useAuthState} from 'react-firebase-hooks/auth';
+import {useCollection} from 'react-firebase-hooks/firestore';
 
 import {auth} from "../../firebase-interop/firebaseInit";
 import {NewDeck} from "./NewDeck"

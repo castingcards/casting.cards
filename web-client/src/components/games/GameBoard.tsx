@@ -1,9 +1,9 @@
 import React from "react";
 import Box from '@mui/material/Box';
 
-import { ChooseDeck } from "./ChooseDeck";
-import { Library } from "./Library";
-import { Hand } from "./Hand";
+import {ChooseDeck} from "./ChooseDeck";
+import {Library} from "./Library";
+import {Hand} from "./Hand";
 
 import type { Game } from "../../firebase-interop/models/game";
 

@@ -8,8 +8,8 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from "../../firebase-interop/firebaseInit";
+import {useAuthState} from 'react-firebase-hooks/auth';
+import {auth} from "../../firebase-interop/firebaseInit";
 
 import {addDeck} from "../../firebase-interop/models/deck";
 import {fromText} from "../../importer/from-text";

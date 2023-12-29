@@ -1,5 +1,5 @@
-import { query, addDoc } from "firebase/firestore";
-import { typedCollection, typedDoc, BaseModel } from "../baseModel";
+import {query, addDoc} from "firebase/firestore";
+import {typedCollection, typedDoc, BaseModel} from "../baseModel";
 
 import {Deck} from "./deck"
 

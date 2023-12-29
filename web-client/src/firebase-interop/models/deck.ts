@@ -1,6 +1,6 @@
-import { query, where, addDoc } from "firebase/firestore";
+import {query, where, addDoc} from "firebase/firestore";
 import ShuffleSeed from "shuffle-seed";
-import { BaseModel, typedCollection, typedDoc } from "../baseModel";
+import {BaseModel, typedCollection, typedDoc} from "../baseModel";
 
 import type { Card } from "scryfall-sdk";
 
