@@ -14,23 +14,22 @@ import type {Game} from "../../firebase-interop/models/game";
 type Props = {
     game: Game;
     uid: string;
+    onDeckSelected: (deckId: string) => void;
 }
 
-export function ChooseDeck({game, uid}: Props) {
+export function ChooseDeck({game, uid, onDeckSelected}: Props) {
     const [decksResource, loading, error] = useCollection(myDecksQuery(uid));
     const [chosenDeck, setChosenDeck] = React.useState<string>("");
 
     const addDeckToGame = React.useCallback(
         async (deckId: string) => {
             setChosenDeck(deckId);
-
-            const player = game.getPlayer(uid);
-            await player.chooseDeck(deckId);
-            return game.save();
+            await game.setDeckForPlayer(uid, deckId);
+            await game.save();
+            onDeckSelected(deckId);
         },
-        [game, uid],
+        [game, uid, onDeckSelected],
     );
-
 
     if (error) {
         return <strong>Error: {JSON.stringify(error)}</strong>;

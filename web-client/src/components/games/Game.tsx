@@ -8,6 +8,7 @@ import {auth} from '../../firebase-interop/firebaseInit';
 import {useAuthState} from 'react-firebase-hooks/auth';
 
 import {GameBoard} from './GameBoard';
+import {ConfigureGame} from './ConfigureGame';
 
 export function ViewGame() {
     const {gameId} = useParams();
@@ -31,8 +32,9 @@ export function ViewGame() {
         return <div>Game not found</div>;
     }
 
-    if (game.players.length < game.numPlayers) {
-        return <div>Waiting for players...</div>;
+    const playerState = game.getPlayerState(user.uid);
+    if (!playerState?.isReady) {
+        return <ConfigureGame game={game} userId={user.uid} onImReady={() => {}}/>;
     }
 
     return <GameBoard game={game} uid={user.uid} />;

@@ -37,22 +37,22 @@ export function Games() {
             justifyContent="center"
             alignItems={"center"}
         >
-        <Box sx={{maxWidth: 800}}>
-            <Typography variant="h2" gutterBottom>Games</Typography>
+            <Box sx={{maxWidth: 800}}>
+                <Typography variant="h2" gutterBottom>Games</Typography>
+                <div>{user?.uid}</div><br/>
 
-            {user && <NewGame />}
-
-            <Typography variant="h3">Here are your games!</Typography>
-            <List>
-                {games.docs.map(game => (
-                    <ListItem key={game.id} sx={{backgroundColor: "#EEEEEE"}}>
-                    <Link to={`/games/${game.id}`}>
-                        <ListItemText primary={game.data().name} />
-                    </Link>
-                    </ListItem>)
-                    )}
-            </List>
+                {user && <NewGame />}
+                <Typography variant="h3">Here are your games!</Typography>
+                <List>
+                    {games.docs.map(game => (
+                        <ListItem key={game.id} sx={{backgroundColor: "#EEEEEE"}}>
+                        <Link to={`/games/${game.id}`}>
+                            <ListItemText primary={game.data().name} />
+                        </Link>
+                        </ListItem>)
+                        )}
+                </List>
+            </Box>
         </Box>
-    </Box>
-    )
+    );
 }

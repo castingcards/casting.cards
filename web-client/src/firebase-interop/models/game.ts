@@ -36,7 +36,7 @@ export class PlayerState {
     shuffledLibraryCardIds: Array<string> = [];
     handCardIds: Array<string> = [];
     poisonCounters: number = 0;
-
+    isReady: boolean = false;
     playedCards: Array<CardPosition> = [];
 
     async chooseDeck(deckId: string) {
@@ -49,6 +49,7 @@ export class PlayerState {
         this.deckId = deckId;
         this.cardIds = allCardIds;
         this.shuffledLibraryCardIds = deck.shuffle(allCardIds);
+        this.isReady = false;
         return this
     }
 
@@ -59,6 +60,11 @@ export class PlayerState {
         }
     }
 
+    setReady(value: boolean): PlayerState {
+      this.isReady = value;
+      return this;
+    }
+
     static fromObject(obj: any): PlayerState {
         const playerState = new PlayerState(obj.playerId);
         playerState.life = obj.life;
@@ -67,6 +73,7 @@ export class PlayerState {
         playerState.shuffledLibraryCardIds = obj.shuffledLibraryCardIds;
         playerState.poisonCounters = obj.poisonCounters;
         playerState.handCardIds = obj.handCardIds;
+        playerState.isReady = obj.isReady;
         playerState.playedCards = obj.playedCards.map((card: any) => {
             return CardPosition.fromObject(card);
         });
@@ -77,9 +84,10 @@ export class PlayerState {
 export class Game extends BaseModel {
   name: string;
   ownerUserId: string;
-  numPlayers: number = 0;
   players: Array<PlayerState> = [];
   playersId: Array<string> = [];
+  maxPlayers: number = 4;
+  state: "Unstarted" | "Started" | "Finihed" = "Unstarted";
 
   constructor(name: string, ownerUserId: string) {
     super();
@@ -87,6 +95,8 @@ export class Game extends BaseModel {
     this.ownerUserId = ownerUserId;
     this.players = [new PlayerState(ownerUserId)];
     this.playersId = [ownerUserId];
+    this.state = "Unstarted";
+    this.maxPlayers = 4;
   }
 
   collectionPath(): string {
@@ -103,26 +113,75 @@ export class Game extends BaseModel {
     return this;
   }
 
-  withNumPlayers(numPlayers: number) {
-    this.numPlayers = numPlayers;
+  getPlayerState(playerId: string): PlayerState | undefined {
+    return this.players.find((player) => {
+        return player.playerId === playerId;
+    });
+  }
+
+  addPlayerId(userId: string): Game {
+    if (this.state === "Finihed") {
+      throw new Error("Game is done.")
+    }
+    if (this.state === "Started") {
+      throw new Error("Game is in progress.");
+    }
+
+    if (this.playersId.indexOf(userId) === -1) {
+      if (this.playersId.length >= this.maxPlayers) {
+        throw new Error(`Can't add more player. Max is ${this.maxPlayers}.`);
+      }
+  
+      this.playersId = [...this.playersId, userId];
+    }
     return this;
   }
 
-  getPlayer(playerId: string): PlayerState {
-    const player = this.players.find((player) => {
-        return player.playerId === playerId;
-    });
-
-    if (!player) {
-        throw new Error(`Player ${playerId} not found in game ${this.name}`);
+  async setDeckForPlayer(userId: string, deckId: string): Promise<Game> {
+    if (this.state === "Finihed") {
+      throw new Error("Game is done.")
+    }
+    if (this.state === "Started") {
+      throw new Error("Game is in progress.");
     }
 
-    return player;
+    let state = this.getPlayerState(userId);
+    if (!state) {
+      state = new PlayerState(userId);
+      this.players = [...this.players, state];
+    }
+
+    if (deckId) {
+      await state.chooseDeck(deckId);
+    }
+
+    return this.addPlayerId(userId);
+  }
+
+  playerIsReady(userId: string): Game {
+    if (this.state === "Finihed") {
+      throw new Error("Game is done.")
+    }
+    if (this.state === "Started") {
+      throw new Error("Game is in progress.");
+    }
+
+    let playerState = this.getPlayerState(userId);
+    if (!playerState) {
+      throw new Error("Must select a deck first");
+    }
+
+    playerState.setReady(true);
+    this.state = this.players.every(p => p.isReady) ? "Started" : "Unstarted";
+    return this;
+  }
+
+  isGameFull(): boolean {
+    return this.playersId.length < this.maxPlayers;
   }
 
   fromObject(obj: any): Game {
-    const game = new Game(obj.name, obj.ownerUserId)
-        .withNumPlayers(obj.numPlayers);
+    const game = new Game(obj.name, obj.ownerUserId);
     game.playersId = obj.playersId;
 
     game.players = obj.players.map((player: any) => {

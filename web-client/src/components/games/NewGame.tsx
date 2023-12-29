@@ -17,7 +17,6 @@ export function NewGame() {
     const [user] = useAuthState(auth);
     const [formExpanded, setFormExpanded] = React.useState(false);
     const [gameName, setGameName] = React.useState("");
-    const [numPlayers, setNumPlayers] = React.useState(1);
 
     const createGame = React.useCallback(() => {
         if (user?.uid && gameName) {
@@ -37,11 +36,6 @@ export function NewGame() {
                         <TextField
                             id="game-name" label="Game Name"
                             value={gameName} onChange={e => setGameName(e.target.value)}
-                        />
-                        <TextField
-                            inputProps={{ type: 'number'}}
-                            label="Number of Players"
-                            value={numPlayers} onChange={e => setNumPlayers(parseInt(e.target.value))}
                         />
                         <Button variant="outlined" onClick={createGame}>Create</Button>
                     </Stack>

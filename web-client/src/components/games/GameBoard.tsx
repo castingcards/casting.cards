@@ -1,7 +1,6 @@
 import React from "react";
 import Box from '@mui/material/Box';
 
-import {ChooseDeck} from "./ChooseDeck";
 import {Library} from "./Library";
 import {Hand} from "./Hand";
 
@@ -13,20 +12,18 @@ type Props = {
 }
 
 export function GameBoard({game, uid}: Props) {
-    const player = game.getPlayer(uid);
+    const playerState = game.getPlayerState(uid);
 
-    if (!player.deckId) {
-        return <ChooseDeck game={game} uid={uid} />;
+    if (!playerState) {
+        return <div>Bad bad.</div>;
     }
 
     return (
         <Box>
             <h1>{game.name}</h1>
-            <h2>Player: {player.playerId}</h2>
-
             <Box>
-                <Library game={game} player={player} />
-                <Hand player={player} />
+                <Library game={game} player={playerState} />
+                <Hand player={playerState} />
             </Box>
         </Box>
     );
