@@ -11,7 +11,7 @@ service cloud.firestore {
     match /games/{gameId} {
       allow read: if request.auth.uid != null;
       allow create: if request.auth.uid == request.resource.data.ownerUserId;
-      allow write: if request.auth.uid == request.resource.data.ownerUserId; // TBD: or opponent User ID
+      allow write: if request.auth.uid in request.resource.data.playersId;
     }
   }
 }
