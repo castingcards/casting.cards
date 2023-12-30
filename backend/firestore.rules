@@ -12,12 +12,16 @@ service cloud.firestore {
       allow read: if request.auth.uid != null;
       allow create: if request.auth.uid == request.resource.data.ownerUserId;
       allow write: if request.auth.uid in request.resource.data.playersId;
-    }
 
-    match /games/{gameId}/playerStates/{playerUserId} {
-      allow read: if request.auth.uid != null;
-      allow create: if request.auth.uid != null; // Figure out how to require the game owner to do this
-      allow write: if request.auth.uid == playerUserId;
+      match /playerStates/{playerUserId} {
+        function getGameOwner() {
+          return get(/databases/$(database)/documents/games/$(gameId)).data.ownerUserId
+        }
+
+        allow read: if request.auth.uid != null;
+        allow create: if request.auth.uid == getGameOwner();
+        allow write: if (request.auth.uid == getGameOwner()) || (request.auth.uid == playerUserId);
+      }
     }
   }
 }
