@@ -3,6 +3,7 @@ import {typedCollection, typedDoc, BaseModel} from "../baseModel";
 
 import {Deck} from "./deck"
 
+type CARD_BUCKETS = "graveyard" | "exile" | "battlefield" | "hand" | "library";
 const COLLECTION_PATH = "games";
 export class CardPosition {
     constructor(cardId: string, x: number, y: number, z: number = 0) {
@@ -33,11 +34,15 @@ export class PlayerState {
     life: number = 40;
     deckId: string = "";
     cardIds: Array<string> = [];
-    shuffledLibraryCardIds: Array<string> = [];
-    handCardIds: Array<string> = [];
     poisonCounters: number = 0;
     isReady: boolean = false;
     playedCards: Array<CardPosition> = [];
+
+    libraryCardIds: Array<string> = [];
+    handCardIds: Array<string> = [];
+    graveyardCardIds: Array<string> = [];
+    exileCardIds: Array<string> = [];
+    battlefieldCardIds: Array<string> = [];
 
     async chooseDeck(deckId: string) {
         const deck = await Deck.load(deckId);
@@ -48,16 +53,29 @@ export class PlayerState {
         const allCardIds = deck.allCards().map(card => card.id);
         this.deckId = deckId;
         this.cardIds = allCardIds;
-        this.shuffledLibraryCardIds = deck.shuffle(allCardIds);
         this.isReady = false;
+
+        this.libraryCardIds = deck.shuffle(allCardIds);
         return this
     }
 
     drawCard() {
-        const drawnCard = this.shuffledLibraryCardIds.shift();
+        const drawnCard = this.libraryCardIds.shift();
         if (drawnCard) {
             this.handCardIds.push(drawnCard!);
         }
+    }
+
+    moveCard(cardId: string, from: CARD_BUCKETS, to: CARD_BUCKETS) {
+      let fromCardIndex: number = this[`${from}CardIds`].indexOf(cardId);
+      if (!fromCardIndex) {
+        console.warn(`Card ${cardId} not found in ${from}`);
+        return this;
+      }
+
+      this[`${from}CardIds`] = [...this[`${from}CardIds`]].splice(fromCardIndex, 1);
+      this[`${to}CardIds`] = [...this[`${to}CardIds`], cardId];
+      return this;
     }
 
     setReady(value: boolean): PlayerState {
@@ -70,10 +88,15 @@ export class PlayerState {
         playerState.life = obj.life;
         playerState.deckId = obj.deckId;
         playerState.cardIds = obj.cardIds;
-        playerState.shuffledLibraryCardIds = obj.shuffledLibraryCardIds;
         playerState.poisonCounters = obj.poisonCounters;
-        playerState.handCardIds = obj.handCardIds;
         playerState.isReady = obj.isReady;
+
+        playerState.handCardIds = obj.handCardIds;
+        playerState.libraryCardIds = obj.libraryCardIds;
+        playerState.graveyardCardIds = obj.graveyardCardIds;
+        playerState.exileCardIds = obj.exileCardIds;
+        playerState.battlefieldCardIds = obj.battlefieldCardIds;
+
         playerState.playedCards = obj.playedCards.map((card: any) => {
             return CardPosition.fromObject(card);
         });
@@ -117,6 +140,11 @@ export class Game extends BaseModel {
     return this.players.find((player) => {
         return player.playerId === playerId;
     });
+  }
+
+  movePlayerCardTo(userId: string, cardId: string, from: CARD_BUCKETS, to: CARD_BUCKETS) {
+    this.getPlayerState(userId)?.moveCard(cardId, from, to);
+    return this;
   }
 
   addPlayerId(userId: string): Game {

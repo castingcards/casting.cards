@@ -34,7 +34,7 @@ export function Library({game, player}: Props) {
 
     return (
         <LibraryCard variant="outlined">
-            <Typeogrophy variant="body1">Library ({player.shuffledLibraryCardIds.length})</Typeogrophy>
+            <Typeogrophy variant="body1">Library ({player.libraryCardIds.length})</Typeogrophy>
             <Button onClick={drawCard}>Draw Card</Button>
         </LibraryCard>
     );
