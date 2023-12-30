@@ -6,7 +6,7 @@ import {styled} from '@mui/material/styles';
 
 import {deckDoc} from "../../firebase-interop/models/deck";
 
-import type {PlayerState} from "../../firebase-interop/models/game";
+import type {PlayerState} from "../../firebase-interop/models/playerState";
 
 type Props = {
     player: PlayerState;

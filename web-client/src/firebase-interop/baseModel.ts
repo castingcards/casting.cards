@@ -70,6 +70,11 @@ export class BaseModel {
   }
 }
 
+type Converter<T> = {
+  toFirestore(m: T): DocumentData;
+  fromFirestore(snap: QueryDocumentSnapshot, options: SnapshotOptions): T;
+};
+
 export function converter<T extends BaseModel>(type: (new (...args : any[]) => T)) {
   return {
     toFirestore(m: T): DocumentData {
@@ -85,7 +90,12 @@ export function typedCollection<T extends BaseModel>(collectionPath: string, typ
   return collection(db, collectionPath).withConverter(converter<T>(type));
 }
 
+const converterMap = new Map<string, any>();
+
 export function typedDoc<T extends BaseModel>(collectionPath: string, type: (new (...args : any[]) => T)) {
-  const closedConverter = converter<T>(type);
-  return (docPath: string) => doc(db, collectionPath, docPath).withConverter(closedConverter);
+  if (!converterMap.has(collectionPath)) {
+    converterMap.set(collectionPath, converter<T>(type));
+  }
+  const cachedConverter = converterMap.get(collectionPath) as Converter<T>;
+  return (docPath: string) => doc(db, collectionPath, docPath).withConverter(cachedConverter);
 }

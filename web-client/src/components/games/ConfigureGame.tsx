@@ -15,6 +15,7 @@ import Typography from '@mui/material/Typography';
 
 import { ChooseDeck } from "./ChooseDeck";
 
+import { addPlayerState, PlayerState } from "../../firebase-interop/models/playerState";
 import type { Game } from "../../firebase-interop/models/game";
 
 
@@ -31,6 +32,9 @@ export function ConfigureGame({game, userId, onImReady}: Props): React.ReactElem
   const addPlayer = React.useCallback(async () => {
     game.addPlayerId(newPlayerId);
     await game.save();
+
+    addPlayerState(game.id!, newPlayerId, new PlayerState(game.id!, newPlayerId));
+
     setNewPlayerId("");
   }, [newPlayerId, game]);
 

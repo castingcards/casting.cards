@@ -23,9 +23,10 @@ export function ChooseDeck({game, uid, onDeckSelected}: Props) {
 
     const addDeckToGame = React.useCallback(
         async (deckId: string) => {
-            setChosenDeck(deckId);
+            console.log("Adding deck to game", deckId);
             await game.setDeckForPlayer(uid, deckId);
             await game.save();
+            setChosenDeck(deckId);
             onDeckSelected(deckId);
         },
         [game, uid, onDeckSelected],

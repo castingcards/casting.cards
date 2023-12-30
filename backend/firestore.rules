@@ -13,5 +13,11 @@ service cloud.firestore {
       allow create: if request.auth.uid == request.resource.data.ownerUserId;
       allow write: if request.auth.uid in request.resource.data.playersId;
     }
+
+    match /games/{gameId}/playerStates/{playerUserId} {
+      allow read: if request.auth.uid != null;
+      allow create: if request.auth.uid != null; // Figure out how to require the game owner to do this
+      allow write: if request.auth.uid == playerUserId;
+    }
   }
 }

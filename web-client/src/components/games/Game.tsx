@@ -10,6 +10,9 @@ import {useAuthState} from 'react-firebase-hooks/auth';
 import {GameBoard} from './GameBoard';
 import {ConfigureGame} from './ConfigureGame';
 
+import {playerStateDoc} from '../../firebase-interop/models/playerState';
+import type {Game} from '../../firebase-interop/models/game';
+
 export function ViewGame() {
     const {gameId} = useParams();
     const [user] = useAuthState(auth);
@@ -28,14 +31,28 @@ export function ViewGame() {
     }
 
     const game = gameResource?.data();
-    if (!game) {
+    if (!game || !game.id) {
         return <div>Game not found</div>;
     }
 
-    const playerState = game.getPlayerState(user.uid);
-    if (!playerState?.isReady) {
-        return <ConfigureGame game={game} userId={user.uid} onImReady={() => {}}/>;
+    return <GameContent game={game} playerUserId={user.uid} />;
+}
+
+function GameContent({game, playerUserId}: {game: Game, playerUserId: string}) {
+    const [playerStateResource, loading] = useDocument(playerStateDoc(game.id!)(playerUserId));
+
+    if (loading) {
+        return <div>Loading...</div>;
     }
 
-    return <GameBoard game={game} uid={user.uid} />;
+    const playerState = playerStateResource?.data();
+    if (!playerState) {
+        return <div>PlayerState not found</div>;
+    }
+
+    if (!playerState?.isReady) {
+        return <ConfigureGame game={game} userId={playerUserId} onImReady={() => {}}/>;
+    }
+
+    return <GameBoard game={game} uid={playerUserId} />;
 }

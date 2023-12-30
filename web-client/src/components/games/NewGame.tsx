@@ -11,6 +11,7 @@ import {auth} from "../../firebase-interop/firebaseInit";
 import {useAuthState} from 'react-firebase-hooks/auth';
 
 import {Game, addGame} from "../../firebase-interop/models/game";
+import {addPlayerState, PlayerState} from "../../firebase-interop/models/playerState";
 
 
 export function NewGame() {
@@ -18,12 +19,12 @@ export function NewGame() {
     const [formExpanded, setFormExpanded] = React.useState(false);
     const [gameName, setGameName] = React.useState("");
 
-    const createGame = React.useCallback(() => {
+    const createGame = React.useCallback(async () => {
         if (user?.uid && gameName) {
-            addGame(new Game(gameName, user.uid)).then(() => {
-                setGameName("");
-                setFormExpanded(false);
-            });
+            const game = await addGame(new Game(gameName, user.uid));
+            await addPlayerState(game.id!, user.uid, new PlayerState(game.id!, user.uid));
+            setGameName("");
+            setFormExpanded(false);
         }
     }, [gameName, user?.uid]);
 
