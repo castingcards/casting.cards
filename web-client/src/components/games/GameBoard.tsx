@@ -1,4 +1,5 @@
 import * as React from "react";
+import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 import {useDocument} from "react-firebase-hooks/firestore";
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Unstable_Grid2';
@@ -9,6 +10,7 @@ import {Library} from "./Library";
 
 import {playerStateDoc, PlayerState, CARD_BUCKETS} from "../../firebase-interop/models/playerState";
 import type {Game} from "../../firebase-interop/models/game";
+import type {DropResult} from "react-beautiful-dnd";
 
 type Props = {
     game: Game;
@@ -72,19 +74,39 @@ function ListCardsLayout({
     return (
         <Grid container direction="column" alignContent="center">
             <Typeogrophy variant="body1">{title} ({cardsId.length})</Typeogrophy>
-            <Grid container justifyContent="center">
-                {cardsId.length ? cardsId.map((cardId, i) =>
-                    <Grid key={cardId} container justifyContent="center">
-                        <Card player={playerState} scryfallId={cardId} bucket={bucket} />
-                        {cardsId.length !== 1 && cardsId.length - 1 !== i ?
-                            <Divider
-                                sx={{width: "1em", visibility: "hidden"}}
-                                orientation="horizontal"/> :
-                            null
-                        }
-                    </Grid>
-                ) : <EmptyCard/>}
-            </Grid>
+            <Droppable droppableId={bucket}>
+                {(provided) => (
+                    <div
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                    >
+                        <Grid container justifyContent="center">
+                            {cardsId.length ? cardsId.map((cardId, i) =>
+                                <Draggable key={cardId} draggableId={cardId} index={i}>
+                                    {(provided) => (
+                                        <div
+                                            ref={provided.innerRef}
+                                            {...provided.draggableProps}
+                                            {...provided.dragHandleProps}
+                                        >
+                                            <Grid container justifyContent="center">
+                                                <Card player={playerState} scryfallId={cardId} bucket={bucket} />
+                                                {cardsId.length !== 1 && cardsId.length - 1 !== i ?
+                                                    <Divider
+                                                        sx={{width: "1em", visibility: "hidden"}}
+                                                        orientation="horizontal"/> :
+                                                    null
+                                                }
+                                            </Grid>
+                                        </div>
+                                    )}
+                                </Draggable>
+                            ) : <EmptyCard/>}
+                        </Grid>
+                        {provided.placeholder}
+                    </div>
+                )}
+            </Droppable>
         </Grid>
     );
 }
@@ -126,6 +148,29 @@ export function GameBoard({game, uid}: Props) {
         return <div>Bad bad.</div>;
     }
 
+    const onDragEnd = (result: DropResult) => {
+        const {destination, source, draggableId} = result;
+
+        if (!destination) {
+            return;
+        }
+
+        if (destination.droppableId === source.droppableId &&
+            destination.index === source.index) {
+            return;
+        }
+
+        if (source.droppableId !== destination.droppableId) {
+            // Moving cards between buckets
+            playerState.moveCard(draggableId, source.droppableId as CARD_BUCKETS, destination.droppableId as CARD_BUCKETS);
+            playerState.save();
+        } else {
+            // Reordering cards in the same bucket
+            playerState.reorderCard(draggableId, source.droppableId as CARD_BUCKETS, destination.index);
+            playerState.save();
+        }
+    };
+
     // TODO(miguel): wire up custom layouts here where we can swap the
     // graveyard from left to right. And permanents from top to bottom.
     // This will be done by simply applying `row` or `row-reverse`
@@ -137,7 +182,7 @@ export function GameBoard({game, uid}: Props) {
     const permanentCreaturesLayout = "column-reverse";
 
     return (
-        <>
+        <DragDropContext onDragEnd={onDragEnd}>
             <h1>{game.name}</h1>
             <Library game={game} player={playerState} />
             <Grid container
@@ -158,6 +203,6 @@ export function GameBoard({game, uid}: Props) {
                     <Hand playerState={playerState} />
                 </Grid>
             </Grid>
-        </>
+        </DragDropContext>
     );
 }

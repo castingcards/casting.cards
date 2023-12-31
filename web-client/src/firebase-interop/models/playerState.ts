@@ -72,6 +72,19 @@ export class PlayerState extends BaseModel {
         return this;
     }
 
+    reorderCard(cardId: string, bucket: CARD_BUCKETS, newIndex: number) {
+        let cardIndex: number = this[`${bucket}CardIds`].indexOf(cardId);
+        if (cardIndex < 0) {
+            console.warn(`Card ${cardId} not found in ${bucket}`);
+            return this;
+        }
+
+        this[`${bucket}CardIds`].splice(cardIndex, 1);
+        this[`${bucket}CardIds`].splice(newIndex, 0, cardId);
+
+        return this;
+    }
+
     setReady(value: boolean): PlayerState {
       this.isReady = value;
       return this;
