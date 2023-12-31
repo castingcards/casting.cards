@@ -6,7 +6,8 @@ import { BaseModel, typedDoc, typedCollection } from "../baseModel";
 import {COLLECTION_PATH as GAME_COLLECTION_PATH} from "./game";
 
 // nested collection from Game
-export type CARD_BUCKETS = "graveyard" | "exile" | "battlefield" | "hand" | "library";
+export const ALL_CARD_BUCKETS = ["graveyard", "exile", "battlefield", "hand", "library", "land"] as const;
+export type CARD_BUCKETS = typeof ALL_CARD_BUCKETS[number];
 const COLLECTION_PATH = "playerStates";
 
 export class PlayerState extends BaseModel {
@@ -32,6 +33,7 @@ export class PlayerState extends BaseModel {
     isReady: boolean = false;
 
     libraryCardIds: Array<string> = [];
+    landCardIds: Array<string> = [];
     handCardIds: Array<string> = [];
     graveyardCardIds: Array<string> = [];
     exileCardIds: Array<string> = [];
@@ -59,15 +61,15 @@ export class PlayerState extends BaseModel {
     }
 
     moveCard(cardId: string, from: CARD_BUCKETS, to: CARD_BUCKETS) {
-      let fromCardIndex: number = this[`${from}CardIds`].indexOf(cardId);
-      if (!fromCardIndex) {
-        console.warn(`Card ${cardId} not found in ${from}`);
-        return this;
-      }
+        let fromCardIndex: number = this[`${from}CardIds`].indexOf(cardId);
+        if (fromCardIndex < 0) {
+            console.warn(`Card ${cardId} not found in ${from}`);
+            return this;
+        }
 
-      this[`${from}CardIds`] = [...this[`${from}CardIds`]].splice(fromCardIndex, 1);
-      this[`${to}CardIds`] = [...this[`${to}CardIds`], cardId];
-      return this;
+        this[`${from}CardIds`].splice(fromCardIndex, 1);
+        this[`${to}CardIds`] = [...this[`${to}CardIds`], cardId];
+        return this;
     }
 
     setReady(value: boolean): PlayerState {
@@ -84,6 +86,7 @@ export class PlayerState extends BaseModel {
         playerState.isReady = obj.isReady;
 
         playerState.handCardIds = obj.handCardIds;
+        playerState.landCardIds = obj.landCardIds;
         playerState.libraryCardIds = obj.libraryCardIds;
         playerState.graveyardCardIds = obj.graveyardCardIds;
         playerState.exileCardIds = obj.exileCardIds;

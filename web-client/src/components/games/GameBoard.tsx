@@ -7,7 +7,7 @@ import Typeogrophy from '@mui/material/Typography';
 import {Card, EmptyCard} from "./Card";
 import {Library} from "./Library";
 
-import {playerStateDoc, PlayerState} from "../../firebase-interop/models/playerState";
+import {playerStateDoc, PlayerState, CARD_BUCKETS} from "../../firebase-interop/models/playerState";
 import type {Game} from "../../firebase-interop/models/game";
 
 type Props = {
@@ -19,10 +19,12 @@ function StackedCardsLayout({
     cardsId,
     title,
     playerState,
+    bucket,
 }: {
     cardsId: Array<string>,
     title: React.ReactNode,
     playerState: PlayerState,
+    bucket: CARD_BUCKETS,
 }) {
     const top = cardsId[cardsId.length - 1];
 
@@ -31,7 +33,7 @@ function StackedCardsLayout({
             <Typeogrophy variant="body1">{title} ({cardsId.length})</Typeogrophy>
             <Grid container alignContent="center">
                 <Grid>
-                    {top ? <Card player={playerState} scryfallId={top} />: <EmptyCard/>}
+                    {top ? <Card player={playerState} scryfallId={top} bucket={bucket} />: <EmptyCard/>}
                 </Grid>
             </Grid>
         </Grid>
@@ -40,28 +42,30 @@ function StackedCardsLayout({
 
 function Exile({playerState}: {playerState: PlayerState}) {
     // TODO(miguel): wire in cards that are in the exile bucket
-    const cardsId = playerState.handCardIds;
+    const cardsId = playerState.exileCardIds;
 
     return (
-        <StackedCardsLayout title="Exile" cardsId={cardsId} playerState={playerState}/>
+        <StackedCardsLayout title="Exile" cardsId={cardsId} playerState={playerState} bucket="exile"/>
     );
 }
 
 function Graveyard({playerState}: {playerState: PlayerState}) {
     // TODO(miguel): wire in cards that are in the graveyard bucket
-    const cardsId = playerState.handCardIds;
+    const cardsId = playerState.graveyardCardIds;
 
     return (
-        <StackedCardsLayout title="Graveyard" cardsId={cardsId} playerState={playerState}/>
+        <StackedCardsLayout title="Graveyard" cardsId={cardsId} playerState={playerState} bucket="graveyard"/>
     );
 }
 
 function ListCardsLayout({
     cardsId,
+    bucket,
     title,
     playerState,
 }: {
     cardsId: Array<string>,
+    bucket: CARD_BUCKETS,
     title: React.ReactNode,
     playerState: PlayerState,
 }) {
@@ -71,7 +75,7 @@ function ListCardsLayout({
             <Grid container justifyContent="center">
                 {cardsId.length ? cardsId.map((cardId, i) =>
                     <Grid key={cardId} container justifyContent="center">
-                        <Card player={playerState} scryfallId={cardId} />
+                        <Card player={playerState} scryfallId={cardId} bucket={bucket} />
                         {cardsId.length !== 1 && cardsId.length - 1 !== i ?
                             <Divider
                                 sx={{width: "1em", visibility: "hidden"}}
@@ -90,23 +94,23 @@ function Lands({playerState}: {playerState: PlayerState}) {
     // out by card type. Needs to take into consideration any spells
     // that turn things into land.  We need to test if we want _all_ lands
     // or only lands that have a natural type of land.
-    const cardIds = playerState.battlefieldCardIds;
+    const cardIds = playerState.landCardIds;
     return (
-        <ListCardsLayout title="Lands" playerState={playerState} cardsId={cardIds}/>
+        <ListCardsLayout title="Lands" playerState={playerState} cardsId={cardIds} bucket="land"/>
     );
 }
 
 function Battleground({playerState}: {playerState: PlayerState}) {
     const cardIds = playerState.battlefieldCardIds;
     return (
-        <ListCardsLayout title="Battleground" playerState={playerState} cardsId={cardIds}/>
+        <ListCardsLayout title="Battleground" playerState={playerState} cardsId={cardIds} bucket="battlefield" />
     );
 }
 
 function Hand({playerState}: {playerState: PlayerState}) {
     const cardIds = playerState.handCardIds;
     return (
-        <ListCardsLayout title="Hand" playerState={playerState} cardsId={cardIds}/>
+        <ListCardsLayout title="Hand" playerState={playerState} cardsId={cardIds} bucket="hand"/>
     );
 }
 
