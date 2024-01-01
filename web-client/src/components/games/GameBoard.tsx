@@ -4,7 +4,7 @@ import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typeogrophy from '@mui/material/Typography';
 
-import {Card, EmptyCard, CARD_HEIGHT} from "./Card";
+import {Card, EmptyCard, CARD_HEIGHT, CARD_WIDTH} from "./Card";
 import {Library} from "./Library";
 
 import {playerStateDoc, PlayerState, CARD_BUCKETS} from "../../firebase-interop/models/playerState";
@@ -85,6 +85,17 @@ function calculateFishEye(
     return Math.max(minSize, magFactor * (itemCount - Math.abs(hoveredItem - value)));
 }
 
+function calculateFishEyeSigned(
+    hoveredItem: number,
+    value: number,
+    minSize: number = 1,
+    magFactor: number = 0.7,
+    itemCount: number = 3,
+) {
+    return Math.max(minSize, magFactor * (itemCount - (hoveredItem - value)));
+}
+
+
 function ListCardsLayout({
     cardsId,
     bucket,
@@ -101,6 +112,7 @@ function ListCardsLayout({
     // fish eye can scale cards while staying aligned to the bottom of the
     // card zone.
     const halfCardHeight = CARD_HEIGHT/2;
+    const halfCardWidth = CARD_WIDTH/2;
     return (
         <Grid container direction="column" alignItems="center">
             <Typeogrophy variant="body1">{title} ({cardsId.length})</Typeogrophy>
@@ -117,6 +129,7 @@ function ListCardsLayout({
                             // TODO(miguel): perhaps make this configurable!
                             transform: `
                                 translateY(-${hoveredItemIndex !== -1 ? (halfCardHeight * calculateFishEye(hoveredItemIndex, i)) - halfCardHeight: 0}px)
+                                translateX(${hoveredItemIndex !== -1 ? (halfCardWidth * calculateFishEyeSigned(hoveredItemIndex, i)) - CARD_WIDTH: 0}px)
                                 scale(${hoveredItemIndex !== -1 ? calculateFishEye(hoveredItemIndex, i) : 1})
                             `,
                             // z index makes sure that cards where the mouse
@@ -176,7 +189,7 @@ export function GameBoard({game, uid}: Props) {
     const permanentCreaturesLayout = "column";
 
     return (
-        <>
+        <Grid container overflow="hidden" direction="column">
             <h1>{game.name}</h1>
             <Library game={game} player={playerState} />
             <Grid container
@@ -203,6 +216,6 @@ export function GameBoard({game, uid}: Props) {
                 <Grid container direction={graveyardLayout} width="200px" justifyContent="center" alignItems="center">
                 </Grid>
             </Grid>
-        </>
+        </Grid>
     );
 }
