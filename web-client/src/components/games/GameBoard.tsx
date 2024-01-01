@@ -82,7 +82,12 @@ function calculateFishEye(
     // const items = Array(30).fill(0).map((_, i) => i)
     // /* 12 below is the item that is hovered over. */
     // items.map((v, i) =>  v - 12).map(val => Math.max(1, (3 - Math.abs(val))))
-    return Math.max(minSize, magFactor * (itemCount - Math.abs(hoveredItem - value)));
+    //
+    // The actual formula is based on root numbers but formulated with
+    // exponents because JS only provides up to the cubed root. We are using
+    // thr fourth root because it gives a nice smoother transition of card
+    // sizes from the current hovered card.
+    return Math.max(minSize, magFactor * (itemCount - Math.pow(Math.abs(hoveredItem - value), 1/4)));
 }
 
 function ListCardsLayout({
