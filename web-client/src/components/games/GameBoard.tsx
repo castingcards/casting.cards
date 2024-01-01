@@ -4,7 +4,7 @@ import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typeogrophy from '@mui/material/Typography';
 
-import {Card, EmptyCard} from "./Card";
+import {Card, EmptyCard, CARD_HEIGHT} from "./Card";
 import {Library} from "./Library";
 
 import {playerStateDoc, PlayerState, CARD_BUCKETS} from "../../firebase-interop/models/playerState";
@@ -58,6 +58,33 @@ function Graveyard({playerState}: {playerState: PlayerState}) {
     );
 }
 
+// TODO(miguel): pull this out into a separate shareable component.
+function calculateFishEye(
+    hoveredItem: number,
+    value: number,
+    minSize: number = 1,
+
+    // magFactor helps adjust how big/small the items should be.  With a value
+    // of one, we will linearly scale item size depending on the itemCount.
+    // Often you want to reduce the size of the cards, so provide a factor
+    // smaller then 1. Perhaps we can add different scalers that arent linear.
+    magFactor: number = 0.7,
+
+    // How many items needs to be magnified where the center item has full
+    // magnification. Usually when you increase the number of items that need
+    // to be fish eye scaled you adjust the magFactor value so that items
+    // aren't scaled up as itemCount is increased.
+    itemCount: number = 3,
+) {
+    // I should really add a unit test for this.  But to test this manually,
+    // you can type something like this in the browser console.
+    //
+    // const items = Array(30).fill(0).map((_, i) => i)
+    // /* 12 below is the item that is hovered over. */
+    // items.map((v, i) =>  v - 12).map(val => Math.max(1, (3 - Math.abs(val))))
+    return Math.max(minSize, magFactor * (itemCount - Math.abs(hoveredItem - value)));
+}
+
 function ListCardsLayout({
     cardsId,
     bucket,
@@ -69,19 +96,35 @@ function ListCardsLayout({
     title: React.ReactNode,
     playerState: PlayerState,
 }) {
+    const [hoveredItemIndex, setHoveredItemIndex] = React.useState(-1);
+    // Half the card height is how much we have to translate cards so that
+    // fish eye can scale cards while staying aligned to the bottom of the
+    // card zone.
+    const halfCardHeight = CARD_HEIGHT/2;
     return (
-        <Grid container direction="column" alignContent="center">
+        <Grid container direction="column" alignItems="center">
             <Typeogrophy variant="body1">{title} ({cardsId.length})</Typeogrophy>
-            <Grid container justifyContent="center">
+            <Grid container justifyContent="center" maxWidth="50vw" overflow="visible" flexWrap="nowrap">
                 {cardsId.length ? cardsId.map((cardId, i) =>
-                    <Grid key={cardId} container justifyContent="center">
+                    <Grid
+                        container
+                        // +i keeps react happy when we render the same card more than once.
+                        key={cardId+i}
+                        justifyContent="center"
+                        onMouseOver={() => {setHoveredItemIndex(i)}}
+                        onMouseOut={() => {setHoveredItemIndex(-1)}}
+                        sx={{
+                            // TODO(miguel): perhaps make this configurable!
+                            transform: `
+                                translateY(-${hoveredItemIndex !== -1 ? (halfCardHeight * calculateFishEye(hoveredItemIndex, i)) - halfCardHeight: 0}px)
+                                scale(${hoveredItemIndex !== -1 ? calculateFishEye(hoveredItemIndex, i) : 1})
+                            `,
+                            // z index makes sure that cards where the mouse
+                            // is hovering over are visible.
+                            zIndex: hoveredItemIndex !== -1 ? 1000 - Math.abs(hoveredItemIndex - i) : undefined,
+                        }}
+                    >
                         <Card player={playerState} scryfallId={cardId} bucket={bucket} />
-                        {cardsId.length !== 1 && cardsId.length - 1 !== i ?
-                            <Divider
-                                sx={{width: "1em", visibility: "hidden"}}
-                                orientation="horizontal"/> :
-                            null
-                        }
                     </Grid>
                 ) : <EmptyCard/>}
             </Grid>
@@ -90,10 +133,6 @@ function ListCardsLayout({
 }
 
 function Lands({playerState}: {playerState: PlayerState}) {
-    // TODO(miguel): either add a new bucket in player state for lands or
-    // out by card type. Needs to take into consideration any spells
-    // that turn things into land.  We need to test if we want _all_ lands
-    // or only lands that have a natural type of land.
     const cardIds = playerState.landCardIds;
     return (
         <ListCardsLayout title="Lands" playerState={playerState} cardsId={cardIds} bucket="land"/>
@@ -134,7 +173,7 @@ export function GameBoard({game, uid}: Props) {
     // of row and the will be aligned verically instead of horizontally.
     // We will wire this up later.
     const graveyardLayout = "column";
-    const permanentCreaturesLayout = "column-reverse";
+    const permanentCreaturesLayout = "column";
 
     return (
         <>
@@ -143,19 +182,25 @@ export function GameBoard({game, uid}: Props) {
             <Grid container
                 direction="row"
                 columns={{ xs: 4, sm: 8, md: 12 }}
-                padding="0 2em"
             >
-                <Grid container direction={graveyardLayout} justifyContent="center" alignItems="center">
+                <Grid container direction={graveyardLayout} width="200px" justifyContent="center" alignItems="center">
                     <Exile playerState={playerState}/>
                     <Divider sx={{width: "1em", visibility: "hidden"}}/>
                     <Graveyard playerState={playerState}/>
                 </Grid>
                 <Grid container direction="column" flex="1">
                     <Grid container direction={permanentCreaturesLayout} flex="1">
-                        <Lands playerState={playerState} />
+                        {/* Add option to disable a separate zone for lands
+                        since not everyone will perhaps want that.  If the
+                        lands zone is to not be rendered then the battlefield
+                        will also take the space for lands.
+                        */}
                         <Battleground playerState={playerState} />
+                        <Lands playerState={playerState} />
                     </Grid>
                     <Hand playerState={playerState} />
+                </Grid>
+                <Grid container direction={graveyardLayout} width="200px" justifyContent="center" alignItems="center">
                 </Grid>
             </Grid>
         </>

@@ -15,22 +15,6 @@ type Props = {
     bucket: CARD_BUCKETS;
 }
 
-function CardImageLayout({children}: {children: React.ReactNode}) {
-    return (
-        <Grid
-            container
-            width={80}
-            height={120}
-            justifyContent="center"
-            alignContent="center"
-            border="1px solid #AAAAAA"
-            borderRadius="4px"
-        >
-            {children}
-        </Grid>
-    );
-}
-
 function possibleBuckets(bucket: CARD_BUCKETS): Array<CARD_BUCKETS> {
     // You can put a card anywhere but the current bucket
     const indexToRemove = ALL_CARD_BUCKETS.indexOf(bucket);
@@ -40,6 +24,20 @@ function possibleBuckets(bucket: CARD_BUCKETS): Array<CARD_BUCKETS> {
     ];
 }
 
+export const CARD_HEIGHT: number = 120;
+export const CARD_WIDTH: number = 80;
+
+const cardStyle = {
+    justifyContent: "center",
+    alignContent: "center",
+    color: "#AAAAAA",
+    border: "2px solid transparent",
+    boxSizing: "content-box !important",
+    borderRadius: "4px",
+    overflow: "visible",
+    width: `${CARD_WIDTH}px`,
+    height: `${CARD_HEIGHT}px`,
+};
 
 export function Card({player, scryfallId, bucket}: Props) {
     const [gameResource, loading, error] = useDocument(player.deckId ? deckDoc(player.deckId) : undefined);
@@ -86,12 +84,12 @@ export function Card({player, scryfallId, bucket}: Props) {
     const imageUrl = card?.imageForCard();
     const possibleBucketsForCard = possibleBuckets(bucket);
     return (
-        <CardImageLayout>
+        <Grid container sx={cardStyle}>
             <img
                 src={imageUrl}
                 alt={scryfallId}
-                width={80}
-                height={120}
+                width={CARD_WIDTH}
+                height={CARD_HEIGHT}
                 style={{cursor: 'context-menu'}}
                 onContextMenu={handleContextMenu}
             />
@@ -111,29 +109,33 @@ export function Card({player, scryfallId, bucket}: Props) {
                     </MenuItem>
                 ))}
             </Menu>
-        </CardImageLayout>
+        </Grid>
     );
 }
 
 export function ErrorCard({children}: {children: React.ReactNode}) {
     // TODO(miguel): Add a better error card image
     return (
-        <CardImageLayout>
+        <Grid container sx={{...cardStyle, borderColor: "#AAAAAA"}}>
             {children}
-        </CardImageLayout>
+        </Grid>
     );
 }
 
 export function LoadingCard() {
     // TODO(miguel): Add a proper loading card image
     return (
-        <CardImageLayout>Loading...</CardImageLayout>
+        <Grid container sx={{...cardStyle, borderColor: "#AAAAAA"}}>
+            Loading...
+        </Grid>
     );
 }
 
 export function EmptyCard() {
     // TODO(miguel): Add a proper empty card image
     return (
-        <CardImageLayout>Empty</CardImageLayout>
+        <Grid container sx={{...cardStyle, borderColor: "#AAAAAA"}}>
+            Empty
+        </Grid>
     );
 }
