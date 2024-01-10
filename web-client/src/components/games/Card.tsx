@@ -7,11 +7,11 @@ import MenuItem from '@mui/material/MenuItem';
 import {deckDoc} from "../../firebase-interop/models/deck";
 
 import {ALL_CARD_BUCKETS} from "../../firebase-interop/models/playerState";
-import type {PlayerState, CARD_BUCKETS} from "../../firebase-interop/models/playerState";
+import type {PlayerState, CARD_BUCKETS, CardState} from "../../firebase-interop/models/playerState";
 
 type Props = {
     player: PlayerState;
-    scryfallId: string;
+    cardState: CardState;
     bucket: CARD_BUCKETS;
 }
 
@@ -39,7 +39,7 @@ const cardStyle = {
     height: `${CARD_HEIGHT}px`,
 };
 
-export function Card({player, scryfallId, bucket}: Props) {
+export function Card({player, cardState, bucket}: Props) {
     const [gameResource, loading, error] = useDocument(player.deckId ? deckDoc(player.deckId) : undefined);
     const [contextMenu, setContextMenu] = React.useState<{
         mouseX: number;
@@ -74,20 +74,20 @@ export function Card({player, scryfallId, bucket}: Props) {
     };
 
     const handleMoveCard = (location: CARD_BUCKETS) => {
-        player.moveCard(scryfallId, bucket, location);
+        player.moveCard(cardState.id, bucket, location);
         player.save();
         setContextMenu(null);
     };
 
     const deck = gameResource?.data();
-    const card = deck?.cards.find(card => card.scryfallDetails.id === scryfallId);
+    const card = deck?.cards.find(card => card.scryfallDetails.id === cardState.scryfallId);
     const imageUrl = card?.imageForCard();
     const possibleBucketsForCard = possibleBuckets(bucket);
     return (
         <Grid container sx={cardStyle}>
             <img
                 src={imageUrl}
-                alt={scryfallId}
+                alt={cardState.scryfallId}
                 width={CARD_WIDTH}
                 height={CARD_HEIGHT}
                 style={{cursor: 'context-menu'}}

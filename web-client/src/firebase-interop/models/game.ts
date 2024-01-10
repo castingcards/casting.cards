@@ -51,7 +51,7 @@ export class Game extends BaseModel {
     return getAllPlayerStates(this.id);
   }
 
-  async movePlayerCardTo(userId: string, cardId: string, from: CARD_BUCKETS, to: CARD_BUCKETS) {
+  async movePlayerCardTo(userId: string, cardId: number, from: CARD_BUCKETS, to: CARD_BUCKETS) {
     const playerState = await this.getPlayerState(userId);
     if (playerState) {
         playerState.moveCard(cardId, from, to);

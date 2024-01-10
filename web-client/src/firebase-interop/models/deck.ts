@@ -93,9 +93,9 @@ export class Deck extends BaseModel {
     return cardList;
   }
 
-  shuffle(cardIds: Array<string>): Array<string> {
+  shuffle<T>(cards: Array<T>): Array<T> {
     const shuffleSeed = Math.floor(Math.random() * 1000000);
-    const shuffledCards: Array<string> = ShuffleSeed.shuffle(cardIds, shuffleSeed);
+    const shuffledCards: Array<T> = ShuffleSeed.shuffle(cards, shuffleSeed);
     return shuffledCards;
   }
 

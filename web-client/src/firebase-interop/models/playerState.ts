@@ -10,6 +10,16 @@ export const ALL_CARD_BUCKETS = ["graveyard", "exile", "battlefield", "hand", "l
 export type CARD_BUCKETS = typeof ALL_CARD_BUCKETS[number];
 const COLLECTION_PATH = "playerStates";
 
+export type CardState = {
+    id: number;
+    scryfallId: string;
+    tapped: boolean;
+}
+
+function newCardState(scryfallId: string, id: number, tapped: boolean = false): CardState {
+    return {id, scryfallId, tapped};
+}
+
 export class PlayerState extends BaseModel {
     constructor(gameId: string = "", playerId: string = "") {
         super();
@@ -32,12 +42,12 @@ export class PlayerState extends BaseModel {
     poisonCounters: number = 0;
     isReady: boolean = false;
 
-    libraryCardIds: Array<string> = [];
-    landCardIds: Array<string> = [];
-    handCardIds: Array<string> = [];
-    graveyardCardIds: Array<string> = [];
-    exileCardIds: Array<string> = [];
-    battlefieldCardIds: Array<string> = [];
+    libraryCards: Array<CardState> = [];
+    landCards: Array<CardState> = [];
+    handCards: Array<CardState> = [];
+    graveyardCards: Array<CardState> = [];
+    exileCards: Array<CardState> = [];
+    battlefieldCards: Array<CardState> = [];
 
     async chooseDeck(deckId: string) {
         const deck = await Deck.load(deckId);
@@ -49,26 +59,29 @@ export class PlayerState extends BaseModel {
         this.deckId = deckId;
         this.cardIds = allCardIds;
         this.isReady = false;
-        this.libraryCardIds = deck.shuffle(allCardIds);
+
+        const cardStates = allCardIds.map((cardId, index) => newCardState(cardId, index));
+        this.libraryCards = deck.shuffle(cardStates);
         return this
     }
 
     drawCard() {
-        const drawnCard = this.libraryCardIds.shift();
+        const drawnCard = this.libraryCards.shift();
         if (drawnCard) {
-            this.handCardIds.push(drawnCard!);
+            this.handCards.push(drawnCard!);
         }
     }
 
-    moveCard(cardId: string, from: CARD_BUCKETS, to: CARD_BUCKETS) {
-        let fromCardIndex: number = this[`${from}CardIds`].indexOf(cardId);
+    moveCard(cardId: number, from: CARD_BUCKETS, to: CARD_BUCKETS) {
+        let fromCardIndex: number = this[`${from}Cards`].findIndex(card => card.id == cardId);
+        const cardToMove = this[`${from}Cards`][fromCardIndex];
         if (fromCardIndex < 0) {
             console.warn(`Card ${cardId} not found in ${from}`);
             return this;
         }
 
-        this[`${from}CardIds`].splice(fromCardIndex, 1);
-        this[`${to}CardIds`] = [...this[`${to}CardIds`], cardId];
+        this[`${from}Cards`].splice(fromCardIndex, 1);
+        this[`${to}Cards`] = [...this[`${to}Cards`], cardToMove];
         return this;
     }
 
@@ -85,12 +98,12 @@ export class PlayerState extends BaseModel {
         playerState.poisonCounters = obj.poisonCounters;
         playerState.isReady = obj.isReady;
 
-        playerState.handCardIds = obj.handCardIds;
-        playerState.landCardIds = obj.landCardIds;
-        playerState.libraryCardIds = obj.libraryCardIds;
-        playerState.graveyardCardIds = obj.graveyardCardIds;
-        playerState.exileCardIds = obj.exileCardIds;
-        playerState.battlefieldCardIds = obj.battlefieldCardIds;
+        playerState.handCards = obj.handCards;
+        playerState.landCards = obj.landCards;
+        playerState.libraryCards = obj.libraryCards;
+        playerState.graveyardCards = obj.graveyardCards;
+        playerState.exileCards = obj.exileCards;
+        playerState.battlefieldCards = obj.battlefieldCards;
         return playerState;
     }
 }

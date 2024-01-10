@@ -7,7 +7,7 @@ import Typeogrophy from '@mui/material/Typography';
 import {Card, EmptyCard, CARD_HEIGHT} from "./Card";
 import {Library} from "./Library";
 
-import {playerStateDoc, PlayerState, CARD_BUCKETS} from "../../firebase-interop/models/playerState";
+import {playerStateDoc, PlayerState, CARD_BUCKETS, CardState} from "../../firebase-interop/models/playerState";
 import type {Game} from "../../firebase-interop/models/game";
 
 type Props = {
@@ -16,24 +16,24 @@ type Props = {
 }
 
 function StackedCardsLayout({
-    cardsId,
+    cardStates,
     title,
     playerState,
     bucket,
 }: {
-    cardsId: Array<string>,
+    cardStates: Array<CardState>,
     title: React.ReactNode,
     playerState: PlayerState,
     bucket: CARD_BUCKETS,
 }) {
-    const top = cardsId[cardsId.length - 1];
+    const top = cardStates[cardStates.length - 1];
 
     return (
         <Grid container direction="column" alignItems="center">
-            <Typeogrophy variant="body1">{title} ({cardsId.length})</Typeogrophy>
+            <Typeogrophy variant="body1">{title} ({cardStates.length})</Typeogrophy>
             <Grid container alignContent="center">
                 <Grid>
-                    {top ? <Card player={playerState} scryfallId={top} bucket={bucket} />: <EmptyCard/>}
+                    {top ? <Card player={playerState} cardState={top} bucket={bucket} />: <EmptyCard/>}
                 </Grid>
             </Grid>
         </Grid>
@@ -42,19 +42,19 @@ function StackedCardsLayout({
 
 function Exile({playerState}: {playerState: PlayerState}) {
     // TODO(miguel): wire in cards that are in the exile bucket
-    const cardsId = playerState.exileCardIds;
+    const cards = playerState.exileCards;
 
     return (
-        <StackedCardsLayout title="Exile" cardsId={cardsId} playerState={playerState} bucket="exile"/>
+        <StackedCardsLayout title="Exile" cardStates={cards} playerState={playerState} bucket="exile"/>
     );
 }
 
 function Graveyard({playerState}: {playerState: PlayerState}) {
     // TODO(miguel): wire in cards that are in the graveyard bucket
-    const cardsId = playerState.graveyardCardIds;
+    const cards = playerState.graveyardCards;
 
     return (
-        <StackedCardsLayout title="Graveyard" cardsId={cardsId} playerState={playerState} bucket="graveyard"/>
+        <StackedCardsLayout title="Graveyard" cardStates={cards} playerState={playerState} bucket="graveyard"/>
     );
 }
 
@@ -91,12 +91,12 @@ function calculateFishEye(
 }
 
 function ListCardsLayout({
-    cardsId,
+    cardStates,
     bucket,
     title,
     playerState,
 }: {
-    cardsId: Array<string>,
+    cardStates: Array<CardState>,
     bucket: CARD_BUCKETS,
     title: React.ReactNode,
     playerState: PlayerState,
@@ -108,13 +108,13 @@ function ListCardsLayout({
     const halfCardHeight = CARD_HEIGHT/2;
     return (
         <Grid container direction="column" alignItems="center">
-            <Typeogrophy variant="body1">{title} ({cardsId.length})</Typeogrophy>
+            <Typeogrophy variant="body1">{title} ({cardStates.length})</Typeogrophy>
             <Grid container justifyContent="center" maxWidth="50vw" overflow="visible" flexWrap="nowrap">
-                {cardsId.length ? cardsId.map((cardId, i) =>
+                {cardStates.length ? cardStates.map((cardState, i) =>
                     <Grid
                         container
                         // +i keeps react happy when we render the same card more than once.
-                        key={cardId+i}
+                        key={cardState.id}
                         justifyContent="center"
                         onMouseOver={() => {setHoveredItemIndex(i)}}
                         onMouseOut={() => {setHoveredItemIndex(-1)}}
@@ -122,7 +122,7 @@ function ListCardsLayout({
                             // TODO(miguel): perhaps make this configurable!
                             transform: `
                                 translateY(${hoveredItemIndex !== -1 ? halfCardHeight - (halfCardHeight * calculateFishEye(hoveredItemIndex, i)): 0}px)
-                                translateX(${hoveredItemIndex !== -1 ? cardsId.length * (i-hoveredItemIndex): 0}px)
+                                translateX(${hoveredItemIndex !== -1 ? cardStates.length * (i-hoveredItemIndex): 0}px)
                                 scale(${hoveredItemIndex !== -1 ? calculateFishEye(hoveredItemIndex, i) : 1})
                             `,
                             // z index makes sure that cards where the mouse
@@ -130,7 +130,7 @@ function ListCardsLayout({
                             zIndex: hoveredItemIndex !== -1 ? 1000 - Math.abs(hoveredItemIndex - i) : undefined,
                         }}
                     >
-                        <Card player={playerState} scryfallId={cardId} bucket={bucket} />
+                        <Card player={playerState} cardState={cardState} bucket={bucket} />
                     </Grid>
                 ) : <EmptyCard/>}
             </Grid>
@@ -139,23 +139,23 @@ function ListCardsLayout({
 }
 
 function Lands({playerState}: {playerState: PlayerState}) {
-    const cardIds = playerState.landCardIds;
+    const cards = playerState.landCards;
     return (
-        <ListCardsLayout title="Lands" playerState={playerState} cardsId={cardIds} bucket="land"/>
+        <ListCardsLayout title="Lands" playerState={playerState} cardStates={cards} bucket="land"/>
     );
 }
 
 function Battleground({playerState}: {playerState: PlayerState}) {
-    const cardIds = playerState.battlefieldCardIds;
+    const cards = playerState.battlefieldCards;
     return (
-        <ListCardsLayout title="Battleground" playerState={playerState} cardsId={cardIds} bucket="battlefield" />
+        <ListCardsLayout title="Battleground" playerState={playerState} cardStates={cards} bucket="battlefield" />
     );
 }
 
 function Hand({playerState}: {playerState: PlayerState}) {
-    const cardIds = playerState.handCardIds;
+    const cards = playerState.handCards;
     return (
-        <ListCardsLayout title="Hand" playerState={playerState} cardsId={cardIds} bucket="hand"/>
+        <ListCardsLayout title="Hand" playerState={playerState} cardStates={cards} bucket="hand"/>
     );
 }
 
