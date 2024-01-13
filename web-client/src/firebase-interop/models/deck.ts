@@ -93,12 +93,6 @@ export class Deck extends BaseModel {
     return cardList;
   }
 
-  shuffle<T>(cards: Array<T>): Array<T> {
-    const shuffleSeed = Math.floor(Math.random() * 1000000);
-    const shuffledCards: Array<T> = ShuffleSeed.shuffle(cards, shuffleSeed);
-    return shuffledCards;
-  }
-
   fromObject(obj: any): Deck {
     const cardReferences = obj.cards.map((card: any) => {
       return new CardReference(card.count, card.scryfallDetails, card.isCommander);

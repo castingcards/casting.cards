@@ -99,3 +99,9 @@ export function typedDoc<T extends BaseModel>(collectionPath: string, type: (new
   const cachedConverter = converterMap.get(collectionPath) as Converter<T>;
   return (docPath: string) => doc(db, collectionPath, docPath).withConverter(cachedConverter);
 }
+
+export function pipeline<T extends BaseModel>(model: T, ...fns: Array<(m: T) => T>) {
+  model = fns.reduce((m, fn) => fn(m), model);
+  model.save();
+  return model;
+}

@@ -1,7 +1,5 @@
 import {getDoc, setDoc, getDocs} from "firebase/firestore";
 
-import { Deck } from "./deck";
-
 import { BaseModel, typedDoc, typedCollection } from "../baseModel";
 import {COLLECTION_PATH as GAME_COLLECTION_PATH} from "./game";
 
@@ -14,10 +12,6 @@ export type CardState = {
     id: number;
     scryfallId: string;
     tapped: boolean;
-}
-
-function newCardState(scryfallId: string, id: number, tapped: boolean = false): CardState {
-    return {id, scryfallId, tapped};
 }
 
 export class PlayerState extends BaseModel {
@@ -49,23 +43,6 @@ export class PlayerState extends BaseModel {
     graveyardCards: Array<CardState> = [];
     exileCards: Array<CardState> = [];
     battlefieldCards: Array<CardState> = [];
-
-    async chooseDeck(deckId: string) {
-        debugger;
-        const deck = await Deck.load(deckId);
-        if (!deck) {
-            throw new Error(`Deck ${deckId} not found`);
-        }
-
-        const allCardIds = deck.allCards().map(card => card.id);
-        this.deckId = deckId;
-        this.cardIds = allCardIds;
-        this.isReady = false;
-
-        const cardStates = allCardIds.map(cardId => newCardState(cardId, this.nextCardId++));
-        this.libraryCards = deck.shuffle(cardStates);
-        return this
-    }
 
     drawCard() {
         const drawnCard = this.libraryCards.shift();

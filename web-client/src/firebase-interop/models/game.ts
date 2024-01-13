@@ -1,7 +1,10 @@
 import {query, where, addDoc} from "firebase/firestore";
-import {typedCollection, typedDoc, BaseModel} from "../baseModel";
+import {typedCollection, typedDoc, BaseModel, pipeline} from "../baseModel";
 
+import {Deck} from '../models/deck';
 import {PlayerState, getPlayerState, getAllPlayerStates, addPlayerState} from "./playerState";
+import {chooseDeck} from "../business-logic/playerState";
+
 import type {CARD_BUCKETS} from "./playerState";
 
 export const COLLECTION_PATH = "games";
@@ -95,8 +98,11 @@ export class Game extends BaseModel {
     }
 
     if (deckId) {
-      await state.chooseDeck(deckId);
-      await state.save();
+      const deck = await Deck.load(deckId);
+      if (!deck) {
+          throw new Error(`Deck ${deckId} not found`);
+      }
+      await pipeline(state, chooseDeck(deck));
     }
 
     return this.addPlayerId(userId);
