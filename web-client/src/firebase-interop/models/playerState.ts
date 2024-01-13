@@ -38,6 +38,7 @@ export class PlayerState extends BaseModel {
     playerId: string;
     life: number = 40;
     deckId: string = "";
+    nextCardId: number = 0;
     cardIds: Array<string> = [];
     poisonCounters: number = 0;
     isReady: boolean = false;
@@ -50,6 +51,7 @@ export class PlayerState extends BaseModel {
     battlefieldCards: Array<CardState> = [];
 
     async chooseDeck(deckId: string) {
+        debugger;
         const deck = await Deck.load(deckId);
         if (!deck) {
             throw new Error(`Deck ${deckId} not found`);
@@ -60,7 +62,7 @@ export class PlayerState extends BaseModel {
         this.cardIds = allCardIds;
         this.isReady = false;
 
-        const cardStates = allCardIds.map((cardId, index) => newCardState(cardId, index));
+        const cardStates = allCardIds.map(cardId => newCardState(cardId, this.nextCardId++));
         this.libraryCards = deck.shuffle(cardStates);
         return this
     }
