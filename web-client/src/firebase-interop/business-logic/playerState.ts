@@ -6,10 +6,12 @@ import {shuffle} from "./deck"
 
 export function chooseDeck(deck: Deck) {
     return function(state: PlayerState) {
+        debugger;
+        state = state.clone();
         const allCardIds = deck.allCards().map(card => card.id);
         const cardStates = allCardIds.map(scryfallCardId => {
             const cardNumber = state.nextCardId;
-            incrementCardId()(state);
+            state = incrementCardId()(state);
             return newCardState(scryfallCardId, cardNumber);
         });
 
@@ -23,6 +25,7 @@ export function chooseDeck(deck: Deck) {
 
 function incrementCardId() {
     return function(state: PlayerState) {
+        state = state.clone();
         state.nextCardId++;
         return state;
     }

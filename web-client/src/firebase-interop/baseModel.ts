@@ -44,6 +44,13 @@ export class BaseModel {
     throw new Error("BaseModel:fromObject - Must implement");
   }
 
+  clone<T extends BaseModel>(): T {
+    const id = this.id;
+    const clone = this.fromObject(this.toObject());
+    clone.id = id;
+    return clone;
+  }
+
   static async load<T extends typeof BaseModel>(this: T, id: string): Promise<InstanceType<T> | undefined> {
     if (!id) {
       throw new Error("Must have an id to load");
