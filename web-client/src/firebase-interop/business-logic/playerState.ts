@@ -3,14 +3,13 @@ import {Deck} from '../models/deck';
 import {PlayerState, CardState} from '../models/playerState';
 import {shuffle, allScryfallCards} from "./deck"
 
-
 export function chooseDeck(deck: Deck) {
-    return function(state: PlayerState) {
+    return async function(state: PlayerState) {
         state = state.clone();
         const allScryfallIds = allScryfallCards(deck).map(card => card.id);
         const cardStates = allScryfallIds.map(scryfallCardId => {
             const cardNumber = state.nextCardId;
-            state = incrementCardId()(state);
+            state.nextCardId++;
             return newCardState(scryfallCardId, cardNumber);
         });
 
@@ -22,13 +21,6 @@ export function chooseDeck(deck: Deck) {
     }
 }
 
-function incrementCardId() {
-    return function(state: PlayerState) {
-        state = state.clone();
-        state.nextCardId++;
-        return state;
-    }
-}
 
 function newCardState(scryfallId: string, id: number, tapped: boolean = false): CardState {
     return {id, scryfallId, tapped};

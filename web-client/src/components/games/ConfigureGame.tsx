@@ -15,8 +15,10 @@ import Typography from '@mui/material/Typography';
 
 import { ChooseDeck } from "./ChooseDeck";
 
-import { addPlayerState, PlayerState } from "../../firebase-interop/models/playerState";
-import type { Game } from "../../firebase-interop/models/game";
+import {pipeline} from "../../firebase-interop/baseModel";
+import {addPlayerState, PlayerState} from "../../firebase-interop/models/playerState";
+import {addPlayerId, playerIsReady} from "../../firebase-interop/business-logic/game";
+import type {Game} from "../../firebase-interop/models/game";
 
 
 type Props = {
@@ -30,17 +32,13 @@ export function ConfigureGame({game, userId, onImReady}: Props): React.ReactElem
   const [selectedDeckId, setSelectedDeckId] = React.useState<string>("");
 
   const addPlayer = React.useCallback(async () => {
-    game.addPlayerId(newPlayerId);
-    await game.save();
-
-    addPlayerState(game.id!, newPlayerId, new PlayerState(game.id!, newPlayerId));
-
+    await pipeline(game, addPlayerId(newPlayerId));
+    await addPlayerState(game.id!, newPlayerId, new PlayerState(game.id!, newPlayerId));
     setNewPlayerId("");
   }, [newPlayerId, game]);
 
   const imReady = React.useCallback(async () => {
-    game.playerIsReady(userId);
-    await game.save();
+    await pipeline(game, playerIsReady(userId));
     onImReady();
   }, [userId, game, onImReady]);
 

@@ -7,7 +7,11 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 
 import {useCollection} from 'react-firebase-hooks/firestore';
+
+import {pipeline} from "../../firebase-interop/baseModel";
 import {myDecksQuery} from "../../firebase-interop/models/deck";
+import {getOrCreatePlayerState} from "../../firebase-interop/models/playerState";
+import {setDeckForPlayer} from "../../firebase-interop/business-logic/game";
 
 import type {Game} from "../../firebase-interop/models/game";
 
@@ -23,9 +27,8 @@ export function ChooseDeck({game, uid, onDeckSelected}: Props) {
 
     const addDeckToGame = React.useCallback(
         async (deckId: string) => {
-            console.log("Adding deck to game", deckId);
-            await game.setDeckForPlayer(uid, deckId);
-            await game.save();
+            let playerState = await getOrCreatePlayerState(game.id ?? "", uid);
+            await pipeline(game, setDeckForPlayer(playerState, deckId));
             setChosenDeck(deckId);
             onDeckSelected(deckId);
         },

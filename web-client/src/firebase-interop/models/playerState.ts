@@ -90,6 +90,13 @@ export class PlayerState extends BaseModel {
 export const playerStateDoc = (gameId: string) => typedDoc(`games/${gameId}/${COLLECTION_PATH}/`, PlayerState)
 
 export async function getPlayerState(gameId: string, playerUserId: string): Promise<PlayerState | undefined> {
+    if (!gameId) {
+      throw new Error("Must have a Game id to load player states");
+    }
+    if (!playerUserId) {
+      throw new Error("Must have a player id to load player states");
+    }
+
     const playerStateDocSnapshot = await getDoc(playerStateDoc(gameId)(playerUserId));
     if (playerStateDocSnapshot.exists()) {
         return playerStateDocSnapshot.data();
@@ -98,6 +105,10 @@ export async function getPlayerState(gameId: string, playerUserId: string): Prom
 };
 
 export async function getAllPlayerStates(gameId: string): Promise<Array<PlayerState>> {
+    if (!gameId) {
+      throw new Error("Must have gameId to load player states");
+    }
+
     const playerStateCollection = typedCollection(`games/${gameId}/${COLLECTION_PATH}`, PlayerState);
     const playerStateQuerySnapshot = await getDocs(playerStateCollection);
     return playerStateQuerySnapshot.docs.map(doc => doc.data());
@@ -109,4 +120,13 @@ export async function addPlayerState(gameId: string, playerUserId: string, playe
   } catch (e) {
     console.error("Error adding document: ", e);
   }
+}
+
+export async function getOrCreatePlayerState(gameId: string, playerUserId: string): Promise<PlayerState> {
+    let playerState = await getPlayerState(gameId, playerUserId);
+    if (!playerState) {
+        playerState = new PlayerState(gameId, playerUserId);
+        await addPlayerState(gameId, playerUserId, playerState);
+    }
+    return playerState;
 }
