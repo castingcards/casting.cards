@@ -1,22 +1,21 @@
 
 import {Deck} from '../models/deck';
 import {PlayerState, CardState} from '../models/playerState';
-import {shuffle} from "./deck"
+import {shuffle, allScryfallCards} from "./deck"
 
 
 export function chooseDeck(deck: Deck) {
     return function(state: PlayerState) {
-        debugger;
         state = state.clone();
-        const allCardIds = deck.allCards().map(card => card.id);
-        const cardStates = allCardIds.map(scryfallCardId => {
+        const allScryfallIds = allScryfallCards(deck).map(card => card.id);
+        const cardStates = allScryfallIds.map(scryfallCardId => {
             const cardNumber = state.nextCardId;
             state = incrementCardId()(state);
             return newCardState(scryfallCardId, cardNumber);
         });
 
         state.deckId = deck.id!;
-        state.cardIds = allCardIds;
+        state.cardIds = allScryfallIds;
         state.isReady = false;
         state.libraryCards = shuffle(cardStates);
         return state;

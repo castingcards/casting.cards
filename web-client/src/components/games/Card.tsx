@@ -7,6 +7,7 @@ import MenuItem from '@mui/material/MenuItem';
 import {deckDoc} from "../../firebase-interop/models/deck";
 
 import {ALL_CARD_BUCKETS} from "../../firebase-interop/models/playerState";
+import {imageForCard} from "../../firebase-interop/business-logic/cards";
 import type {PlayerState, CARD_BUCKETS, CardState} from "../../firebase-interop/models/playerState";
 
 type Props = {
@@ -81,7 +82,7 @@ export function Card({player, cardState, bucket}: Props) {
 
     const deck = gameResource?.data();
     const card = deck?.cards.find(card => card.scryfallDetails.id === cardState.scryfallId);
-    const imageUrl = card?.imageForCard();
+    const imageUrl = card ? imageForCard(card.scryfallDetails) : "";
     const possibleBucketsForCard = possibleBuckets(bucket);
     return (
         <Grid container sx={cardStyle}>

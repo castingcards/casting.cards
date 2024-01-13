@@ -14,6 +14,7 @@ import {deckDoc} from "../../firebase-interop/models/deck";
 import {useDocument} from 'react-firebase-hooks/firestore';
 
 import {Deck} from "../../firebase-interop/models/deck";
+import {canBeCommander, imageForCard} from "../../firebase-interop/business-logic/cards";
 import type {CardReference} from "../../firebase-interop/models/deck";
 
 export function ViewDeck() {
@@ -54,13 +55,13 @@ export function ViewDeck() {
             <Typography variant="h4" gutterBottom>{deck.name}</Typography>
             <Grid container spacing={2}>
                 {cards.map(card => {
-                    const cardCanBeCommander = card.canBeCommander();
+                    const cardCanBeCommander = canBeCommander(card.scryfallDetails);
                     return (
                         <Grid item key={card.scryfallDetails.id} xs={6} sm={4} md={3} lg={2}>
                             <Card sx={{maxWidth: 300, backgroundColor: card.isCommander ? "#AAA" : "white"}}>
                                 <CardMedia
                                     component="img"
-                                    image={card.imageForCard()}
+                                    image={imageForCard(card.scryfallDetails)}
                                     alt={card.scryfallDetails.name}
                                 />
                                 <CardContent>

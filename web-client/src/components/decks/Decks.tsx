@@ -14,6 +14,7 @@ import {useCollection} from 'react-firebase-hooks/firestore';
 import {auth} from "../../firebase-interop/firebaseInit";
 import {NewDeck} from "./NewDeck"
 import {myDecksQuery} from "../../firebase-interop/models/deck";
+import {allScryfallCards} from "../../firebase-interop/business-logic/deck"
 
 function DecksContent(): React.ReactElement {
   const [user] = useAuthState(auth);
@@ -43,7 +44,7 @@ function DecksContent(): React.ReactElement {
               <Link to={`/decks/${deckId}`}>
                 <ListItemText
                   primary={deck.name}
-                  secondary={deck.allCards().length + " cards"}
+                  secondary={allScryfallCards(deck).length + " cards"}
                 />
               </Link>
             </ListItem>)
