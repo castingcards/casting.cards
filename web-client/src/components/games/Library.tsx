@@ -6,6 +6,8 @@ import Typeogrophy from '@mui/material/Typography';
 
 import {styled} from '@mui/material/styles';
 
+import {pipeline} from "../../firebase-interop/baseModel";
+import {drawCard} from "../../firebase-interop/business-logic/playerState";
 import type {PlayerState} from "../../firebase-interop/models/playerState";
 import type {Game} from "../../firebase-interop/models/game";
 
@@ -24,10 +26,9 @@ type Props = {
 }
 
 export function Library({game, player}: Props) {
-    const drawCard = React.useCallback(
+    const handleDrawCard = React.useCallback(
         async () => {
-            player.drawCard();
-            await player.save();
+            await pipeline(player, drawCard());
         },
         [player],
     );
@@ -35,7 +36,7 @@ export function Library({game, player}: Props) {
     return (
         <LibraryCard variant="outlined">
             <Typeogrophy variant="body1">Library ({player.libraryCards.length})</Typeogrophy>
-            <Button onClick={drawCard}>Draw Card</Button>
+            <Button onClick={handleDrawCard}>Draw Card</Button>
         </LibraryCard>
     );
 }

@@ -17,7 +17,7 @@ import { ChooseDeck } from "./ChooseDeck";
 
 import {pipeline} from "../../firebase-interop/baseModel";
 import {addPlayerState, PlayerState} from "../../firebase-interop/models/playerState";
-import {addPlayerId, playerIsReady} from "../../firebase-interop/business-logic/game";
+import {addPlayerId, playerIsReady, isGameFull} from "../../firebase-interop/business-logic/game";
 import type {Game} from "../../firebase-interop/models/game";
 
 
@@ -63,7 +63,7 @@ export function ConfigureGame({game, userId, onImReady}: Props): React.ReactElem
                             value={newPlayerId} onChange={e => setNewPlayerId(e.target.value)}
                         />
 
-                        <Button variant="outlined" disabled={!game.isGameFull()} onClick={addPlayer}>Add</Button>
+                        <Button variant="outlined" disabled={!isGameFull(game)} onClick={addPlayer}>Add</Button>
 
                         <List>
                           {game.playersId.map(userId => (

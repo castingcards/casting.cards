@@ -67,11 +67,15 @@ export function playerIsReady(userId: string) {
            throw new Error("Must select a deck first");
         }
 
-        playerState.setReady(true);
+        playerState.isReady = true;
         playerState.save();
 
         const allPlayerStates = await getAllPlayerStates(game.id ?? "");
         game.state = allPlayerStates.every(p => p.isReady) ? "Started" : "Unstarted";
         return game;
     };
+}
+
+export function isGameFull(game: Game): boolean {
+    return game.playersId.length < game.maxPlayers;
 }

@@ -1,6 +1,6 @@
 import {getDoc, setDoc, getDocs} from "firebase/firestore";
 
-import { BaseModel, typedDoc, typedCollection } from "../baseModel";
+import {BaseModel, typedDoc, typedCollection} from "../baseModel";
 import {COLLECTION_PATH as GAME_COLLECTION_PATH} from "./game";
 
 // nested collection from Game
@@ -43,31 +43,6 @@ export class PlayerState extends BaseModel {
     graveyardCards: Array<CardState> = [];
     exileCards: Array<CardState> = [];
     battlefieldCards: Array<CardState> = [];
-
-    drawCard() {
-        const drawnCard = this.libraryCards.shift();
-        if (drawnCard) {
-            this.handCards.push(drawnCard!);
-        }
-    }
-
-    moveCard(cardId: number, from: CARD_BUCKETS, to: CARD_BUCKETS) {
-        let fromCardIndex: number = this[`${from}Cards`].findIndex(card => card.id == cardId);
-        const cardToMove = this[`${from}Cards`][fromCardIndex];
-        if (fromCardIndex < 0) {
-            console.warn(`Card ${cardId} not found in ${from}`);
-            return this;
-        }
-
-        this[`${from}Cards`].splice(fromCardIndex, 1);
-        this[`${to}Cards`] = [...this[`${to}Cards`], cardToMove];
-        return this;
-    }
-
-    setReady(value: boolean): PlayerState {
-      this.isReady = value;
-      return this;
-    }
 
     fromObject(obj: any): PlayerState {
         const playerState = new PlayerState(obj.gameId, obj.playerId);

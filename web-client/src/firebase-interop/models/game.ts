@@ -1,6 +1,8 @@
 import {query, where, addDoc} from "firebase/firestore";
 import {typedCollection, typedDoc, BaseModel} from "../baseModel";
 
+export type GameStates = "Unstarted" | "Started" | "Finished";
+
 export const COLLECTION_PATH = "games";
 
 export class Game extends BaseModel {
@@ -8,7 +10,7 @@ export class Game extends BaseModel {
   ownerUserId: string;
   playersId: Array<string> = [];
   maxPlayers: number = 4;
-  state: "Unstarted" | "Started" | "Finished" = "Unstarted";
+  state: GameStates = "Unstarted";
 
   constructor(name: string, ownerUserId: string) {
     super();
@@ -33,8 +35,19 @@ export class Game extends BaseModel {
     return this;
   }
 
-  isGameFull(): boolean {
-    return this.playersId.length < this.maxPlayers;
+  withPlayerIds(playersId: Array<string>) {
+    this.playersId = playersId;
+    return this;
+  }
+
+  withMaxPlayers(maxPlayers: number) {
+    this.maxPlayers = maxPlayers;
+    return this;
+  }
+
+  withState(state: GameStates) {
+    this.state = state;
+    return this;
   }
 
   fromObject(obj: any): Game {
