@@ -3,12 +3,15 @@ import {useDocument} from "react-firebase-hooks/firestore";
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typeogrophy from '@mui/material/Typography';
+import Button from '@mui/material/Button';
 
 import {Card, EmptyCard, CARD_HEIGHT} from "./Card";
 import {Library} from "./Library";
 
+import {mutate} from "../../firebase-interop/baseModel";
 import {playerStateDoc, PlayerState, CARD_BUCKETS, CardState} from "../../firebase-interop/models/playerState";
 import type {Game} from "../../firebase-interop/models/game";
+import {untapAll} from "../../firebase-interop/business-logic/playerState";
 
 type Props = {
     game: Game;
@@ -171,6 +174,10 @@ export function GameBoard({game, uid}: Props) {
         return <div>Bad bad.</div>;
     }
 
+    const handleUntapAll = async () => {
+        await mutate(playerState, untapAll());
+    };
+
     // TODO(miguel): wire up custom layouts here where we can swap the
     // graveyard from left to right. And permanents from top to bottom.
     // This will be done by simply applying `row` or `row-reverse`
@@ -185,6 +192,7 @@ export function GameBoard({game, uid}: Props) {
         <Grid container overflow="hidden" direction="column">
             <h1>{game.name}</h1>
             <Library game={game} player={playerState} />
+            <Button onClick={handleUntapAll}>Untap All</Button>
             <Grid container
                 direction="row"
                 columns={{ xs: 4, sm: 8, md: 12 }}

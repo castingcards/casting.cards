@@ -1,7 +1,15 @@
 
 import {Deck} from '../models/deck';
-import {PlayerState, CardState, CARD_BUCKETS} from '../models/playerState';
+import {PlayerState, CardState, CARD_BUCKETS, ALL_CARD_BUCKETS} from '../models/playerState';
 import {shuffle, allScryfallCards} from "./deck"
+
+export function findCardBucket(playerState: PlayerState, cardId: number): CARD_BUCKETS | undefined {
+    for (const bucket of ALL_CARD_BUCKETS) {
+        if (playerState[`${bucket}Cards`].find(card => card.id === cardId)) {
+            return bucket;
+        }
+    }
+}
 
 export function chooseDeck(deck: Deck) {
     return async function(playerState: PlayerState) {
@@ -45,6 +53,44 @@ export function moveCard(cardId: number, from: CARD_BUCKETS, to: CARD_BUCKETS) {
 
         playerState[`${from}Cards`].splice(fromCardIndex, 1);
         playerState[`${to}Cards`] = [...playerState[`${to}Cards`], cardToMove];
+        return playerState;
+    }
+}
+
+export function toggleTapped(cardId: number, value?: boolean) {
+    return async function(playerState: PlayerState) {
+        const bucket = findCardBucket(playerState, cardId);
+        if (!bucket) {
+            console.warn(`Card ${cardId} not found in any bucket`);
+            return playerState;
+        }
+
+
+        let fromCardIndex: number = playerState[`${bucket}Cards`].findIndex(card => card.id == cardId);
+        if (fromCardIndex < 0) {
+            console.warn(`Card ${cardId} not found in ${bucket}`);
+            return playerState;
+        }
+
+        playerState = playerState.clone();
+        if (value !== undefined) {
+            playerState[`${bucket}Cards`][fromCardIndex].tapped = value;
+            return playerState;
+        }
+
+        playerState[`${bucket}Cards`][fromCardIndex].tapped = !playerState[`${bucket}Cards`][fromCardIndex].tapped;
+        return playerState;
+    }
+}
+
+export function untapAll() {
+    return async function(playerState: PlayerState) {
+        playerState = playerState.clone();
+        for (const bucket of ALL_CARD_BUCKETS) {
+            playerState[`${bucket}Cards`] = playerState[`${bucket}Cards`].map(card => {
+                return {...card, tapped: false};
+            });
+        }
         return playerState;
     }
 }

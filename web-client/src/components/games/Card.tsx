@@ -9,7 +9,7 @@ import {mutate} from "../../firebase-interop/baseModel";
 import {deckDoc} from "../../firebase-interop/models/deck";
 import {ALL_CARD_BUCKETS} from "../../firebase-interop/models/playerState";
 import {imageForCard} from "../../firebase-interop/business-logic/cards";
-import {moveCard} from "../../firebase-interop/business-logic/playerState";
+import {moveCard, toggleTapped} from "../../firebase-interop/business-logic/playerState";
 import type {PlayerState, CARD_BUCKETS, CardState} from "../../firebase-interop/models/playerState";
 
 type Props = {
@@ -76,6 +76,10 @@ export function Card({player, cardState, bucket}: Props) {
         );
     };
 
+    const handleDoubleClick = (event: React.MouseEvent) => {
+        mutate(player, toggleTapped(cardState.id));
+    }
+
     const handleMoveCard = (location: CARD_BUCKETS) => {
         mutate(player, moveCard(cardState.id, bucket, location));
         setContextMenu(null);
@@ -85,6 +89,7 @@ export function Card({player, cardState, bucket}: Props) {
     const card = deck?.cards.find(card => card.scryfallDetails.id === cardState.scryfallId);
     const imageUrl = card ? imageForCard(card.scryfallDetails) : "";
     const possibleBucketsForCard = possibleBuckets(bucket);
+
     return (
         <Grid container sx={cardStyle}>
             <img
@@ -92,8 +97,9 @@ export function Card({player, cardState, bucket}: Props) {
                 alt={cardState.scryfallId}
                 width={CARD_WIDTH}
                 height={CARD_HEIGHT}
-                style={{cursor: 'context-menu'}}
+                style={{cursor: 'context-menu', transform: cardState.tapped ? 'rotate(90deg)' : 'none'}}
                 onContextMenu={handleContextMenu}
+                onDoubleClick={handleDoubleClick}
             />
             <Menu
                 open={contextMenu !== null}
