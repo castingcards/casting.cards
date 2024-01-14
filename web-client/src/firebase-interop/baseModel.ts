@@ -107,7 +107,7 @@ export function typedDoc<T extends BaseModel>(collectionPath: string, type: (new
   return (docPath: string) => doc(db, collectionPath, docPath).withConverter(cachedConverter);
 }
 
-export async function pipeline<T extends BaseModel>(model: T, ...fns: Array<(m: T) => Promise<T>>): Promise<T> {
+export async function mutate<T extends BaseModel>(model: T, ...fns: Array<(m: T) => Promise<T>>): Promise<T> {
   for (const fn of fns) {
     model = await fn(model);
   }

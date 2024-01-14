@@ -1,5 +1,5 @@
 
-import {pipeline} from "../baseModel"
+import {mutate} from "../baseModel"
 
 import {Game} from "../models/game"
 import {PlayerState, getPlayerState, getAllPlayerStates} from "../models/playerState";
@@ -45,7 +45,7 @@ export function setDeckForPlayer(playerState: PlayerState, deckId: string) {
             if (!deck) {
                 throw new Error(`Deck ${deckId} not found`);
             }
-            await pipeline(playerState, chooseDeck(deck));
+            await mutate(playerState, chooseDeck(deck));
         }
 
         return addPlayerId(playerState.playerId)(game);

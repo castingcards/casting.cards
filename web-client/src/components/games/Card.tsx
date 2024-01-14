@@ -5,7 +5,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
-import {pipeline} from "../../firebase-interop/baseModel";
+import {mutate} from "../../firebase-interop/baseModel";
 import {deckDoc} from "../../firebase-interop/models/deck";
 import {ALL_CARD_BUCKETS} from "../../firebase-interop/models/playerState";
 import {imageForCard} from "../../firebase-interop/business-logic/cards";
@@ -77,7 +77,7 @@ export function Card({player, cardState, bucket}: Props) {
     };
 
     const handleMoveCard = (location: CARD_BUCKETS) => {
-        pipeline(player, moveCard(cardState.id, bucket, location));
+        mutate(player, moveCard(cardState.id, bucket, location));
         setContextMenu(null);
     };
 
