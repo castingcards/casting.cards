@@ -1,23 +1,15 @@
 import React from "react";
 
-import Paper from "@mui/material/Paper";
-import Button from "@mui/material/Button";
+import { Grid } from "@mui/material";
 import Typeogrophy from '@mui/material/Typography';
 
-import {styled} from '@mui/material/styles';
+import {cardStyle, CARD_HEIGHT, CARD_WIDTH } from "./Card";
 
 import {mutate} from "../../firebase-interop/baseModel";
 import {drawCard} from "../../firebase-interop/business-logic/playerState";
 import type {PlayerState} from "../../firebase-interop/models/playerState";
 import type {Game} from "../../firebase-interop/models/game";
 
-const LibraryCard = styled(Paper)(({ theme }) => ({
-  width: 120,
-  height: 120,
-  padding: theme.spacing(2),
-  ...theme.typography.body2,
-  textAlign: 'center',
-}));
 
 
 type Props = {
@@ -34,9 +26,16 @@ export function Library({game, player}: Props) {
     );
 
     return (
-        <LibraryCard variant="outlined">
-            <Typeogrophy variant="body1">Library ({player.libraryCards.length})</Typeogrophy>
-            <Button onClick={handleDrawCard}>Draw Card</Button>
-        </LibraryCard>
+        <Grid container sx={cardStyle}>
+            <Typeogrophy variant="body1">Library {player.libraryCards.length}</Typeogrophy>
+            <img
+                src="/card-back.png"
+                alt="a decorative card back"
+                width={CARD_WIDTH}
+                height={CARD_HEIGHT}
+                style={{cursor: "pointer"}}
+                onDoubleClick={handleDrawCard}
+            />
+        </Grid>
     );
 }

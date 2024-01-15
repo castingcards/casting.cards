@@ -30,7 +30,7 @@ function possibleBuckets(bucket: CARD_BUCKETS): Array<CARD_BUCKETS> {
 export const CARD_HEIGHT: number = 120;
 export const CARD_WIDTH: number = 80;
 
-const cardStyle = {
+export const cardStyle = {
     justifyContent: "center",
     alignContent: "center",
     color: "#AAAAAA",
