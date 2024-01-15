@@ -5,6 +5,8 @@ import Typography from '@mui/material/Typography';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
+import IconButton from '@mui/material/IconButton';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 import {CenterLayout} from '../layouts/Center';
 
@@ -13,7 +15,7 @@ import {useCollection} from 'react-firebase-hooks/firestore';
 
 import {auth} from "../../firebase-interop/firebaseInit";
 import {NewDeck} from "./NewDeck"
-import {myDecksQuery} from "../../firebase-interop/models/deck";
+import {myDecksQuery, deleteDeck} from "../../firebase-interop/models/deck";
 import {allScryfallCards} from "../../firebase-interop/business-logic/deck"
 
 function DecksContent(): React.ReactElement {
@@ -40,7 +42,13 @@ function DecksContent(): React.ReactElement {
           {decks.docs.map(deckReference => {
             const deckId = deckReference.id;
             const deck = deckReference.data();
-            return (<ListItem key={deckId} sx={{backgroundColor: "#EEEEEE"}}>
+            return (<ListItem key={deckId} sx={{backgroundColor: "#EEEEEE"}}
+              secondaryAction={
+                <IconButton edge="end" aria-label="delete" onClick={() => deleteDeck(deckId)}>
+                  <DeleteIcon />
+                </IconButton>
+              }
+            >
               <Link to={`/decks/${deckId}`}>
                 <ListItemText
                   primary={deck.name}

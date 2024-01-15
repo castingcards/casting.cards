@@ -1,4 +1,4 @@
-import {query, where, addDoc} from "firebase/firestore";
+import {query, where, addDoc, deleteDoc} from "firebase/firestore";
 import {BaseModel, typedCollection, typedDoc} from "../baseModel";
 
 import type { Card } from "scryfall-sdk";
@@ -83,5 +83,17 @@ export async function addDeck(userId: string, deck: Deck): Promise<void> {
     await addDoc(decksCollection, deck.withUserID(userId));
   } catch (e) {
     console.error("Error adding document: ", e);
+  }
+}
+
+export async function deleteDeck(deckId: string): Promise<void> {
+  if (!deckId) {
+    throw new Error("Must provide a deckId");
+  }
+
+  try {
+    await deleteDoc(deckDoc(deckId));
+  } catch (e) {
+    console.error("Error deleting document: ", e);
   }
 }
