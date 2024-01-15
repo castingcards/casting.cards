@@ -9,6 +9,10 @@ const regexPattern = /https:\/\/www\.archidekt\.com\/decks\/(\d+)\/(\w*)/;
 
 type archidektDeck = {
   name: string,
+  categories: Array<{
+    includedInDeck: boolean,
+    name: string,
+  }>,
   cards: Array<{
     quantity: number,
     categories: Array<string>,
@@ -39,9 +43,15 @@ export class ArchidektUrlImporter {
     const response = await fetch(`https://archidekt.com/api/decks/${result[1]}/`);
     const deckData: archidektDeck = await response.json();
 
-    // Filter out the cards that are in the sideboard and maybeboard.
+    const categoriesToExclude = deckData.categories.filter(({includedInDeck}) => {
+      return !includedInDeck;
+    }).map(({name}) => name);
+
+    // Filter out the cards that are in the excluded categories.
     deckData.cards = deckData.cards.filter(({categories}) => {
-      return categories.indexOf("Sideboard") === -1 && categories.indexOf("Maybeboard") === -1;
+      return categoriesToExclude.every((category) => {
+        return categories.indexOf(category) === -1;
+      });
     });
 
     const identifiers = deckData.cards.map(({card}) => {
@@ -50,7 +60,6 @@ export class ArchidektUrlImporter {
 
     const cards = await Scry.Cards.collection(...identifiers).waitForAll();
     const cardReferences = deckData.cards.map((cardmeta, i) => {
-      console.log(cardmeta)
       if (cards[i].name !== cardmeta.card.oracleCard.name) {
         console.warn(
           `Card with id ${cardmeta.card.uid} don't match names.
