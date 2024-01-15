@@ -11,6 +11,7 @@ type archidektDeck = {
   name: string,
   cards: Array<{
     quantity: number,
+    categories: Array<string>,
     card: {
       uid: string,
       oracleCard: {
@@ -38,18 +39,27 @@ export class ArchidektUrlImporter {
     const response = await fetch(`https://archidekt.com/api/decks/${result[1]}/`);
     const deckData: archidektDeck = await response.json();
 
+    // Filter out the cards that are in the sideboard and maybeboard.
+    deckData.cards = deckData.cards.filter(({categories}) => {
+      return categories.indexOf("Sideboard") === -1 && categories.indexOf("Maybeboard") === -1;
+    });
+
     const identifiers = deckData.cards.map(({card}) => {
       return Scry.CardIdentifier.byId(card.uid);
     });
 
     const cards = await Scry.Cards.collection(...identifiers).waitForAll();
     const cardReferences = deckData.cards.map((cardmeta, i) => {
+      console.log(cardmeta)
       if (cards[i].name !== cardmeta.card.oracleCard.name) {
         console.warn(
           `Card with id ${cardmeta.card.uid} don't match names.
           "${cards[i].name}". "${cardmeta.card.oracleCard.name}"`);
       }
-      return new CardReference(cardmeta.quantity, cards[i])
+
+      const isCommander = cardmeta.categories.indexOf("Commander") !== -1;
+
+      return new CardReference(cardmeta.quantity, cards[i], isCommander);
     })
 
     return new Deck(deckData.name, cardReferences);
