@@ -1,13 +1,15 @@
 import React from 'react';
 import {useParams} from 'react-router-dom';
 
+import Grid from '@mui/material/Unstable_Grid2';
+
 import {useDocument} from 'react-firebase-hooks/firestore';
 import {gameDoc} from '../../firebase-interop/models/game';
 
 import {auth} from '../../firebase-interop/firebaseInit';
 import {useAuthState} from 'react-firebase-hooks/auth';
 
-import {GameBoard} from './GameBoard';
+import {OpponentGameBoard, MyGameBoard} from './GameBoard';
 import {ConfigureGame} from './ConfigureGame';
 
 import {playerStateDoc} from '../../firebase-interop/models/playerState';
@@ -54,5 +56,15 @@ function GameContent({game, playerUserId}: {game: Game, playerUserId: string}) {
         return <ConfigureGame game={game} userId={playerUserId} onImReady={() => {}}/>;
     }
 
-    return <GameBoard game={game} uid={playerUserId} />;
+    const opponentIds = game.playersId.filter(uid => uid !== playerUserId);
+    console.log(game.playersId, opponentIds);
+    const opponentUserId = opponentIds.length > 0 ? opponentIds[0] : playerUserId;
+
+    return (
+        <Grid container overflow="hidden" direction="column">
+            <h1>{game.name}</h1>
+            <OpponentGameBoard game={game} uid={opponentUserId} />
+            <MyGameBoard game={game} uid={playerUserId} />
+        </Grid>
+    );
 }

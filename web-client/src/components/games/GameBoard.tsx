@@ -16,6 +16,7 @@ import {untapAll} from "../../firebase-interop/business-logic/playerState";
 type Props = {
     game: Game;
     uid: string;
+    backgroundColor?: string;
 }
 
 function StackedCardsLayout({
@@ -169,7 +170,7 @@ function CommandZone({playerState}: {playerState: PlayerState}) {
     );
 }
 
-export function GameBoard({game, uid}: Props) {
+export function MyGameBoard({game, uid}: Props) {
     const [playerStateDocReference, loading] = useDocument(playerStateDoc(game.id!)(uid));
 
     if (loading) {
@@ -196,16 +197,13 @@ export function GameBoard({game, uid}: Props) {
     const permanentCreaturesLayout = "column";
 
     return (
-        <Grid container overflow="hidden" direction="column">
-            <h1>{game.name}</h1>
-            <Library game={game} player={playerState} />
-            <CommandZone playerState={playerState}/>
-            <Button onClick={handleUntapAll}>Untap All</Button>
+        <Grid container overflow="hidden" direction="column" sx={{backgroundColor: "#DFFFFF"}}>
             <Grid container
                 direction="row"
                 columns={{ xs: 4, sm: 8, md: 12 }}
             >
                 <Grid container direction={graveyardLayout} width="200px" justifyContent="center" alignItems="center">
+                    <Button onClick={handleUntapAll}>Untap All</Button>
                     <Exile playerState={playerState}/>
                     <Divider sx={{width: "1em", visibility: "hidden"}}/>
                     <Graveyard playerState={playerState}/>
@@ -221,6 +219,56 @@ export function GameBoard({game, uid}: Props) {
                         <Lands playerState={playerState} />
                     </Grid>
                     <Hand playerState={playerState} />
+                </Grid>
+                <Grid container direction={graveyardLayout} width="200px" justifyContent="center" alignItems="center">
+                    <Library game={game} player={playerState} />
+                    <Divider sx={{width: "1em", visibility: "hidden"}}/>
+                    <CommandZone playerState={playerState}/>
+                </Grid>
+                <Grid container direction={graveyardLayout} width="200px" justifyContent="center" alignItems="center">
+                </Grid>
+            </Grid>
+        </Grid>
+    );
+}
+
+export function OpponentGameBoard({game, uid}: Props) {
+    const [playerStateDocReference, loading] = useDocument(playerStateDoc(game.id!)(uid));
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
+    const playerState = playerStateDocReference?.data();
+    if (!playerState) {
+        return <div>Bad bad.</div>;
+    }
+
+    const graveyardLayout = "column";
+    const permanentCreaturesLayout = "column";
+
+    return (
+        <Grid container overflow="hidden" direction="column">
+            <Grid container
+                direction="row"
+                columns={{ xs: 4, sm: 8, md: 12 }}
+            >
+                <Grid container direction={graveyardLayout} width="200px" justifyContent="center" alignItems="center">
+                    <Exile playerState={playerState}/>
+                    <Divider sx={{width: "1em", visibility: "hidden"}}/>
+                    <Graveyard playerState={playerState}/>
+                </Grid>
+                <Grid container direction="column" flex="1">
+                    <Hand playerState={playerState} />
+                    <Grid container direction={permanentCreaturesLayout} flex="1">
+                        <Lands playerState={playerState} />
+                        <Battleground playerState={playerState} />
+                    </Grid>
+                </Grid>
+                <Grid container direction={graveyardLayout} width="200px" justifyContent="center" alignItems="center">
+                    <Library game={game} player={playerState} />
+                    <Divider sx={{width: "1em", visibility: "hidden"}}/>
+                    <CommandZone playerState={playerState}/>
                 </Grid>
                 <Grid container direction={graveyardLayout} width="200px" justifyContent="center" alignItems="center">
                 </Grid>
