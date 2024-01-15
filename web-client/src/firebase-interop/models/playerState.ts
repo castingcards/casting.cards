@@ -4,7 +4,7 @@ import {BaseModel, typedDoc, typedCollection} from "../baseModel";
 import {COLLECTION_PATH as GAME_COLLECTION_PATH} from "./game";
 
 // nested collection from Game
-export const ALL_CARD_BUCKETS = ["graveyard", "exile", "battlefield", "hand", "library", "land"] as const;
+export const ALL_CARD_BUCKETS = ["graveyard", "exile", "battlefield", "hand", "library", "land", "commandzone"] as const;
 export type CARD_BUCKETS = typeof ALL_CARD_BUCKETS[number];
 const COLLECTION_PATH = "playerStates";
 
@@ -12,6 +12,7 @@ export type CardState = {
     id: number;
     scryfallId: string;
     tapped: boolean;
+    isCommander: boolean;
 }
 
 export class PlayerState extends BaseModel {
@@ -43,6 +44,7 @@ export class PlayerState extends BaseModel {
     graveyardCards: Array<CardState> = [];
     exileCards: Array<CardState> = [];
     battlefieldCards: Array<CardState> = [];
+    commandzoneCards: Array<CardState> = [];
 
     fromObject(obj: any): PlayerState {
         const playerState = new PlayerState(obj.gameId, obj.playerId);
@@ -58,6 +60,7 @@ export class PlayerState extends BaseModel {
         playerState.graveyardCards = obj.graveyardCards;
         playerState.exileCards = obj.exileCards;
         playerState.battlefieldCards = obj.battlefieldCards;
+        playerState.commandzoneCards = obj.commandzoneCards;
         return playerState;
     }
 }

@@ -162,6 +162,13 @@ function Hand({playerState}: {playerState: PlayerState}) {
     );
 }
 
+function CommandZone({playerState}: {playerState: PlayerState}) {
+    const cards = playerState.commandzoneCards;
+    return (
+        <ListCardsLayout title="Command Zone" playerState={playerState} cardStates={cards} bucket="commandzone"/>
+    );
+}
+
 export function GameBoard({game, uid}: Props) {
     const [playerStateDocReference, loading] = useDocument(playerStateDoc(game.id!)(uid));
 
@@ -192,6 +199,7 @@ export function GameBoard({game, uid}: Props) {
         <Grid container overflow="hidden" direction="column">
             <h1>{game.name}</h1>
             <Library game={game} player={playerState} />
+            <CommandZone playerState={playerState}/>
             <Button onClick={handleUntapAll}>Untap All</Button>
             <Grid container
                 direction="row"

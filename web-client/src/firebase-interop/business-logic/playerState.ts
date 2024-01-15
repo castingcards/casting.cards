@@ -14,17 +14,25 @@ export function findCardBucket(playerState: PlayerState, cardId: number): CARD_B
 export function chooseDeck(deck: Deck) {
     return async function(playerState: PlayerState) {
         playerState = playerState.clone();
+
+        const commanderCardIDs = deck.cards.filter(card => card.isCommander).map(card => card.scryfallDetails.id);
         const allScryfallIds = allScryfallCards(deck).map(card => card.id);
         const cardStates = allScryfallIds.map(scryfallCardId => {
             const cardNumber = playerState.nextCardId;
             playerState.nextCardId++;
-            return newCardState(scryfallCardId, cardNumber);
+            const isCommander = commanderCardIDs.indexOf(scryfallCardId) !== -1;
+            return newCardState(scryfallCardId, cardNumber, false, isCommander);
         });
+
+        // pull all the commander card states out of the deck
+        const commanderCardStates = cardStates.filter(card => card.isCommander);
+        const nonCommanderCardStates = cardStates.filter(card => !card.isCommander);
 
         playerState.deckId = deck.id!;
         playerState.cardIds = allScryfallIds;
         playerState.isReady = false;
-        playerState.libraryCards = shuffle(cardStates);
+        playerState.libraryCards = shuffle(nonCommanderCardStates);
+        playerState.commandzoneCards = commanderCardStates;
         return playerState;
     }
 }
@@ -95,6 +103,6 @@ export function untapAll() {
     }
 }
 
-function newCardState(scryfallId: string, id: number, tapped: boolean = false): CardState {
-    return {id, scryfallId, tapped};
+function newCardState(scryfallId: string, id: number, tapped: boolean = false, isCommander: boolean = false): CardState {
+    return {id, scryfallId, tapped, isCommander};
 }
