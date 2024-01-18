@@ -23,4 +23,15 @@ export function imageForCard(scryfallDetails: Card) {
       : scryfallDetails.card_faces[0].image_uris;
 
     return image_uris?.normal || "";
-  }
+}
+
+export function transformOracleText(oracleText: string): string {
+    return oracleText
+      .replace(/\{T\}/g, "[TAP]")
+      .replace(/\{C\}/g, "[Colorless]")
+      .replace(/\{W\}/g, "[White]")
+      .replace(/\{U\}/g, "[Blue]")
+      .replace(/\{B\}/g, "[Black]")
+      .replace(/\{R\}/g, "[Red]")
+      .replace(/\{G\}/g, "[Green]");
+}

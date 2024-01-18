@@ -10,7 +10,9 @@ import {deckDoc} from "../../firebase-interop/models/deck";
 import {ALL_CARD_BUCKETS} from "../../firebase-interop/models/playerState";
 import {imageForCard} from "../../firebase-interop/business-logic/cards";
 import {moveCard, toggleTapped} from "../../firebase-interop/business-logic/playerState";
+import {transformOracleText} from "../../firebase-interop/business-logic/cards";
 import type {PlayerState, CARD_BUCKETS, CardState} from "../../firebase-interop/models/playerState";
+import type {Card as ScryfallCard} from "scryfall-sdk";
 
 type Props = {
     player: PlayerState;
@@ -43,6 +45,24 @@ export const cardStyle = {
     width: `${CARD_WIDTH}px`,
     height: `${CARD_HEIGHT}px`,
 };
+
+function getAltTextForCard(card: ScryfallCard): string {
+    let output = `Name: ${card.name}\n\n`;
+
+    if (card.mana_cost) {
+        output += `Mana Cost: ${transformOracleText(card.mana_cost)}\n\n`;
+    }
+
+    output += `Type: ${card.type_line}\n\n`;
+    output += `Rarity: ${card.rarity}\n\n`;
+    output += `${transformOracleText(card.oracle_text ?? "")}`;
+
+    if (card.power || card.toughness) {
+        output += `\n\nPower/Toughness: ${card.power ?? "--"}/${card.toughness ?? "--"}`;
+    }
+
+    return output;
+}
 
 export function Card({player, cardState, bucket, hidden, interactive}: Props) {
     const [gameResource, loading, error] = useDocument(player.deckId ? deckDoc(player.deckId) : undefined);
@@ -101,11 +121,18 @@ export function Card({player, cardState, bucket, hidden, interactive}: Props) {
     const cardBack = "/card-back.png";
     const possibleBucketsForCard = possibleBuckets(bucket);
 
+    const altText = card?.scryfallDetails ?
+        getAltTextForCard(card?.scryfallDetails)
+        : "Unknown Card";
+
+    console.log(card?.scryfallDetails)
+
     return (
         <Grid container sx={cardStyle}>
             <img
                 src={hidden ? cardBack : imageUrl}
-                alt={hidden ? "Hidden Card" : cardState.scryfallId}
+                alt={hidden ? "Hidden Card" : altText}
+                title={hidden ? "Hidden Card" : altText}
                 width={CARD_WIDTH}
                 height={CARD_HEIGHT}
                 style={{
