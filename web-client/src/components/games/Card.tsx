@@ -125,8 +125,6 @@ export function Card({player, cardState, bucket, hidden, interactive}: Props) {
         getAltTextForCard(card?.scryfallDetails)
         : "Unknown Card";
 
-    console.log(card?.scryfallDetails)
-
     return (
         <Grid container sx={cardStyle}>
             <img

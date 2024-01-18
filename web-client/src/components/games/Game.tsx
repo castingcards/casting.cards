@@ -57,7 +57,6 @@ function GameContent({game, playerUserId}: {game: Game, playerUserId: string}) {
     }
 
     const opponentIds = game.playersId.filter(uid => uid !== playerUserId);
-    console.log(game.playersId, opponentIds);
     const opponentUserId = opponentIds.length > 0 ? opponentIds[0] : playerUserId;
 
     return (
