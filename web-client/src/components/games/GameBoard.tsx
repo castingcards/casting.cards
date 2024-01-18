@@ -24,11 +24,13 @@ function StackedCardsLayout({
     title,
     playerState,
     bucket,
+    interactive,
 }: {
     cardStates: Array<CardState>,
     title: React.ReactNode,
     playerState: PlayerState,
     bucket: CARD_BUCKETS,
+    interactive?: boolean,
 }) {
     const top = cardStates[cardStates.length - 1];
 
@@ -37,28 +39,34 @@ function StackedCardsLayout({
             <Typeogrophy variant="body1">{title} ({cardStates.length})</Typeogrophy>
             <Grid container alignContent="center">
                 <Grid>
-                    {top ? <Card player={playerState} cardState={top} bucket={bucket} />: <EmptyCard/>}
+                    {top ? <Card player={playerState} cardState={top} bucket={bucket} interactive={interactive} />: <EmptyCard/>}
                 </Grid>
             </Grid>
         </Grid>
     );
 }
 
-function Exile({playerState}: {playerState: PlayerState}) {
+function Exile({playerState, interactive}: {
+    playerState: PlayerState,
+    interactive?: boolean,
+}) {
     // TODO(miguel): wire in cards that are in the exile bucket
     const cards = playerState.exileCards;
 
     return (
-        <StackedCardsLayout title="Exile" cardStates={cards} playerState={playerState} bucket="exile"/>
+        <StackedCardsLayout title="Exile" cardStates={cards} playerState={playerState} bucket="exile" interactive={interactive} />
     );
 }
 
-function Graveyard({playerState}: {playerState: PlayerState}) {
+function Graveyard({playerState, interactive}: {
+    playerState: PlayerState,
+    interactive?: boolean,
+}) {
     // TODO(miguel): wire in cards that are in the graveyard bucket
     const cards = playerState.graveyardCards;
 
     return (
-        <StackedCardsLayout title="Graveyard" cardStates={cards} playerState={playerState} bucket="graveyard"/>
+        <StackedCardsLayout title="Graveyard" cardStates={cards} playerState={playerState} bucket="graveyard" interactive={interactive}/>
     );
 }
 
@@ -99,17 +107,39 @@ function ListCardsLayout({
     bucket,
     title,
     playerState,
+    hidden,
+    interactive,
 }: {
     cardStates: Array<CardState>,
     bucket: CARD_BUCKETS,
     title: React.ReactNode,
     playerState: PlayerState,
+    hidden?: boolean,
+    interactive?: boolean,
 }) {
     const [hoveredItemIndex, setHoveredItemIndex] = React.useState(-1);
     // Half the card height is how much we have to translate cards so that
     // fish eye can scale cards while staying aligned to the bottom of the
     // card zone.
     const halfCardHeight = CARD_HEIGHT/2;
+
+    // TODO(miguel): perhaps make this configurable!
+    const fishEyeTransform = (i: number) => {
+        if (hidden) {
+            return {};
+        }
+
+        return {
+            transform: `
+                translateY(${hoveredItemIndex !== -1 ? halfCardHeight - (halfCardHeight * calculateFishEye(hoveredItemIndex, i)): 0}px)
+                translateX(${hoveredItemIndex !== -1 ? cardStates.length * (i-hoveredItemIndex): 0}px)
+                scale(${hoveredItemIndex !== -1 ? calculateFishEye(hoveredItemIndex, i) : 1})
+            `,
+            zIndex: hoveredItemIndex !== -1 ? 1000 - Math.abs(hoveredItemIndex - i) : undefined,
+        };
+    };
+
+
     return (
         <Grid container direction="column" alignItems="center">
             <Typeogrophy variant="body1">{title} ({cardStates.length})</Typeogrophy>
@@ -120,21 +150,11 @@ function ListCardsLayout({
                         // +i keeps react happy when we render the same card more than once.
                         key={cardState.id}
                         justifyContent="center"
-                        onMouseOver={() => {setHoveredItemIndex(i)}}
-                        onMouseOut={() => {setHoveredItemIndex(-1)}}
-                        sx={{
-                            // TODO(miguel): perhaps make this configurable!
-                            transform: `
-                                translateY(${hoveredItemIndex !== -1 ? halfCardHeight - (halfCardHeight * calculateFishEye(hoveredItemIndex, i)): 0}px)
-                                translateX(${hoveredItemIndex !== -1 ? cardStates.length * (i-hoveredItemIndex): 0}px)
-                                scale(${hoveredItemIndex !== -1 ? calculateFishEye(hoveredItemIndex, i) : 1})
-                            `,
-                            // z index makes sure that cards where the mouse
-                            // is hovering over are visible.
-                            zIndex: hoveredItemIndex !== -1 ? 1000 - Math.abs(hoveredItemIndex - i) : undefined,
-                        }}
+                        onMouseOver={() => {!hidden && setHoveredItemIndex(i)}}
+                        onMouseOut={() => {!hidden && setHoveredItemIndex(-1)}}
+                        sx={fishEyeTransform(i)}
                     >
-                        <Card player={playerState} cardState={cardState} bucket={bucket} />
+                        <Card player={playerState} cardState={cardState} bucket={bucket} hidden={hidden} interactive={interactive} />
                     </Grid>
                 ) : <EmptyCard/>}
             </Grid>
@@ -142,31 +162,44 @@ function ListCardsLayout({
     );
 }
 
-function Lands({playerState}: {playerState: PlayerState}) {
+function Lands({playerState, interactive}: {
+    playerState: PlayerState,
+    interactive?: boolean,
+}) {
     const cards = playerState.landCards;
     return (
-        <ListCardsLayout title="Lands" playerState={playerState} cardStates={cards} bucket="land"/>
+        <ListCardsLayout title="Lands" playerState={playerState} cardStates={cards} bucket="land" interactive={interactive}/>
     );
 }
 
-function Battleground({playerState}: {playerState: PlayerState}) {
+function Battleground({playerState, interactive}: {
+    playerState: PlayerState,
+    interactive?: boolean,
+}) {
     const cards = playerState.battlefieldCards;
     return (
-        <ListCardsLayout title="Battleground" playerState={playerState} cardStates={cards} bucket="battlefield" />
+        <ListCardsLayout title="Battleground" playerState={playerState} cardStates={cards} bucket="battlefield" interactive={interactive} />
     );
 }
 
-function Hand({playerState}: {playerState: PlayerState}) {
+function Hand({playerState, opponent, interactive}: {
+    playerState: PlayerState,
+    opponent?: boolean,
+    interactive?: boolean,
+}) {
     const cards = playerState.handCards;
     return (
-        <ListCardsLayout title="Hand" playerState={playerState} cardStates={cards} bucket="hand"/>
+        <ListCardsLayout title="Hand" playerState={playerState} cardStates={cards} hidden={opponent} bucket="hand" interactive={interactive}/>
     );
 }
 
-function CommandZone({playerState}: {playerState: PlayerState}) {
+function CommandZone({playerState, interactive}: {
+    playerState: PlayerState,
+    interactive?: boolean,
+}) {
     const cards = playerState.commandzoneCards;
     return (
-        <ListCardsLayout title="Command Zone" playerState={playerState} cardStates={cards} bucket="commandzone"/>
+        <ListCardsLayout title="Command Zone" playerState={playerState} cardStates={cards} bucket="commandzone" interactive={interactive}/>
     );
 }
 
@@ -204,9 +237,9 @@ export function MyGameBoard({game, uid}: Props) {
             >
                 <Grid container direction={graveyardLayout} width="200px" justifyContent="center" alignItems="center">
                     <Button onClick={handleUntapAll}>Untap All</Button>
-                    <Exile playerState={playerState}/>
+                    <Exile playerState={playerState} interactive={true}/>
                     <Divider sx={{width: "1em", visibility: "hidden"}}/>
-                    <Graveyard playerState={playerState}/>
+                    <Graveyard playerState={playerState} interactive={true}/>
                 </Grid>
                 <Grid container direction="column" flex="1">
                     <Grid container direction={permanentCreaturesLayout} flex="1">
@@ -215,15 +248,15 @@ export function MyGameBoard({game, uid}: Props) {
                         lands zone is to not be rendered then the battlefield
                         will also take the space for lands.
                         */}
-                        <Battleground playerState={playerState} />
-                        <Lands playerState={playerState} />
+                        <Battleground playerState={playerState} interactive={true}/>
+                        <Lands playerState={playerState} interactive={true} />
                     </Grid>
-                    <Hand playerState={playerState} />
+                    <Hand playerState={playerState} interactive={true} />
                 </Grid>
                 <Grid container direction={graveyardLayout} width="200px" justifyContent="center" alignItems="center">
-                    <Library game={game} player={playerState} />
+                    <Library game={game} player={playerState} interactive={true} />
                     <Divider sx={{width: "1em", visibility: "hidden"}}/>
-                    <CommandZone playerState={playerState}/>
+                    <CommandZone playerState={playerState} interactive={true}/>
                 </Grid>
                 <Grid container direction={graveyardLayout} width="200px" justifyContent="center" alignItems="center">
                 </Grid>
@@ -259,7 +292,7 @@ export function OpponentGameBoard({game, uid}: Props) {
                     <Graveyard playerState={playerState}/>
                 </Grid>
                 <Grid container direction="column" flex="1">
-                    <Hand playerState={playerState} />
+                    <Hand playerState={playerState} opponent={true} />
                     <Grid container direction={permanentCreaturesLayout} flex="1">
                         <Lands playerState={playerState} />
                         <Battleground playerState={playerState} />

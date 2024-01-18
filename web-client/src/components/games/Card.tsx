@@ -16,6 +16,8 @@ type Props = {
     player: PlayerState;
     cardState: CardState;
     bucket: CARD_BUCKETS;
+    hidden?: boolean;
+    interactive?: boolean;
 }
 
 function possibleBuckets(bucket: CARD_BUCKETS): Array<CARD_BUCKETS> {
@@ -42,7 +44,7 @@ export const cardStyle = {
     height: `${CARD_HEIGHT}px`,
 };
 
-export function Card({player, cardState, bucket}: Props) {
+export function Card({player, cardState, bucket, hidden, interactive}: Props) {
     const [gameResource, loading, error] = useDocument(player.deckId ? deckDoc(player.deckId) : undefined);
     const [contextMenu, setContextMenu] = React.useState<{
         mouseX: number;
@@ -77,10 +79,18 @@ export function Card({player, cardState, bucket}: Props) {
     };
 
     const handleDoubleClick = (event: React.MouseEvent) => {
+        if (!interactive) {
+            return;
+        }
+
         mutate(player, toggleTapped(cardState.id));
     }
 
     const handleMoveCard = (location: CARD_BUCKETS) => {
+        if (!interactive) {
+            return;
+        }
+
         mutate(player, moveCard(cardState.id, bucket, location));
         setContextMenu(null);
     };
@@ -88,20 +98,24 @@ export function Card({player, cardState, bucket}: Props) {
     const deck = gameResource?.data();
     const card = deck?.cards.find(card => card.scryfallDetails.id === cardState.scryfallId);
     const imageUrl = card ? imageForCard(card.scryfallDetails) : "";
+    const cardBack = "/card-back.png";
     const possibleBucketsForCard = possibleBuckets(bucket);
 
     return (
         <Grid container sx={cardStyle}>
             <img
-                src={imageUrl}
-                alt={cardState.scryfallId}
+                src={hidden ? cardBack : imageUrl}
+                alt={hidden ? "Hidden Card" : cardState.scryfallId}
                 width={CARD_WIDTH}
                 height={CARD_HEIGHT}
-                style={{cursor: 'context-menu', transform: cardState.tapped ? 'rotate(90deg)' : 'none'}}
+                style={{
+                    cursor: interactive ? 'context-menu' : "",
+                    transform: cardState.tapped ? 'rotate(90deg)' : 'none',
+                }}
                 onContextMenu={handleContextMenu}
                 onDoubleClick={handleDoubleClick}
             />
-            <Menu
+            {interactive && <Menu
                 open={contextMenu !== null}
                 onClose={() => setContextMenu(null)}
                 anchorReference="anchorPosition"
@@ -116,7 +130,7 @@ export function Card({player, cardState, bucket}: Props) {
                         Move to {bucket}
                     </MenuItem>
                 ))}
-            </Menu>
+            </Menu>}
         </Grid>
     );
 }

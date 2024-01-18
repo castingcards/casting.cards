@@ -15,14 +15,18 @@ import type {Game} from "../../firebase-interop/models/game";
 type Props = {
     game: Game;
     player: PlayerState;
+    interactive?: boolean;
 }
 
-export function Library({game, player}: Props) {
+export function Library({game, player, interactive}: Props) {
     const handleDrawCard = React.useCallback(
         async () => {
+            if (!interactive) {
+                return;
+            }
             await mutate(player, drawCard());
         },
-        [player],
+        [player, interactive],
     );
 
     return (
@@ -33,7 +37,9 @@ export function Library({game, player}: Props) {
                 alt="a decorative card back"
                 width={CARD_WIDTH}
                 height={CARD_HEIGHT}
-                style={{cursor: "pointer"}}
+                style={{
+                    cursor: interactive ? "pointer" : "",
+                }}
                 onDoubleClick={handleDrawCard}
             />
         </Grid>
