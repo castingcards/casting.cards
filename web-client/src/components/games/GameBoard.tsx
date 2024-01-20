@@ -8,6 +8,7 @@ import Button from '@mui/material/Button';
 import {Card, EmptyCard, CARD_HEIGHT} from "./Card";
 import {Library} from "./Library";
 import {PlayerBadge} from "./PlayerBadge";
+import {NewToken} from "./NewToken";
 
 import {mutate} from "../../firebase-interop/baseModel";
 import {playerStateDoc, PlayerState, CARD_BUCKETS, CardState} from "../../firebase-interop/models/playerState";
@@ -40,7 +41,7 @@ function StackedCardsLayout({
             <Typeogrophy variant="body1">{title} ({cardStates.length})</Typeogrophy>
             <Grid container alignContent="center">
                 <Grid>
-                    {top ? <Card player={playerState} cardState={top} bucket={bucket} interactive={interactive} />: <EmptyCard/>}
+                    {top ? <Card playerState={playerState} cardState={top} bucket={bucket} interactive={interactive} />: <EmptyCard/>}
                 </Grid>
             </Grid>
         </Grid>
@@ -155,7 +156,7 @@ function ListCardsLayout({
                         onMouseOut={() => {!hidden && setHoveredItemIndex(-1)}}
                         sx={fishEyeTransform(i)}
                     >
-                        <Card player={playerState} cardState={cardState} bucket={bucket} hidden={hidden} interactive={interactive} />
+                        <Card playerState={playerState} cardState={cardState} bucket={bucket} hidden={hidden} interactive={interactive} />
                     </Grid>
                 ) : <EmptyCard/>}
             </Grid>
@@ -256,6 +257,7 @@ export function MyGameBoard({game, uid}: Props) {
                     <Hand playerState={playerState} interactive={true} />
                 </Grid>
                 <Grid container direction={graveyardLayout} width="200px" justifyContent="center" alignItems="center">
+                    <NewToken playerState={playerState} />
                     <Library game={game} player={playerState} interactive={true} />
                     <Divider sx={{width: "1em", visibility: "hidden"}}/>
                     <CommandZone playerState={playerState} interactive={true}/>

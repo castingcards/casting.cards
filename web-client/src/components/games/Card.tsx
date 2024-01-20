@@ -4,18 +4,20 @@ import {useDocument} from 'react-firebase-hooks/firestore';
 import Grid from '@mui/material/Unstable_Grid2';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import Typography from '@mui/material/Typography';
+import Stack from '@mui/material/Stack';
 
 import {mutate} from "../../firebase-interop/baseModel";
-import {deckDoc} from "../../firebase-interop/models/deck";
+import {CardReference, deckDoc} from "../../firebase-interop/models/deck";
 import {ALL_CARD_BUCKETS} from "../../firebase-interop/models/playerState";
 import {imageForCard} from "../../firebase-interop/business-logic/cards";
 import {moveCard, toggleTapped} from "../../firebase-interop/business-logic/playerState";
 import {transformOracleText} from "../../firebase-interop/business-logic/cards";
-import type {PlayerState, CARD_BUCKETS, CardState} from "../../firebase-interop/models/playerState";
+import type {PlayerState, CARD_BUCKETS, CardState, Token} from "../../firebase-interop/models/playerState";
 import type {Card as ScryfallCard} from "scryfall-sdk";
 
 type Props = {
-    player: PlayerState;
+    playerState: PlayerState;
     cardState: CardState;
     bucket: CARD_BUCKETS;
     hidden?: boolean;
@@ -64,8 +66,8 @@ function getAltTextForCard(card: ScryfallCard): string {
     return output;
 }
 
-export function Card({player, cardState, bucket, hidden, interactive}: Props) {
-    const [gameResource, loading, error] = useDocument(player.deckId ? deckDoc(player.deckId) : undefined);
+export function Card({playerState, cardState, bucket, hidden, interactive}: Props) {
+    const [gameResource, loading, error] = useDocument(playerState.deckId ? deckDoc(playerState.deckId) : undefined);
     const [contextMenu, setContextMenu] = React.useState<{
         mouseX: number;
         mouseY: number;
@@ -103,7 +105,7 @@ export function Card({player, cardState, bucket, hidden, interactive}: Props) {
             return;
         }
 
-        mutate(player, toggleTapped(cardState.id));
+        mutate(playerState, toggleTapped(cardState.id));
     }
 
     const handleMoveCard = (location: CARD_BUCKETS) => {
@@ -111,35 +113,25 @@ export function Card({player, cardState, bucket, hidden, interactive}: Props) {
             return;
         }
 
-        mutate(player, moveCard(cardState.id, bucket, location));
+        mutate(playerState, moveCard(cardState.id, bucket, location));
         setContextMenu(null);
     };
 
     const deck = gameResource?.data();
     const card = deck?.cards.find(card => card.scryfallDetails.id === cardState.scryfallId);
-    const imageUrl = card ? imageForCard(card.scryfallDetails) : "";
-    const cardBack = "/card-back.png";
+
+    const token = cardState.tokenName ? playerState.tokenDefinitions.find(token => token.name === cardState.tokenName) : undefined;
+
     const possibleBucketsForCard = possibleBuckets(bucket);
 
-    const altText = card?.scryfallDetails ?
-        getAltTextForCard(card?.scryfallDetails)
-        : "Unknown Card";
-
     return (
-        <Grid container sx={cardStyle}>
-            <img
-                src={hidden ? cardBack : imageUrl}
-                alt={hidden ? "Hidden Card" : altText}
-                title={hidden ? "Hidden Card" : altText}
-                width={CARD_WIDTH}
-                height={CARD_HEIGHT}
-                style={{
-                    cursor: interactive ? 'context-menu' : "",
-                    transform: cardState.tapped ? 'rotate(90deg)' : 'none',
-                }}
-                onContextMenu={handleContextMenu}
-                onDoubleClick={handleDoubleClick}
-            />
+        <Grid container sx={cardStyle} onContextMenu={handleContextMenu} onDoubleClick={handleDoubleClick}>
+            {card ? <ScryfallCardImage
+                card={card}
+                tapped={cardState.tapped}
+                hidden={hidden}
+                interactive={interactive}
+            /> : <TokenDetails token={token} /> }
             {interactive && <Menu
                 open={contextMenu !== null}
                 onClose={() => setContextMenu(null)}
@@ -158,6 +150,50 @@ export function Card({player, cardState, bucket, hidden, interactive}: Props) {
             </Menu>}
         </Grid>
     );
+}
+
+function ScryfallCardImage({card, tapped, hidden, interactive}: {
+    card: CardReference,
+    tapped?: boolean,
+    hidden?: boolean,
+    interactive?: boolean,
+}) {
+    const imageUrl = card ? imageForCard(card.scryfallDetails) : "";
+    const cardBack = "/card-back.png";
+    const altText = card?.scryfallDetails ?
+        getAltTextForCard(card?.scryfallDetails)
+        : "Unknown Card";
+
+
+    return <img
+        src={hidden ? cardBack : imageUrl}
+        alt={hidden ? "Hidden Card" : altText}
+        title={hidden ? "Hidden Card" : altText}
+        width={CARD_WIDTH}
+        height={CARD_HEIGHT}
+        style={{
+            cursor: interactive ? 'context-menu' : "",
+            transform: tapped ? 'rotate(90deg)' : 'none',
+        }}
+    />;
+}
+
+function TokenDetails({token}: {token: Token | undefined}) {
+    if (!token) {
+        return <EmptyCard/>;
+    }
+
+    return <Grid container sx={{
+        ...cardStyle,
+        borderColor: "#AAAAAA",
+        backgroundColor: "#FFFFFF",
+    }}>
+        <Stack direction="column" spacing={1}>
+            <Typography variant="h6">{token.name}</Typography>
+            <Typography variant="body2">{token.abilities}</Typography>
+            <Typography variant="body2">{token.power}/{token.toughness}</Typography>
+        </Stack>
+    </Grid>
 }
 
 export function ErrorCard({children}: {children: React.ReactNode}) {

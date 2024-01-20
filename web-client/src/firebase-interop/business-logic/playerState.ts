@@ -1,6 +1,6 @@
 
 import {Deck} from '../models/deck';
-import {PlayerState, CardState, CARD_BUCKETS, ALL_CARD_BUCKETS} from '../models/playerState';
+import {PlayerState, CardState, CARD_BUCKETS, ALL_CARD_BUCKETS, Token} from '../models/playerState';
 import {shuffle, allScryfallCards} from "./deck"
 
 export function findCardBucket(playerState: PlayerState, cardId: number): CARD_BUCKETS | undefined {
@@ -111,6 +111,34 @@ export function adjustLife(amount: number) {
     }
 }
 
-function newCardState(scryfallId: string, id: number, tapped: boolean = false, isCommander: boolean = false): CardState {
-    return {id, scryfallId, tapped, isCommander};
+export function addTokenDefinition(token: Token) {
+    return async function(playerState: PlayerState) {
+        playerState = playerState.clone();
+        playerState.tokenDefinitions.push(token);
+        return playerState;
+    }
+}
+
+export function addTokenToBattlefield(token: Token) {
+    return async function(playerState: PlayerState) {
+        playerState = playerState.clone();
+        const cardNumber = playerState.nextCardId;
+        playerState.nextCardId++;
+        playerState.battlefieldCards.push(newCardState("", cardNumber, false, false, token.name));
+        return playerState;
+    }
+}
+
+function newCardState(
+    scryfallId: string,
+    id: number,
+    tapped: boolean = false,
+    isCommander: boolean = false,
+    tokenName?: string,
+): CardState {
+    const state = {id, scryfallId, tapped, isCommander};
+    if (tokenName) {
+        return {...state, tokenName};
+    }
+    return state;
 }

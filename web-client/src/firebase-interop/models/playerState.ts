@@ -13,6 +13,14 @@ export type CardState = {
     scryfallId: string;
     tapped: boolean;
     isCommander: boolean;
+    tokenName?: string;
+}
+
+export type Token = {
+    name: string;
+    abilities: string;
+    power: number | undefined;
+    toughness: number | undefined;
 }
 
 export class PlayerState extends BaseModel {
@@ -46,21 +54,26 @@ export class PlayerState extends BaseModel {
     battlefieldCards: Array<CardState> = [];
     commandzoneCards: Array<CardState> = [];
 
+    tokenDefinitions: Array<Token> = [];
+
     fromObject(obj: any): PlayerState {
         const playerState = new PlayerState(obj.gameId, obj.playerId);
+
         playerState.life = obj.life;
         playerState.deckId = obj.deckId;
-        playerState.cardIds = obj.cardIds;
-        playerState.poisonCounters = obj.poisonCounters;
-        playerState.isReady = obj.isReady;
+        playerState.cardIds = obj.cardIds ;
+        playerState.poisonCounters = obj.poisonCounters || 0;
+        playerState.isReady = obj.isReady || false;
 
-        playerState.handCards = obj.handCards;
-        playerState.landCards = obj.landCards;
-        playerState.libraryCards = obj.libraryCards;
-        playerState.graveyardCards = obj.graveyardCards;
-        playerState.exileCards = obj.exileCards;
-        playerState.battlefieldCards = obj.battlefieldCards;
-        playerState.commandzoneCards = obj.commandzoneCards;
+        playerState.handCards = obj.handCards || [];
+        playerState.landCards = obj.landCards || [];
+        playerState.libraryCards = obj.libraryCards || [];
+        playerState.graveyardCards = obj.graveyardCards || [];
+        playerState.exileCards = obj.exileCards || [];
+        playerState.battlefieldCards = obj.battlefieldCards || [];
+        playerState.commandzoneCards = obj.commandzoneCards || [];
+        playerState.tokenDefinitions = obj.tokenDefinitions || [];
+
         return playerState;
     }
 }
