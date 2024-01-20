@@ -103,6 +103,14 @@ export function untapAll() {
     }
 }
 
+export function adjustLife(amount: number) {
+    return async function(playerState: PlayerState) {
+        playerState = playerState.clone();
+        playerState.life += amount;
+        return playerState;
+    }
+}
+
 function newCardState(scryfallId: string, id: number, tapped: boolean = false, isCommander: boolean = false): CardState {
     return {id, scryfallId, tapped, isCommander};
 }

@@ -7,6 +7,7 @@ import Button from '@mui/material/Button';
 
 import {Card, EmptyCard, CARD_HEIGHT} from "./Card";
 import {Library} from "./Library";
+import {PlayerBadge} from "./PlayerBadge";
 
 import {mutate} from "../../firebase-interop/baseModel";
 import {playerStateDoc, PlayerState, CARD_BUCKETS, CardState} from "../../firebase-interop/models/playerState";
@@ -236,6 +237,7 @@ export function MyGameBoard({game, uid}: Props) {
                 columns={{ xs: 4, sm: 8, md: 12 }}
             >
                 <Grid container direction={graveyardLayout} width="200px" justifyContent="center" alignItems="center">
+                    <PlayerBadge playerState={playerState} interactive={true}/>
                     <Button onClick={handleUntapAll}>Untap All</Button>
                     <Exile playerState={playerState} interactive={true}/>
                     <Divider sx={{width: "1em", visibility: "hidden"}}/>
@@ -287,6 +289,7 @@ export function OpponentGameBoard({game, uid}: Props) {
                 columns={{ xs: 4, sm: 8, md: 12 }}
             >
                 <Grid container direction={graveyardLayout} width="200px" justifyContent="center" alignItems="center">
+                    <PlayerBadge playerState={playerState}/>
                     <Exile playerState={playerState}/>
                     <Divider sx={{width: "1em", visibility: "hidden"}}/>
                     <Graveyard playerState={playerState}/>
