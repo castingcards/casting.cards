@@ -62,6 +62,8 @@ export class InfiniteTCGPlayerImporter {
       return acc;
     }, cardIDToQuantityMapping);
 
+    // TODO(miguel): add better handling for cards that are not found like
+    // we do in the archidekt importer.
     const cards = await Scry.Cards.collection(...identifiers).waitForAll();
     const cardReferences = Object.keys(deckData.result.cards).map((cardKey: string, i) => {
       const card = deckData.result.cards[cardKey];

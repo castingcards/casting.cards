@@ -16,6 +16,8 @@ export async function fromText(deckText: string): Promise<Deck> {
 
     const cards = await Scry.Cards.collection(...identifiers).waitForAll();
 
+    // TODO(miguel): add better handling for cards that are not found like
+    // we do in the archidekt importer.
     if (cards.not_found.length > 0) {
         console.log("Not found", cards.not_found);
     }
