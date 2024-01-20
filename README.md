@@ -13,17 +13,19 @@ authentication integration.
 To run the magic table in your local dev, you need to first start the
 emulators.  Open up a shell in the top level project dir and run:
 ```
-cd backend
-npm install
-npm start
+npm install --prefix backend
+npm start --prefix backend
 ```
 
 In a second shell, start the UI:
 ```
-cd web-client
-npm install
-npm start
+npm install --prefix web-client
+npm start --prefix web-client
 ```
+
+NOTE: you can also `cd` into `backend` and `web-client` and run the commands
+above without the `--prefix`.  `--prefix` just allows you to run commands
+from a parent directory.
 
 Now you should have an app running locally, which you can see at
 http://localhost:3000/
