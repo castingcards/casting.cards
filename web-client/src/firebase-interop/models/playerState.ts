@@ -4,9 +4,20 @@ import {BaseModel, typedDoc, typedCollection} from "../baseModel";
 import {COLLECTION_PATH as GAME_COLLECTION_PATH} from "./game";
 
 // nested collection from Game
+
 export const ALL_CARD_BUCKETS = ["graveyard", "exile", "battlefield", "hand", "library", "land", "commandzone"] as const;
 export type CARD_BUCKETS = typeof ALL_CARD_BUCKETS[number];
+
+export const ALL_COUNTER_LOCATIONS = ["upper-left", "top", "upper-right", "left", "right", "lower-left", "bottom", "lower-right"] as const;
+export type COUNTER_LOCATION = typeof ALL_COUNTER_LOCATIONS[number];
+
 const COLLECTION_PATH = "playerStates";
+
+export type Counter = {
+    kind: string;
+    count: number;
+    placement: COUNTER_LOCATION;
+}
 
 export type CardState = {
     id: number;
@@ -14,6 +25,7 @@ export type CardState = {
     tapped: boolean;
     isCommander: boolean;
     tokenName?: string;
+    counters: Array<Counter>;
 }
 
 export type Token = {

@@ -3,12 +3,31 @@ import {Deck} from '../models/deck';
 import {PlayerState, CardState, CARD_BUCKETS, ALL_CARD_BUCKETS, Token} from '../models/playerState';
 import {shuffle, allScryfallCards} from "./deck"
 
+import type {COUNTER_LOCATION} from '../models/playerState';
+
 export function findCardBucket(playerState: PlayerState, cardId: number): CARD_BUCKETS | undefined {
     for (const bucket of ALL_CARD_BUCKETS) {
         if (playerState[`${bucket}Cards`].find(card => card.id === cardId)) {
             return bucket;
         }
     }
+}
+
+function getCardLocation(playerState: PlayerState, cardId: number): {bucket: CARD_BUCKETS, bucketIndex: number} | undefined {
+    const bucket = findCardBucket(playerState, cardId);
+    if (!bucket) {
+        console.warn(`Card ${cardId} not found in any bucket`);
+        return;
+    }
+
+
+    let bucketIndex: number = playerState[`${bucket}Cards`].findIndex(card => card.id == cardId);
+    if (bucketIndex < 0) {
+        console.warn(`Card ${cardId} not found in ${bucket}`);
+        return;
+    }
+
+    return {bucket, bucketIndex};
 }
 
 export function chooseDeck(deck: Deck) {
@@ -67,26 +86,38 @@ export function moveCard(cardId: number, from: CARD_BUCKETS, to: CARD_BUCKETS) {
 
 export function toggleTapped(cardId: number, value?: boolean) {
     return async function(playerState: PlayerState) {
-        const bucket = findCardBucket(playerState, cardId);
-        if (!bucket) {
-            console.warn(`Card ${cardId} not found in any bucket`);
+        const cardLocation = getCardLocation(playerState, cardId);
+        if (!cardLocation) {
             return playerState;
         }
 
-
-        let fromCardIndex: number = playerState[`${bucket}Cards`].findIndex(card => card.id == cardId);
-        if (fromCardIndex < 0) {
-            console.warn(`Card ${cardId} not found in ${bucket}`);
-            return playerState;
-        }
+        const {bucket, bucketIndex} = cardLocation;
 
         playerState = playerState.clone();
         if (value !== undefined) {
-            playerState[`${bucket}Cards`][fromCardIndex].tapped = value;
+            playerState[`${bucket}Cards`][bucketIndex].tapped = value;
             return playerState;
         }
 
-        playerState[`${bucket}Cards`][fromCardIndex].tapped = !playerState[`${bucket}Cards`][fromCardIndex].tapped;
+        playerState[`${bucket}Cards`][bucketIndex].tapped = !playerState[`${bucket}Cards`][bucketIndex].tapped;
+        return playerState;
+    }
+}
+
+export function addCounter(cardId: number, kind: string, count: number = 1, placement: COUNTER_LOCATION) {
+    return async function(playerState: PlayerState) {
+        const cardLocation = getCardLocation(playerState, cardId);
+        if (!cardLocation) {
+            return playerState;
+        }
+
+        const {bucket, bucketIndex} = cardLocation;
+
+        playerState = playerState.clone();
+        if (!playerState[`${bucket}Cards`][bucketIndex].counters) {
+            playerState[`${bucket}Cards`][bucketIndex].counters = [];
+        }
+        playerState[`${bucket}Cards`][bucketIndex].counters.push({kind, count, placement});
         return playerState;
     }
 }
@@ -136,7 +167,7 @@ function newCardState(
     isCommander: boolean = false,
     tokenName?: string,
 ): CardState {
-    const state = {id, scryfallId, tapped, isCommander};
+    const state = {id, scryfallId, tapped, isCommander, counters: []};
     if (tokenName) {
         return {...state, tokenName};
     }

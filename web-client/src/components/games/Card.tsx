@@ -7,6 +7,8 @@ import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 
+import {NewCounterModal} from "./NewCounter";
+
 import {mutate} from "../../firebase-interop/baseModel";
 import {CardReference, deckDoc} from "../../firebase-interop/models/deck";
 import {ALL_CARD_BUCKETS} from "../../firebase-interop/models/playerState";
@@ -72,6 +74,7 @@ export function Card({playerState, cardState, bucket, hidden, interactive}: Prop
         mouseX: number;
         mouseY: number;
     } | null>(null);
+    const [openNewCounter, setOpenNewCounter] = React.useState(false);
 
     // TODO(miguel): figure out a good way to report errors.  We probably
     // don't want to just render an error string instead of a card.  Perhaps
@@ -117,6 +120,15 @@ export function Card({playerState, cardState, bucket, hidden, interactive}: Prop
         setContextMenu(null);
     };
 
+    const handleNewCounter = () => {
+        if (!interactive) {
+            return;
+        }
+
+        setOpenNewCounter(true);
+        setContextMenu(null);
+    };
+
     const deck = gameResource?.data();
     const card = deck?.cards.find(card => card.scryfallDetails.id === cardState.scryfallId);
 
@@ -126,12 +138,17 @@ export function Card({playerState, cardState, bucket, hidden, interactive}: Prop
 
     return (
         <Grid container sx={cardStyle} onContextMenu={handleContextMenu} onDoubleClick={handleDoubleClick}>
+            {/* Short term display of the number of counters */}
+            {/* Replace this with the the actual counter display/mutations */}
+            {cardState.counters?.length ?? 0}
+
             {card ? <ScryfallCardImage
                 card={card}
                 tapped={cardState.tapped}
                 hidden={hidden}
                 interactive={interactive}
             /> : <TokenDetails token={token} /> }
+
             {interactive && <Menu
                 open={contextMenu !== null}
                 onClose={() => setContextMenu(null)}
@@ -142,12 +159,22 @@ export function Card({playerState, cardState, bucket, hidden, interactive}: Prop
                     : undefined
                 }
             >
+                <MenuItem onClick={handleNewCounter}>
+                    New counter
+                </MenuItem>
                 {possibleBucketsForCard.map(bucket => (
                     <MenuItem key={bucket} onClick={() => handleMoveCard(bucket)}>
                         Move to {bucket}
                     </MenuItem>
                 ))}
             </Menu>}
+
+            {openNewCounter && <NewCounterModal
+                playerState={playerState}
+                cardId={cardState.id}
+                open={openNewCounter}
+                onClose={() => setOpenNewCounter(false)}
+            />}
         </Grid>
     );
 }

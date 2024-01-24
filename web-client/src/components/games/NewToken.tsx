@@ -59,7 +59,7 @@ function NewTokenModal({playerState, open, onClose}: {
     const tokenDefinitions = playerState.tokenDefinitions ?? [];
 
     return <Dialog onClose={onClose} open={open}>
-        <DialogTitle>New Token Modal</DialogTitle>
+        <DialogTitle>New Token</DialogTitle>
         <Box component="form">
             <Grid container direction="row">
                 <Grid item>
