@@ -3,9 +3,13 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /decks/{deckId} {
+      function getDeckOwner() {
+        return get(/databases/$(database)/documents/decks/$(deckId)).data.userId;
+      }
       allow read: if request.auth.uid != null;
       allow create: if request.auth.uid == request.resource.data.userId;
       allow write: if request.auth.uid == request.resource.data.userId;
+      allow delete: if request.auth.uid == getDeckOwner();
     }
 
     match /games/{gameId} {
