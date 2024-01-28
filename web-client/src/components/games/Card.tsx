@@ -8,6 +8,7 @@ import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 
 import {NewCounterModal} from "./NewCounter";
+import {Counters} from "./Counters";
 
 import {mutate} from "../../firebase-interop/baseModel";
 import {CardReference, deckDoc} from "../../firebase-interop/models/deck";
@@ -137,17 +138,36 @@ export function Card({playerState, cardState, bucket, hidden, interactive}: Prop
     const possibleBucketsForCard = possibleBuckets(bucket);
 
     return (
-        <Grid container sx={cardStyle} onContextMenu={handleContextMenu} onDoubleClick={handleDoubleClick}>
-            {/* Short term display of the number of counters */}
-            {/* Replace this with the the actual counter display/mutations */}
-            {cardState.counters?.length ?? 0}
+        <Grid container sx={cardStyle}>
+            <div style={{
+                    position: "relative",
+                    transform: cardState.tapped ? 'rotate(90deg)' : 'none',
+                }}
+                onContextMenu={handleContextMenu} onDoubleClick={handleDoubleClick}
+            >
+                <div>
+                    {card ? <ScryfallCardImage
+                        card={card}
+                        hidden={hidden}
+                        interactive={interactive}
+                    /> : <TokenDetails token={token} /> }
+                </div>
 
-            {card ? <ScryfallCardImage
-                card={card}
-                tapped={cardState.tapped}
-                hidden={hidden}
-                interactive={interactive}
-            /> : <TokenDetails token={token} /> }
+                <div style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: CARD_WIDTH,
+                    height: CARD_HEIGHT,
+                }}>
+                    <Counters
+                        playerState={playerState}
+                        cardId={cardState.id}
+                        counters={cardState.counters}
+                        interactive={interactive}
+                    />
+                </div>
+            </div>
 
             {interactive && <Menu
                 open={contextMenu !== null}
@@ -179,9 +199,8 @@ export function Card({playerState, cardState, bucket, hidden, interactive}: Prop
     );
 }
 
-function ScryfallCardImage({card, tapped, hidden, interactive}: {
+function ScryfallCardImage({card, hidden, interactive}: {
     card: CardReference,
-    tapped?: boolean,
     hidden?: boolean,
     interactive?: boolean,
 }) {
@@ -200,7 +219,6 @@ function ScryfallCardImage({card, tapped, hidden, interactive}: {
         height={CARD_HEIGHT}
         style={{
             cursor: interactive ? 'context-menu' : "",
-            transform: tapped ? 'rotate(90deg)' : 'none',
         }}
     />;
 }

@@ -22,14 +22,15 @@ export function NewCounterModal({playerState, cardId, open, onClose}: {
     open: boolean,
     onClose: () => void,
 }) {
+    const defaultPlacement = "middle";
     const [kind, setKind] = React.useState("+1/+1");
     const [count, setCount] = React.useState(1);
-    const [placement, setPlacement] = React.useState<COUNTER_LOCATION>("upper-left");
+    const [placement, setPlacement] = React.useState<COUNTER_LOCATION>(defaultPlacement);
 
     const clearForm = () => {
         setKind("");
         setCount(0);
-        setPlacement("upper-left");
+        setPlacement(defaultPlacement);
     }
 
     const handleAddCounter = async () => {

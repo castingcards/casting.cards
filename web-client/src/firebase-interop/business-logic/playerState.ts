@@ -122,6 +122,36 @@ export function addCounter(cardId: number, kind: string, count: number = 1, plac
     }
 }
 
+export function removeCounter(cardId: number, counterIndex: number) {
+    return async function(playerState: PlayerState) {
+        const cardLocation = getCardLocation(playerState, cardId);
+        if (!cardLocation) {
+            return playerState;
+        }
+
+        const {bucket, bucketIndex} = cardLocation;
+
+        playerState = playerState.clone();
+        playerState[`${bucket}Cards`][bucketIndex].counters.splice(counterIndex, 1);
+        return playerState;
+    }
+}
+
+export function incrementCounter(cardId: number, counterIndex: number, amount: number = 1) {
+    return async function(playerState: PlayerState) {
+        const cardLocation = getCardLocation(playerState, cardId);
+        if (!cardLocation) {
+            return playerState;
+        }
+
+        const {bucket, bucketIndex} = cardLocation;
+
+        playerState = playerState.clone();
+        playerState[`${bucket}Cards`][bucketIndex].counters[counterIndex].count += amount;
+        return playerState;
+    };
+}
+
 export function untapAll() {
     return async function(playerState: PlayerState) {
         playerState = playerState.clone();
