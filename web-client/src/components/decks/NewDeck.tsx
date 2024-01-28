@@ -22,7 +22,7 @@ async function importDeckText(uid: string, deckName: string, deckText: string) {
 }
 
 export function NewDeck() {
-    const [importFromURL, executing, error] = useHttpsCallable(functions, "importFromURL");
+    const [importFromURL] = useHttpsCallable(functions, "importFromURL");
     const [user] = useAuthState(auth);
     const [deckName, setDeckName] = React.useState("");
     const [deckText, setDeckText] = React.useState("");
@@ -46,7 +46,7 @@ export function NewDeck() {
                 setFormExpanded(false);
             });
         }
-    }, [user?.uid, deckUrl]);
+    }, [importFromURL, user?.uid, deckUrl]);
 
     return (
         <Accordion expanded={formExpanded} onChange={(e, newExpanded) => setFormExpanded(newExpanded)}>

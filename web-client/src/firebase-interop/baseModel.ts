@@ -7,18 +7,6 @@ import type {
 
 import {db} from "./firebaseInit";
 
-class Foo {
-    static create<T extends typeof Foo>(this: T): InstanceType<T> {
-        return new this() as InstanceType<T>
-    }
-
-}
-
-class Bar extends Foo { }
-
-const b = Bar.create()
-
-
 // All firestore models need to meet this interface so that we can consistently
 // have methods to setialize data before storing in firestore, which requires
 // data to be plain objects.

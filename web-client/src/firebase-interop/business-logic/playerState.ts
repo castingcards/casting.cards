@@ -21,7 +21,7 @@ function getCardLocation(playerState: PlayerState, cardId: number): {bucket: CAR
     }
 
 
-    let bucketIndex: number = playerState[`${bucket}Cards`].findIndex(card => card.id == cardId);
+    let bucketIndex: number = playerState[`${bucket}Cards`].findIndex(card => card.id === cardId);
     if (bucketIndex < 0) {
         console.warn(`Card ${cardId} not found in ${bucket}`);
         return;
@@ -71,7 +71,7 @@ export function moveCard(cardId: number, from: CARD_BUCKETS, to: CARD_BUCKETS) {
     return async function(playerState: PlayerState) {
         playerState = playerState.clone();
 
-        let fromCardIndex: number = playerState[`${from}Cards`].findIndex(card => card.id == cardId);
+        let fromCardIndex: number = playerState[`${from}Cards`].findIndex(card => card.id === cardId);
         const cardToMove = playerState[`${from}Cards`][fromCardIndex];
         if (fromCardIndex < 0) {
             console.warn(`Card ${cardId} not found in ${from}`);
