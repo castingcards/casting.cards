@@ -11,7 +11,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npm run build --prefix functions && firebase emulators:start --import=./.localdev/data --export-on-exit --only auth,firestore,functions",
+    "start": "npm run build --prefix functions && mkdir -p ./.localdev/data && firebase emulators:start --import=./.localdev/data --export-on-exit=./.localdev/data --only auth,firestore,functions",
     "build": "npm run build --prefix functions",
     "deploy": "firebase deploy"
   },
