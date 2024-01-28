@@ -2,6 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, connectAuthEmulator } from "firebase/auth";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
+import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -42,9 +43,13 @@ export const auth = getAuth();
 // Initialize Cloud Firestore and get a reference to the service
 export const db = getFirestore(app);
 
+// Initialize Cloud Functions through Firebase
+export const functions = getFunctions(app);
+
 // TODO(miguel): wire this up with an env var to tell if we are in dev or prod
 // eslint-disable-next-line no-restricted-globals
 if (location.hostname === "localhost") {
   connectAuthEmulator(auth, "http://127.0.0.1:9099")
   connectFirestoreEmulator(db, "127.0.0.1", 8080);
+  connectFunctionsEmulator(functions, "127.0.0.1", 5001);
 }

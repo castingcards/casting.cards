@@ -1,4 +1,5 @@
 import React from "react";
+import { useHttpsCallable } from 'react-firebase-hooks/functions';
 
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
@@ -9,7 +10,7 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 
 import {useAuthState} from 'react-firebase-hooks/auth';
-import {auth} from "../../firebase-interop/firebaseInit";
+import {auth, functions} from "../../firebase-interop/firebaseInit";
 
 import {addDeck} from "../../firebase-interop/models/deck";
 import {fromText} from "../../importer/from-text";
@@ -28,6 +29,7 @@ async function importFromURL(uid: string, deckURL: string) {
 }
 
 export function NewDeck() {
+    const [executeCallable, executing, error] = useHttpsCallable(functions, "helloWorld");
     const [user] = useAuthState(auth);
     const [deckName, setDeckName] = React.useState("");
     const [deckText, setDeckText] = React.useState("");
@@ -46,6 +48,9 @@ export function NewDeck() {
 
     const importDeckFromURL = React.useCallback(() => {
         if (user?.uid && deckUrl) {
+            executeCallable().then(result => {
+                console.log(result);
+            });
             importFromURL(user.uid, deckUrl).then(() => {
                 setDeckUrl("");
                 setFormExpanded(false);
