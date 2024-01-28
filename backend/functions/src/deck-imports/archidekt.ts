@@ -78,7 +78,7 @@ export class ArchidektUrlImporter {
     // consider that indexes in array don't always match.  To address this,
     // we index scry cards by its ID so that we can then do a reverse lookup
     // without having to worry about array order or item positions.
-    const scryCardsById = cards.reduce((collector: any, card, i) => {
+    const scryCardsById = cards.reduce((collector: {[key: string]: Scry.Card}, card) => {
       collector[card.id] = card;
       return collector;
     }, {});
