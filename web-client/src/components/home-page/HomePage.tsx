@@ -7,7 +7,7 @@ import './HomePage.css';
 
 export function HomePage() {
   return <header className="App-header">
-      <img src="/magic-table-logo.webp" className="App-logo" alt="logo" />
+      <img src="/casting-cards-logo.png" className="App-logo" alt="logo" />
       <p>
         <Button component={Link} to="/decks">
           See your decks!
