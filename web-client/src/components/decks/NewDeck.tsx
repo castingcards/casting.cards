@@ -14,7 +14,6 @@ import {auth, functions} from "../../firebase-interop/firebaseInit";
 
 import {addDeck} from "../../firebase-interop/models/deck";
 import {fromText} from "../../importer/from-text";
-import {fromUrl} from "../../importer/from-url";
 
 async function importDeckText(uid: string, deckName: string, deckText: string) {
     const deck = await fromText(deckText);
@@ -22,14 +21,8 @@ async function importDeckText(uid: string, deckName: string, deckText: string) {
     return deck;
 }
 
-async function importFromURL(uid: string, deckURL: string) {
-    const deck = await fromUrl(deckURL);
-    await addDeck(uid, deck.withSource(deckURL));
-    return deck;
-}
-
 export function NewDeck() {
-    const [executeCallable, executing, error] = useHttpsCallable(functions, "helloWorld");
+    const [importFromURL, executing, error] = useHttpsCallable(functions, "importFromURL");
     const [user] = useAuthState(auth);
     const [deckName, setDeckName] = React.useState("");
     const [deckText, setDeckText] = React.useState("");
@@ -48,10 +41,7 @@ export function NewDeck() {
 
     const importDeckFromURL = React.useCallback(() => {
         if (user?.uid && deckUrl) {
-            executeCallable().then(result => {
-                console.log(result);
-            });
-            importFromURL(user.uid, deckUrl).then(() => {
+            importFromURL(deckUrl).then(result => {
                 setDeckUrl("");
                 setFormExpanded(false);
             });

@@ -1,6 +1,7 @@
 import {ArchidektUrlImporter} from "./archidekt";
 import {InfiniteTCGPlayerImporter} from "./infinite-tcgplayer";
-import {Deck} from "../firebase-interop/models/deck";
+
+import type {Deck} from "./deck";
 
 export interface UrlImporter {
   test(url: string): boolean
@@ -13,7 +14,7 @@ const _importers: Array<UrlImporter> = [
 ];
 
 export async function fromUrl(deckURL: string): Promise<Deck> {
-  const importer = _importers.find(imp => imp.test(deckURL));
+  const importer = _importers.find((imp) => imp.test(deckURL));
 
   if (!importer) {
     throw new Error(`Unsupported URL: ${deckURL}`);

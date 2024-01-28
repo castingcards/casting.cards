@@ -8,12 +8,22 @@
  */
 
 import {onCall} from "firebase-functions/v2/https";
-import * as logger from "firebase-functions/logger";
+import admin from "firebase-admin";
+// import * as logger from "firebase-functions/logger";
 
-// Start writing functions
-// https://firebase.google.com/docs/functions/typescript
+import {fromUrl} from "./deck-imports/from-url";
 
-export const helloWorld = onCall(() => { // data, context
-  logger.info("Hello logs!", {structuredData: true});
-  return "Hello from Firebase!";
+admin.initializeApp();
+
+export const importFromURL = onCall(async (request) => {
+  if (!request.auth) {
+    throw new Error("Authentication required");
+  }
+
+  const deck = await fromUrl(request.data);
+  deck.userId = request.auth.uid;
+
+  const deckObject = JSON.parse(JSON.stringify(deck));
+  await admin.firestore().collection("decks").doc().create(deckObject);
+  return "Success";
 });

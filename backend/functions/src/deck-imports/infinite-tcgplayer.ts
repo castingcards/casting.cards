@@ -1,6 +1,6 @@
 import * as Scry from "scryfall-sdk";
 
-import {Deck, CardReference} from "../firebase-interop/models/deck";
+import {Deck, CardReference} from "./deck";
 
 const regexPattern = /^https:\/\/infinite\.tcgplayer\.com\/magic-the-gathering\/deck\/([^/]+)\/(\d+)/;
 
@@ -42,10 +42,11 @@ export class InfiniteTCGPlayerImporter {
   async getFromURL(deckURL: string): Promise<Deck> {
     const result = deckURL.match(regexPattern);
     if (result == null) {
-      throw new Error(`Invalid archidekt URL: ${deckURL}`)
+      throw new Error(`Invalid archidekt URL: ${deckURL}`);
     }
 
-    const response = await fetch(`https://infinite-api.tcgplayer.com/deck/magic/${result[2]}/?subDecks=true&cards=true`);
+    const response = await fetch(
+      `https://infinite-api.tcgplayer.com/deck/magic/${result[2]}/?subDecks=true&cards=true`);
     const deckData: infiniteDeck = await response.json();
 
     const identifiers = Object.values(deckData.result.cards).map((card) => {
@@ -73,8 +74,8 @@ export class InfiniteTCGPlayerImporter {
           `Card with id ${card.oracleID} don't match names.
           "${cards[i].name}". "${card.name}"`);
       }
-      return new CardReference(cardIDToQuantityMapping[cardKey], cards[i])
-    })
+      return new CardReference(cardIDToQuantityMapping[cardKey], cards[i]);
+    });
 
     return new Deck(deckData.result.deck.name, cardReferences);
   }

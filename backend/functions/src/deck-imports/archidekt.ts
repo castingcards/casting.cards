@@ -1,6 +1,6 @@
 import * as Scry from "scryfall-sdk";
 
-import {Deck, CardReference} from "../firebase-interop/models/deck";
+import {Deck, CardReference} from "./deck";
 
 // We use this pattern to match and extract the ID of the deck in archidekt
 // so that we can call the correct endpoint to get all the cards in the
@@ -39,7 +39,7 @@ export class ArchidektUrlImporter {
   async getFromURL(deckURL: string): Promise<Deck> {
     const result = deckURL.match(regexPattern);
     if (result == null) {
-      throw new Error(`Invalid archidekt URL: ${deckURL}`)
+      throw new Error(`Invalid archidekt URL: ${deckURL}`);
     }
 
     const response = await fetch(`https://archidekt.com/api/decks/${result[1]}/`);
