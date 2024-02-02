@@ -28,11 +28,11 @@ export function Library({game, player, interactive}: Props) {
     } | null>(null);
 
     const handleDrawCard = React.useCallback(
-        async () => {
+        async (drawCount: number) => {
             if (!interactive) {
                 return;
             }
-            await mutate(player, drawCard());
+            await mutate(player, drawCard(drawCount));
         },
         [player, interactive],
     );
@@ -73,7 +73,7 @@ export function Library({game, player, interactive}: Props) {
                 style={{
                     cursor: interactive ? "pointer" : "",
                 }}
-                onDoubleClick={handleDrawCard}
+                onDoubleClick={() => handleDrawCard(1)}
                 onContextMenu={handleContextMenu}
             />
 
@@ -87,9 +87,9 @@ export function Library({game, player, interactive}: Props) {
                     : undefined
                 }
             >
-                <MenuItem onClick={handleScry}>
-                    Scry
-                </MenuItem>
+                <MenuItem onClick={handleScry}>Scry</MenuItem>
+                <MenuItem onClick={() => handleDrawCard(1)}>Draw 1</MenuItem>
+                <MenuItem onClick={() => handleDrawCard(7)}>Draw 7</MenuItem>
             </Menu>}
 
             {showScryModal && <ScryModal open={showScryModal} playerState={player} />}

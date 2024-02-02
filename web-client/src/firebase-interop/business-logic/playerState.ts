@@ -56,13 +56,17 @@ export function chooseDeck(deck: Deck) {
     }
 }
 
-export function drawCard() {
+export function drawCard(numberOfCards: number = 1) {
     return async function(playerState: PlayerState) {
         playerState = playerState.clone();
-        const drawnCard = playerState.libraryCards.shift();
-        if (drawnCard) {
-            playerState.handCards.push(drawnCard!);
+
+        for (let i = 0; i < numberOfCards; i++) {
+            const drawnCard = playerState.libraryCards.shift();
+            if (drawnCard) {
+                playerState.handCards.push(drawnCard!);
+            }
         }
+
         return playerState;
     };
 }
