@@ -104,13 +104,14 @@ function calculateFishEye(
     return Math.max(minSize, magFactor * (itemCount - Math.pow(Math.abs(hoveredItem - value), 1/4)));
 }
 
-function ListCardsLayout({
+export function ListCardsLayout({
     cardStates,
     bucket,
     title,
     playerState,
     hidden,
     interactive,
+    scrying,
 }: {
     cardStates: Array<CardState>,
     bucket: CARD_BUCKETS,
@@ -118,6 +119,7 @@ function ListCardsLayout({
     playerState: PlayerState,
     hidden?: boolean,
     interactive?: boolean,
+    scrying?: boolean,
 }) {
     const [hoveredItemIndex, setHoveredItemIndex] = React.useState(-1);
     // Half the card height is how much we have to translate cards so that
@@ -156,7 +158,7 @@ function ListCardsLayout({
                         onMouseOut={() => {!hidden && setHoveredItemIndex(-1)}}
                         sx={fishEyeTransform(i)}
                     >
-                        <Card playerState={playerState} cardState={cardState} bucket={bucket} hidden={hidden} interactive={interactive} />
+                        <Card playerState={playerState} cardState={cardState} bucket={bucket} hidden={hidden} interactive={interactive} scrying={scrying} />
                     </Grid>
                 ) : <EmptyCard/>}
             </Grid>

@@ -67,7 +67,7 @@ export function drawCard() {
     };
 }
 
-export function moveCard(cardId: number, from: CARD_BUCKETS, to: CARD_BUCKETS) {
+export function moveCard(cardId: number, from: CARD_BUCKETS, to: CARD_BUCKETS, front: boolean = false) {
     return async function(playerState: PlayerState) {
         playerState = playerState.clone();
 
@@ -79,9 +79,22 @@ export function moveCard(cardId: number, from: CARD_BUCKETS, to: CARD_BUCKETS) {
         }
 
         playerState[`${from}Cards`].splice(fromCardIndex, 1);
-        playerState[`${to}Cards`] = [...playerState[`${to}Cards`], cardToMove];
+
+        if (front) {
+            playerState[`${to}Cards`] = [cardToMove, ...playerState[`${to}Cards`], cardToMove];
+        } else {
+            playerState[`${to}Cards`] = [...playerState[`${to}Cards`], cardToMove];
+        }
         return playerState;
     }
+}
+
+export function scryCard() {
+    return async function(playerState: PlayerState) {
+        playerState = playerState.clone();
+        const topCard = playerState.libraryCards[0];
+        return moveCard(topCard.id, "library", "scry")(playerState);
+    };
 }
 
 export function toggleTapped(cardId: number, value?: boolean) {

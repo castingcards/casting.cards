@@ -2,11 +2,14 @@ import React from "react";
 
 import { Grid } from "@mui/material";
 import Typeogrophy from '@mui/material/Typography';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 
 import {cardStyle, CARD_HEIGHT, CARD_WIDTH } from "./Card";
+import {ScryModal} from "./Scry";
 
 import {mutate} from "../../firebase-interop/baseModel";
-import {drawCard} from "../../firebase-interop/business-logic/playerState";
+import {drawCard, scryCard} from "../../firebase-interop/business-logic/playerState";
 import type {PlayerState} from "../../firebase-interop/models/playerState";
 import type {Game} from "../../firebase-interop/models/game";
 
@@ -19,6 +22,11 @@ type Props = {
 }
 
 export function Library({game, player, interactive}: Props) {
+    const [contextMenu, setContextMenu] = React.useState<{
+        mouseX: number;
+        mouseY: number;
+    } | null>(null);
+
     const handleDrawCard = React.useCallback(
         async () => {
             if (!interactive) {
@@ -28,6 +36,31 @@ export function Library({game, player, interactive}: Props) {
         },
         [player, interactive],
     );
+
+    const handleScry = React.useCallback(
+        async () => {
+            await mutate(player, scryCard());
+            setContextMenu(null);
+        },
+        [player],
+    );
+
+    const handleContextMenu = (event: React.MouseEvent) => {
+        event.preventDefault();
+        setContextMenu(
+        contextMenu === null
+            ? {
+                mouseX: event.clientX + 2,
+                mouseY: event.clientY - 6,
+            }
+            : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
+            // Other native context menus might behave different.
+            // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
+            null,
+        );
+    };
+
+    const showScryModal = player.scryCards.length > 0;
 
     return (
         <Grid container sx={cardStyle}>
@@ -41,7 +74,25 @@ export function Library({game, player, interactive}: Props) {
                     cursor: interactive ? "pointer" : "",
                 }}
                 onDoubleClick={handleDrawCard}
+                onContextMenu={handleContextMenu}
             />
+
+            {interactive && <Menu
+                open={contextMenu !== null}
+                onClose={() => setContextMenu(null)}
+                anchorReference="anchorPosition"
+                anchorPosition={
+                contextMenu !== null
+                    ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+                    : undefined
+                }
+            >
+                <MenuItem onClick={handleScry}>
+                    Scry
+                </MenuItem>
+            </Menu>}
+
+            {showScryModal && <ScryModal open={showScryModal} playerState={player} />}
         </Grid>
     );
 }

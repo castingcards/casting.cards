@@ -5,7 +5,7 @@ import {COLLECTION_PATH as GAME_COLLECTION_PATH} from "./game";
 
 // nested collection from Game
 
-export const ALL_CARD_BUCKETS = ["graveyard", "exile", "battlefield", "hand", "library", "land", "commandzone"] as const;
+export const ALL_CARD_BUCKETS = ["graveyard", "exile", "battlefield", "hand", "library", "land", "commandzone", "scry"] as const;
 export type CARD_BUCKETS = typeof ALL_CARD_BUCKETS[number];
 
 export const ALL_COUNTER_LOCATIONS = ["upper-left", "top", "upper-right", "left", "right", "lower-left", "bottom", "lower-right", "middle"] as const;
@@ -65,6 +65,7 @@ export class PlayerState extends BaseModel {
     exileCards: Array<CardState> = [];
     battlefieldCards: Array<CardState> = [];
     commandzoneCards: Array<CardState> = [];
+    scryCards: Array<CardState> = [];
 
     tokenDefinitions: Array<Token> = [];
 
@@ -85,6 +86,7 @@ export class PlayerState extends BaseModel {
         playerState.battlefieldCards = obj.battlefieldCards || [];
         playerState.commandzoneCards = obj.commandzoneCards || [];
         playerState.tokenDefinitions = obj.tokenDefinitions || [];
+        playerState.scryCards = obj.scryCards || [];
 
         return playerState;
     }

@@ -25,15 +25,18 @@ type Props = {
     bucket: CARD_BUCKETS;
     hidden?: boolean;
     interactive?: boolean;
+    scrying?: boolean;
 }
 
-function possibleBuckets(bucket: CARD_BUCKETS): Array<CARD_BUCKETS> {
-    // You can put a card anywhere but the current bucket
-    const indexToRemove = ALL_CARD_BUCKETS.indexOf(bucket);
-    return [
-        ...ALL_CARD_BUCKETS.slice(0, indexToRemove),
-        ...ALL_CARD_BUCKETS.slice(indexToRemove+1),
-    ];
+function possibleBuckets(bucketsToExclude: Array<CARD_BUCKETS>): Array<CARD_BUCKETS> {
+    const result: Array<CARD_BUCKETS> = [];
+    for (const bucket of ALL_CARD_BUCKETS) {
+        if (!bucketsToExclude.includes(bucket)) {
+            result.push(bucket);
+        }
+    }
+
+    return result;
 }
 
 export const CARD_HEIGHT: number = 120;
@@ -69,7 +72,7 @@ function getAltTextForCard(card: ScryfallCard): string {
     return output;
 }
 
-export function Card({playerState, cardState, bucket, hidden, interactive}: Props) {
+export function Card({playerState, cardState, bucket, hidden, interactive, scrying}: Props) {
     const [gameResource, loading, error] = useDocument(playerState.deckId ? deckDoc(playerState.deckId) : undefined);
     const [contextMenu, setContextMenu] = React.useState<{
         mouseX: number;
@@ -121,6 +124,24 @@ export function Card({playerState, cardState, bucket, hidden, interactive}: Prop
         setContextMenu(null);
     };
 
+    const handleMoveCardToTopOfLibrary = () => {
+        if (!interactive) {
+            return;
+        }
+
+        mutate(playerState, moveCard(cardState.id, bucket, "library", true));
+        setContextMenu(null);
+    }
+
+    const handleMoveCardToBottomOfLibrary = () => {
+        if (!interactive) {
+            return;
+        }
+
+        mutate(playerState, moveCard(cardState.id, bucket, "library"));
+        setContextMenu(null);
+    }
+
     const handleNewCounter = () => {
         if (!interactive) {
             return;
@@ -135,7 +156,7 @@ export function Card({playerState, cardState, bucket, hidden, interactive}: Prop
 
     const token = cardState.tokenName ? playerState.tokenDefinitions.find(token => token.name === cardState.tokenName) : undefined;
 
-    const possibleBucketsForCard = possibleBuckets(bucket);
+    const possibleBucketsForCard = possibleBuckets([bucket, "scry", "library"]);
 
     return (
         <Grid container sx={cardStyle}>
@@ -179,10 +200,16 @@ export function Card({playerState, cardState, bucket, hidden, interactive}: Prop
                     : undefined
                 }
             >
-                <MenuItem onClick={handleNewCounter}>
+                {!scrying && <MenuItem onClick={handleNewCounter}>
                     New counter
+                </MenuItem>}
+                <MenuItem onClick={handleMoveCardToTopOfLibrary}>
+                    Move to Top of Library
                 </MenuItem>
-                {possibleBucketsForCard.map(bucket => (
+                <MenuItem onClick={handleMoveCardToBottomOfLibrary}>
+                    Move to Bottom of Library
+                </MenuItem>
+                {!scrying && possibleBucketsForCard.map(bucket => (
                     <MenuItem key={bucket} onClick={() => handleMoveCard(bucket)}>
                         Move to {bucket}
                     </MenuItem>
