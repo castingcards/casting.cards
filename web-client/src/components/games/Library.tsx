@@ -9,7 +9,7 @@ import {cardStyle, CARD_HEIGHT, CARD_WIDTH } from "./Card";
 import {ScryModal} from "./Scry";
 
 import {mutate} from "../../firebase-interop/baseModel";
-import {drawCard, scryCard} from "../../firebase-interop/business-logic/playerState";
+import {drawCard, scryCard, mulligan} from "../../firebase-interop/business-logic/playerState";
 import type {PlayerState} from "../../firebase-interop/models/playerState";
 import type {Game} from "../../firebase-interop/models/game";
 
@@ -33,6 +33,18 @@ export function Library({game, player, interactive}: Props) {
                 return;
             }
             await mutate(player, drawCard(drawCount));
+            setContextMenu(null);
+        },
+        [player, interactive],
+    );
+
+    const handleMulligan = React.useCallback(
+        async () => {
+            if (!interactive) {
+                return;
+            }
+            await mutate(player, mulligan());
+            setContextMenu(null);
         },
         [player, interactive],
     );
@@ -90,6 +102,7 @@ export function Library({game, player, interactive}: Props) {
                 <MenuItem onClick={handleScry}>Scry</MenuItem>
                 <MenuItem onClick={() => handleDrawCard(1)}>Draw 1</MenuItem>
                 <MenuItem onClick={() => handleDrawCard(7)}>Draw 7</MenuItem>
+                <MenuItem onClick={handleMulligan}>Mulligan</MenuItem>
             </Menu>}
 
             {showScryModal && <ScryModal open={showScryModal} playerState={player} />}

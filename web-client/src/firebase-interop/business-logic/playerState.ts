@@ -71,6 +71,16 @@ export function drawCard(numberOfCards: number = 1) {
     };
 }
 
+export function mulligan() {
+    return async function(playerState: PlayerState) {
+        playerState = playerState.clone();
+        playerState.libraryCards = [...playerState.handCards, ...playerState.libraryCards];
+        playerState.libraryCards = shuffle(playerState.libraryCards);
+        playerState.handCards = [];
+        return drawCard(7)(playerState);
+    };
+}
+
 export function moveCard(cardId: number, from: CARD_BUCKETS, to: CARD_BUCKETS, front: boolean = false) {
     return async function(playerState: PlayerState) {
         playerState = playerState.clone();
