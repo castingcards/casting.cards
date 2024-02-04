@@ -112,6 +112,7 @@ export function ListCardsLayout({
     hidden,
     interactive,
     scrying,
+    searching,
 }: {
     cardStates: Array<CardState>,
     bucket: CARD_BUCKETS,
@@ -120,6 +121,7 @@ export function ListCardsLayout({
     hidden?: boolean,
     interactive?: boolean,
     scrying?: boolean,
+    searching?: boolean,
 }) {
     const [hoveredItemIndex, setHoveredItemIndex] = React.useState(-1);
     // Half the card height is how much we have to translate cards so that
@@ -158,7 +160,7 @@ export function ListCardsLayout({
                         onMouseOut={() => {!hidden && setHoveredItemIndex(-1)}}
                         sx={fishEyeTransform(i)}
                     >
-                        <Card playerState={playerState} cardState={cardState} bucket={bucket} hidden={hidden} interactive={interactive} scrying={scrying} />
+                        <Card playerState={playerState} cardState={cardState} bucket={bucket} hidden={hidden} interactive={interactive} scrying={scrying} searching={searching} />
                     </Grid>
                 ) : <EmptyCard/>}
             </Grid>

@@ -7,12 +7,12 @@ import MenuItem from '@mui/material/MenuItem';
 
 import {cardStyle, CARD_HEIGHT, CARD_WIDTH } from "./Card";
 import {ScryModal} from "./Scry";
+import {ShowStackModal} from "./ShowStack";
 
 import {mutate} from "../../firebase-interop/baseModel";
-import {drawCard, scryCard, mulligan} from "../../firebase-interop/business-logic/playerState";
-import type {PlayerState} from "../../firebase-interop/models/playerState";
 import type {Game} from "../../firebase-interop/models/game";
-
+import type {PlayerState} from "../../firebase-interop/models/playerState";
+import {drawCard, scryCard, mulligan, searchLibrary, finishSearchLibrary} from "../../firebase-interop/business-logic/playerState";
 
 
 type Props = {
@@ -49,6 +49,29 @@ export function Library({game, player, interactive}: Props) {
         [player, interactive],
     );
 
+    const handleSearch = React.useCallback(
+        async () => {
+            if (!interactive) {
+                return;
+            }
+
+            mutate(player, searchLibrary());
+            setContextMenu(null);
+        },
+        [interactive, player],
+    );
+
+    const handleSearchClose = React.useCallback(
+        async () => {
+            if (!interactive) {
+                return;
+            }
+            // We need to shuffle when the modal closes
+            await mutate(player, finishSearchLibrary());
+        },
+        [interactive, player],
+    );
+
     const handleScry = React.useCallback(
         async () => {
             await mutate(player, scryCard());
@@ -72,7 +95,8 @@ export function Library({game, player, interactive}: Props) {
         );
     };
 
-    const showScryModal = player.scryCards.length > 0;
+    const showScryModal = interactive && player.scryCards.length > 0;
+    const showSearchModal = interactive && player.searchCards.length > 0;
 
     return (
         <Grid container sx={cardStyle}>
@@ -103,9 +127,17 @@ export function Library({game, player, interactive}: Props) {
                 <MenuItem onClick={() => handleDrawCard(1)}>Draw 1</MenuItem>
                 <MenuItem onClick={() => handleDrawCard(7)}>Draw 7</MenuItem>
                 <MenuItem onClick={handleMulligan}>Mulligan</MenuItem>
+                <MenuItem onClick={handleSearch}>Search</MenuItem>
             </Menu>}
 
-            {showScryModal && <ScryModal open={showScryModal} playerState={player} />}
+            {interactive && showScryModal && <ScryModal open={showScryModal} playerState={player} />}
+            {interactive && showSearchModal && <ShowStackModal
+                playerState={player}
+                cardStates={player.searchCards}
+                bucket={"search"}
+                open={showSearchModal}
+                onClose={handleSearchClose}
+            />}
         </Grid>
     );
 }

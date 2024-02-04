@@ -25,7 +25,13 @@ type Props = {
     bucket: CARD_BUCKETS;
     hidden?: boolean;
     interactive?: boolean;
+
+    // These flags are a hack because the card actions are defined in this file,
+    // so the logic for what you can and can't do is encapsulated here. Instead,
+    // we should probably be passing in the actions instead, based on the context
+    // of where the card is being rendered.
     scrying?: boolean;
+    searching?: boolean;
 }
 
 function possibleBuckets(bucketsToExclude: Array<CARD_BUCKETS>): Array<CARD_BUCKETS> {
@@ -72,7 +78,7 @@ function getAltTextForCard(card: ScryfallCard): string {
     return output;
 }
 
-export function Card({playerState, cardState, bucket, hidden, interactive, scrying}: Props) {
+export function Card({playerState, cardState, bucket, hidden, interactive, scrying, searching}: Props) {
     const [gameResource, loading, error] = useDocument(playerState.deckId ? deckDoc(playerState.deckId) : undefined);
     const [contextMenu, setContextMenu] = React.useState<{
         mouseX: number;
@@ -156,7 +162,7 @@ export function Card({playerState, cardState, bucket, hidden, interactive, scryi
 
     const token = cardState.tokenName ? playerState.tokenDefinitions.find(token => token.name === cardState.tokenName) : undefined;
 
-    const possibleBucketsForCard = possibleBuckets([bucket, "scry", "library"]);
+    const possibleBucketsForCard = possibleBuckets([bucket, "scry", "library", "search"]);
 
     return (
         <Grid container sx={cardStyle}>
@@ -200,15 +206,15 @@ export function Card({playerState, cardState, bucket, hidden, interactive, scryi
                     : undefined
                 }
             >
-                {!scrying && <MenuItem onClick={handleNewCounter}>
+                {!scrying && !searching && <MenuItem onClick={handleNewCounter}>
                     New counter
                 </MenuItem>}
-                <MenuItem onClick={handleMoveCardToTopOfLibrary}>
+                {!searching && <MenuItem onClick={handleMoveCardToTopOfLibrary}>
                     Move to Top of Library
-                </MenuItem>
-                <MenuItem onClick={handleMoveCardToBottomOfLibrary}>
+                </MenuItem>}
+                {!searching && <MenuItem onClick={handleMoveCardToBottomOfLibrary}>
                     Move to Bottom of Library
-                </MenuItem>
+                </MenuItem>}
                 {!scrying && possibleBucketsForCard.map(bucket => (
                     <MenuItem key={bucket} onClick={() => handleMoveCard(bucket)}>
                         Move to {bucket}

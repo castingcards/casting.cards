@@ -81,6 +81,14 @@ export function mulligan() {
     };
 }
 
+export function shuffleLibrary() {
+    return async function(playerState: PlayerState) {
+        playerState = playerState.clone();
+        playerState.libraryCards = shuffle(playerState.libraryCards);
+        return playerState;
+    }
+}
+
 export function moveCard(cardId: number, from: CARD_BUCKETS, to: CARD_BUCKETS, front: boolean = false) {
     return async function(playerState: PlayerState) {
         playerState = playerState.clone();
@@ -108,6 +116,24 @@ export function scryCard() {
         playerState = playerState.clone();
         const topCard = playerState.libraryCards[0];
         return moveCard(topCard.id, "library", "scry")(playerState);
+    };
+}
+
+export function searchLibrary() {
+    return async function(playerState: PlayerState) {
+        playerState = playerState.clone();
+        playerState.searchCards = playerState.libraryCards;
+        playerState.libraryCards = [];
+        return playerState;
+    };
+}
+
+export function finishSearchLibrary() {
+    return async function(playerState: PlayerState) {
+        playerState = playerState.clone();
+        playerState.libraryCards = shuffle(playerState.searchCards);
+        playerState.searchCards = [];
+        return playerState;
     };
 }
 
