@@ -19,19 +19,19 @@ import {transformOracleText} from "../../firebase-interop/business-logic/cards";
 import type {PlayerState, CARD_BUCKETS, CardState, Token} from "../../firebase-interop/models/playerState";
 import type {Card as ScryfallCard} from "scryfall-sdk";
 
+export type CardAction = "ALL"
+    | "NEW_COUNTER"
+    | "MOVE_TO_TOP_OF_LIBRARY"
+    | "MOVE_TO_BOTTOM_OF_LIBRARY"
+    | "MOVE_TO_ZONE";
+
 type Props = {
     playerState: PlayerState;
     cardState: CardState;
     bucket: CARD_BUCKETS;
     hidden?: boolean;
     interactive?: boolean;
-
-    // These flags are a hack because the card actions are defined in this file,
-    // so the logic for what you can and can't do is encapsulated here. Instead,
-    // we should probably be passing in the actions instead, based on the context
-    // of where the card is being rendered.
-    scrying?: boolean;
-    searching?: boolean;
+    cardActions: Array<CardAction>;
 }
 
 function possibleBuckets(bucketsToExclude: Array<CARD_BUCKETS>): Array<CARD_BUCKETS> {
@@ -78,7 +78,14 @@ function getAltTextForCard(card: ScryfallCard): string {
     return output;
 }
 
-export function Card({playerState, cardState, bucket, hidden, interactive, scrying, searching}: Props) {
+export function Card({
+    playerState,
+    cardState,
+    bucket,
+    hidden,
+    interactive,
+    cardActions,
+}: Props) {
     const [gameResource, loading, error] = useDocument(playerState.deckId ? deckDoc(playerState.deckId) : undefined);
     const [contextMenu, setContextMenu] = React.useState<{
         mouseX: number;
@@ -97,6 +104,14 @@ export function Card({playerState, cardState, bucket, hidden, interactive, scryi
     if (loading) {
         return <LoadingCard/>
     }
+
+    const enableCardAction = (cardAction: string) => {
+        if (cardActions.includes("ALL")) {
+            return true;
+        }
+
+        return cardActions.includes(cardAction.toUpperCase() as CardAction);
+    };
 
     const handleContextMenu = (event: React.MouseEvent) => {
         event.preventDefault();
@@ -206,16 +221,16 @@ export function Card({playerState, cardState, bucket, hidden, interactive, scryi
                     : undefined
                 }
             >
-                {!scrying && !searching && <MenuItem onClick={handleNewCounter}>
+                {enableCardAction("NEW_COUNTER") && <MenuItem onClick={handleNewCounter}>
                     New counter
                 </MenuItem>}
-                {!searching && <MenuItem onClick={handleMoveCardToTopOfLibrary}>
+                {enableCardAction("MOVE_TO_TOP_OF_LIBRARY") && <MenuItem onClick={handleMoveCardToTopOfLibrary}>
                     Move to Top of Library
                 </MenuItem>}
-                {!searching && <MenuItem onClick={handleMoveCardToBottomOfLibrary}>
+                {enableCardAction("MOVE_TO_BOTTOM_OF_LIBRARY") && <MenuItem onClick={handleMoveCardToBottomOfLibrary}>
                     Move to Bottom of Library
                 </MenuItem>}
-                {!scrying && possibleBucketsForCard.map(bucket => (
+                {enableCardAction("MOVE_TO_ZONE") && possibleBucketsForCard.map(bucket => (
                     <MenuItem key={bucket} onClick={() => handleMoveCard(bucket)}>
                         Move to {bucket}
                     </MenuItem>

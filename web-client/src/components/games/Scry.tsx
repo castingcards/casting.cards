@@ -40,7 +40,7 @@ export function ScryModal({playerState, open}: {
                         interactive={true}
                         playerState={playerState}
                         hidden={false}
-                        scrying={true}
+                        cardActions={["MOVE_TO_TOP_OF_LIBRARY", "MOVE_TO_BOTTOM_OF_LIBRARY"]}
                     />
                 </Box>
             </Stack>

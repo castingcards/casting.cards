@@ -37,8 +37,7 @@ export function ShowStackModal({
                 title={"Cards"}
                 interactive={true}
                 playerState={playerState}
-                hidden={false}
-                searching={true}
+                cardActions={["MOVE_TO_ZONE"]}
             />
         </Box>
     </Dialog>;

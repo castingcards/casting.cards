@@ -12,8 +12,10 @@ import {NewToken} from "./NewToken";
 
 import {mutate} from "../../firebase-interop/baseModel";
 import {playerStateDoc, PlayerState, CARD_BUCKETS, CardState} from "../../firebase-interop/models/playerState";
-import type {Game} from "../../firebase-interop/models/game";
 import {untapAll} from "../../firebase-interop/business-logic/playerState";
+
+import type {Game} from "../../firebase-interop/models/game";
+import type {CardAction} from "./Card";
 
 type Props = {
     game: Game;
@@ -27,12 +29,14 @@ function StackedCardsLayout({
     playerState,
     bucket,
     interactive,
+    cardActions,
 }: {
     cardStates: Array<CardState>,
     title: React.ReactNode,
     playerState: PlayerState,
     bucket: CARD_BUCKETS,
     interactive?: boolean,
+    cardActions?: Array<CardAction>,
 }) {
     const top = cardStates[cardStates.length - 1];
 
@@ -41,7 +45,7 @@ function StackedCardsLayout({
             <Typeogrophy variant="body1">{title} ({cardStates.length})</Typeogrophy>
             <Grid container alignContent="center">
                 <Grid>
-                    {top ? <Card playerState={playerState} cardState={top} bucket={bucket} interactive={interactive} />: <EmptyCard/>}
+                    {top ? <Card playerState={playerState} cardState={top} bucket={bucket} interactive={interactive} cardActions={cardActions ?? ["ALL"]} />: <EmptyCard/>}
                 </Grid>
             </Grid>
         </Grid>
@@ -56,7 +60,14 @@ function Exile({playerState, interactive}: {
     const cards = playerState.exileCards;
 
     return (
-        <StackedCardsLayout title="Exile" cardStates={cards} playerState={playerState} bucket="exile" interactive={interactive} />
+        <StackedCardsLayout
+            title="Exile"
+            cardStates={cards}
+            playerState={playerState}
+            bucket="exile"
+            interactive={interactive}
+            cardActions={["MOVE_TO_ZONE"]}
+        />
     );
 }
 
@@ -68,7 +79,14 @@ function Graveyard({playerState, interactive}: {
     const cards = playerState.graveyardCards;
 
     return (
-        <StackedCardsLayout title="Graveyard" cardStates={cards} playerState={playerState} bucket="graveyard" interactive={interactive}/>
+        <StackedCardsLayout
+            title="Graveyard"
+            cardStates={cards}
+            playerState={playerState}
+            bucket="graveyard"
+            interactive={interactive}
+            cardActions={["MOVE_TO_ZONE"]}
+        />
     );
 }
 
@@ -111,8 +129,7 @@ export function ListCardsLayout({
     playerState,
     hidden,
     interactive,
-    scrying,
-    searching,
+    cardActions,
 }: {
     cardStates: Array<CardState>,
     bucket: CARD_BUCKETS,
@@ -120,8 +137,7 @@ export function ListCardsLayout({
     playerState: PlayerState,
     hidden?: boolean,
     interactive?: boolean,
-    scrying?: boolean,
-    searching?: boolean,
+    cardActions?: Array<CardAction>,
 }) {
     const [hoveredItemIndex, setHoveredItemIndex] = React.useState(-1);
     // Half the card height is how much we have to translate cards so that
@@ -160,7 +176,7 @@ export function ListCardsLayout({
                         onMouseOut={() => {!hidden && setHoveredItemIndex(-1)}}
                         sx={fishEyeTransform(i)}
                     >
-                        <Card playerState={playerState} cardState={cardState} bucket={bucket} hidden={hidden} interactive={interactive} scrying={scrying} searching={searching} />
+                        <Card playerState={playerState} cardState={cardState} bucket={bucket} hidden={hidden} interactive={interactive} cardActions={cardActions ?? ["ALL"]} />
                     </Grid>
                 ) : <EmptyCard/>}
             </Grid>
