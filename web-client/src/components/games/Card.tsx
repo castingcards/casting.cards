@@ -14,7 +14,7 @@ import {mutate} from "../../firebase-interop/baseModel";
 import {CardReference, deckDoc} from "../../firebase-interop/models/deck";
 import {ALL_CARD_BUCKETS} from "../../firebase-interop/models/playerState";
 import {imageForCard} from "../../firebase-interop/business-logic/cards";
-import {moveCard, toggleTapped} from "../../firebase-interop/business-logic/playerState";
+import {moveCard, toggleTapped, search} from "../../firebase-interop/business-logic/playerState";
 import {transformOracleText} from "../../firebase-interop/business-logic/cards";
 import type {PlayerState, CARD_BUCKETS, CardState, Token} from "../../firebase-interop/models/playerState";
 import type {Card as ScryfallCard} from "scryfall-sdk";
@@ -23,7 +23,8 @@ export type CardAction = "ALL"
     | "NEW_COUNTER"
     | "MOVE_TO_TOP_OF_LIBRARY"
     | "MOVE_TO_BOTTOM_OF_LIBRARY"
-    | "MOVE_TO_ZONE";
+    | "MOVE_TO_ZONE"
+    | "SEARCH";
 
 type Props = {
     playerState: PlayerState;
@@ -172,6 +173,15 @@ export function Card({
         setContextMenu(null);
     };
 
+    const handleSearch = () => {
+        if (!interactive) {
+            return;
+        }
+
+        mutate(playerState, search(bucket));
+        setContextMenu(null);
+    }
+
     const deck = gameResource?.data();
     const card = deck?.cards.find(card => card.scryfallDetails.id === cardState.scryfallId);
 
@@ -234,6 +244,9 @@ export function Card({
                 </MenuItem>}
                 {enableCardAction("MOVE_TO_BOTTOM_OF_LIBRARY") && <MenuItem onClick={handleMoveCardToBottomOfLibrary}>
                     Move to Bottom of Library
+                </MenuItem>}
+                {enableCardAction("SEARCH") && <MenuItem onClick={() => handleSearch()}>
+                    Search
                 </MenuItem>}
                 {enableCardAction("MOVE_TO_ZONE") && possibleBucketsForCard.map(bucket => (
                     <MenuItem key={bucket} onClick={() => handleMoveCard(bucket)}>

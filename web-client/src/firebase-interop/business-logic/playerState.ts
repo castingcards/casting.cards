@@ -124,7 +124,7 @@ export function search(searchBucket: CARD_BUCKETS) {
         playerState = playerState.clone();
         playerState.searchCards = playerState[`${searchBucket}Cards`];
         playerState.searchBucket = searchBucket;
-        playerState.libraryCards = [];
+        playerState[`${searchBucket}Cards`] = [];
         return playerState;
     };
 }

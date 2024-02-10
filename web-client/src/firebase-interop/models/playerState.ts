@@ -90,6 +90,7 @@ export class PlayerState extends BaseModel {
         playerState.tokenDefinitions = obj.tokenDefinitions || [];
         playerState.scryCards = obj.scryCards || [];
         playerState.searchCards = obj.searchCards || [];
+        playerState.searchBucket = obj.searchBucket || undefined;
 
         return playerState;
     }

@@ -17,6 +17,7 @@ import {untapAll, finishSearch} from "../../firebase-interop/business-logic/play
 import type {Game} from "../../firebase-interop/models/game";
 import type {CardAction} from "./Card";
 import {ShowStackModal} from "./ShowStack";
+import { Search } from "@mui/icons-material";
 
 type Props = {
     game: Game;
@@ -67,7 +68,7 @@ function Exile({playerState, interactive}: {
             playerState={playerState}
             bucket="exile"
             interactive={interactive}
-            cardActions={["MOVE_TO_ZONE"]}
+            cardActions={["MOVE_TO_ZONE", "SEARCH"]}
         />
     );
 }
@@ -86,7 +87,7 @@ function Graveyard({playerState, interactive}: {
             playerState={playerState}
             bucket="graveyard"
             interactive={interactive}
-            cardActions={["MOVE_TO_ZONE"]}
+            cardActions={["MOVE_TO_ZONE", "SEARCH"]}
         />
     );
 }
