@@ -20,6 +20,7 @@ import type {PlayerState, CARD_BUCKETS, CardState, Token} from "../../firebase-i
 import type {Card as ScryfallCard} from "scryfall-sdk";
 
 export type CardAction = "ALL"
+    | "TAP"
     | "NEW_COUNTER"
     | "MOVE_TO_TOP_OF_LIBRARY"
     | "MOVE_TO_BOTTOM_OF_LIBRARY"
@@ -130,7 +131,7 @@ export function Card({
     };
 
     const handleDoubleClick = (event: React.MouseEvent) => {
-        if (!interactive) {
+        if (!interactive || !enableCardAction("TAP")) {
             return;
         }
 

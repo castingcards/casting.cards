@@ -47,7 +47,13 @@ function StackedCardsLayout({
             <Typeogrophy variant="body1">{title} ({cardStates.length})</Typeogrophy>
             <Grid container alignContent="center">
                 <Grid>
-                    {top ? <Card playerState={playerState} cardState={top} bucket={bucket} interactive={interactive} cardActions={cardActions ?? ["ALL"]} />: <EmptyCard/>}
+                    {top ? <Card
+                                playerState={playerState}
+                                cardState={top}
+                                bucket={bucket}
+                                interactive={interactive}
+                                cardActions={cardActions ?? ["ALL"]}
+                            />: <EmptyCard/>}
                 </Grid>
             </Grid>
         </Grid>
@@ -178,7 +184,14 @@ export function ListCardsLayout({
                         onMouseOut={() => {!hidden && setHoveredItemIndex(-1)}}
                         sx={fishEyeTransform(i)}
                     >
-                        <Card playerState={playerState} cardState={cardState} bucket={bucket} hidden={hidden} interactive={interactive} cardActions={cardActions ?? ["ALL"]} />
+                        <Card
+                            playerState={playerState}
+                            cardState={cardState}
+                            bucket={bucket}
+                            hidden={hidden}
+                            interactive={interactive}
+                            cardActions={cardActions ?? ["ALL"]}
+                        />
                     </Grid>
                 ) : <EmptyCard/>}
             </Grid>
@@ -192,7 +205,14 @@ function Lands({playerState, interactive}: {
 }) {
     const cards = playerState.landCards;
     return (
-        <ListCardsLayout title="Lands" playerState={playerState} cardStates={cards} bucket="land" interactive={interactive}/>
+        <ListCardsLayout
+            title="Lands"
+            playerState={playerState}
+            cardStates={cards}
+            bucket="land"
+            interactive={interactive}
+            cardActions={["MOVE_TO_ZONE", "TAP", "MOVE_TO_BOTTOM_OF_LIBRARY", "MOVE_TO_TOP_OF_LIBRARY", "NEW_COUNTER"]}
+        />
     );
 }
 
@@ -202,7 +222,14 @@ function Battleground({playerState, interactive}: {
 }) {
     const cards = playerState.battlefieldCards;
     return (
-        <ListCardsLayout title="Battleground" playerState={playerState} cardStates={cards} bucket="battlefield" interactive={interactive} />
+        <ListCardsLayout
+            title="Battleground"
+            playerState={playerState}
+            cardStates={cards}
+            bucket="battlefield"
+            interactive={interactive}
+            cardActions={["MOVE_TO_ZONE", "TAP", "MOVE_TO_BOTTOM_OF_LIBRARY", "MOVE_TO_TOP_OF_LIBRARY", "NEW_COUNTER"]}
+        />
     );
 }
 
@@ -213,7 +240,15 @@ function Hand({playerState, opponent, interactive}: {
 }) {
     const cards = playerState.handCards;
     return (
-        <ListCardsLayout title="Hand" playerState={playerState} cardStates={cards} hidden={opponent} bucket="hand" interactive={interactive}/>
+        <ListCardsLayout
+            title="Hand"
+            playerState={playerState}
+            cardStates={cards}
+            hidden={opponent}
+            bucket="hand"
+            interactive={interactive}
+            cardActions={["MOVE_TO_ZONE", "MOVE_TO_TOP_OF_LIBRARY", "MOVE_TO_BOTTOM_OF_LIBRARY"]}
+        />
     );
 }
 
@@ -223,7 +258,14 @@ function CommandZone({playerState, interactive}: {
 }) {
     const cards = playerState.commandzoneCards;
     return (
-        <ListCardsLayout title="Command Zone" playerState={playerState} cardStates={cards} bucket="commandzone" interactive={interactive}/>
+        <ListCardsLayout
+            title="Command Zone"
+            playerState={playerState}
+            cardStates={cards}
+            bucket="commandzone"
+            interactive={interactive}
+            cardActions={["MOVE_TO_ZONE"]}
+        />
     );
 }
 
