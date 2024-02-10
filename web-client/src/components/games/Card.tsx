@@ -179,12 +179,17 @@ export function Card({
 
     const possibleBucketsForCard = possibleBuckets([bucket, "scry", "library", "search"]);
 
+    const altText = card?.scryfallDetails ?
+        getAltTextForCard(card?.scryfallDetails)
+        : "Unknown Card";
+
     return (
         <Grid container sx={cardStyle}>
             <div style={{
                     position: "relative",
                     transform: cardState.tapped ? 'rotate(90deg)' : 'none',
                 }}
+                title={hidden ? "Hidden Card" : altText}
                 onContextMenu={handleContextMenu} onDoubleClick={handleDoubleClick}
             >
                 <div>

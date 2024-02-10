@@ -119,19 +119,34 @@ export function scryCard() {
     };
 }
 
-export function searchLibrary() {
+export function search(searchBucket: CARD_BUCKETS) {
     return async function(playerState: PlayerState) {
         playerState = playerState.clone();
-        playerState.searchCards = playerState.libraryCards;
+        playerState.searchCards = playerState[`${searchBucket}Cards`];
+        playerState.searchBucket = searchBucket;
         playerState.libraryCards = [];
         return playerState;
     };
 }
 
-export function finishSearchLibrary() {
+export function finishSearch() {
     return async function(playerState: PlayerState) {
+        if (playerState.searchBucket === undefined) {
+            return playerState;
+        }
+
         playerState = playerState.clone();
-        playerState.libraryCards = shuffle(playerState.searchCards);
+
+        let cards = playerState.searchCards;
+        if (playerState.searchBucket === "library") {
+            cards = shuffle(cards);
+        }
+
+        if (playerState.searchBucket !== undefined) {
+            playerState[`${playerState.searchBucket}Cards`] = cards;
+        }
+
+        playerState.searchBucket = undefined;
         playerState.searchCards = [];
         return playerState;
     };

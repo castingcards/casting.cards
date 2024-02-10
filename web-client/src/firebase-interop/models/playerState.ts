@@ -67,6 +67,7 @@ export class PlayerState extends BaseModel {
     commandzoneCards: Array<CardState> = [];
     scryCards: Array<CardState> = [];
     searchCards: Array<CardState> = [];
+    searchBucket: CARD_BUCKETS | undefined = undefined;
 
     tokenDefinitions: Array<Token> = [];
 

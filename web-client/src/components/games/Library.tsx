@@ -7,12 +7,11 @@ import MenuItem from '@mui/material/MenuItem';
 
 import {cardStyle, CARD_HEIGHT, CARD_WIDTH } from "./Card";
 import {ScryModal} from "./Scry";
-import {ShowStackModal} from "./ShowStack";
 
 import {mutate} from "../../firebase-interop/baseModel";
 import type {Game} from "../../firebase-interop/models/game";
 import type {PlayerState} from "../../firebase-interop/models/playerState";
-import {drawCard, scryCard, mulligan, searchLibrary, finishSearchLibrary} from "../../firebase-interop/business-logic/playerState";
+import {drawCard, scryCard, mulligan, search} from "../../firebase-interop/business-logic/playerState";
 
 
 type Props = {
@@ -55,19 +54,8 @@ export function Library({game, player, interactive}: Props) {
                 return;
             }
 
-            mutate(player, searchLibrary());
+            mutate(player, search("library"));
             setContextMenu(null);
-        },
-        [interactive, player],
-    );
-
-    const handleSearchClose = React.useCallback(
-        async () => {
-            if (!interactive) {
-                return;
-            }
-            // We need to shuffle when the modal closes
-            await mutate(player, finishSearchLibrary());
         },
         [interactive, player],
     );
@@ -96,7 +84,6 @@ export function Library({game, player, interactive}: Props) {
     };
 
     const showScryModal = interactive && player.scryCards.length > 0;
-    const showSearchModal = interactive && player.searchCards.length > 0;
 
     return (
         <Grid container sx={cardStyle}>
@@ -131,13 +118,6 @@ export function Library({game, player, interactive}: Props) {
             </Menu>}
 
             {interactive && showScryModal && <ScryModal open={showScryModal} playerState={player} />}
-            {interactive && showSearchModal && <ShowStackModal
-                playerState={player}
-                cardStates={player.searchCards}
-                bucket={"search"}
-                open={showSearchModal}
-                onClose={handleSearchClose}
-            />}
         </Grid>
     );
 }

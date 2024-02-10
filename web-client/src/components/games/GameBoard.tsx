@@ -12,10 +12,11 @@ import {NewToken} from "./NewToken";
 
 import {mutate} from "../../firebase-interop/baseModel";
 import {playerStateDoc, PlayerState, CARD_BUCKETS, CardState} from "../../firebase-interop/models/playerState";
-import {untapAll} from "../../firebase-interop/business-logic/playerState";
+import {untapAll, finishSearch} from "../../firebase-interop/business-logic/playerState";
 
 import type {Game} from "../../firebase-interop/models/game";
 import type {CardAction} from "./Card";
+import {ShowStackModal} from "./ShowStack";
 
 type Props = {
     game: Game;
@@ -237,6 +238,11 @@ export function MyGameBoard({game, uid}: Props) {
         return <div>Bad bad.</div>;
     }
 
+    const handleSearchClose = async () => {
+        // We need to shuffle when the modal closes
+        await mutate(playerState, finishSearch());
+    };
+
     const handleUntapAll = async () => {
         await mutate(playerState, untapAll());
     };
@@ -250,6 +256,8 @@ export function MyGameBoard({game, uid}: Props) {
     // We will wire this up later.
     const graveyardLayout = "column";
     const permanentCreaturesLayout = "column";
+
+    const showSearchModal = playerState.searchBucket !== undefined;
 
     return (
         <Grid container overflow="hidden" direction="column" sx={{backgroundColor: "#DFFFFF"}}>
@@ -285,6 +293,13 @@ export function MyGameBoard({game, uid}: Props) {
                 <Grid container direction={graveyardLayout} width="200px" justifyContent="center" alignItems="center">
                 </Grid>
             </Grid>
+            {showSearchModal && <ShowStackModal
+                playerState={playerState}
+                cardStates={playerState.searchCards}
+                bucket={"search"}
+                open={showSearchModal}
+                onClose={handleSearchClose}
+            />}
         </Grid>
     );
 }
