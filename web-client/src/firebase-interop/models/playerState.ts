@@ -79,6 +79,7 @@ export class PlayerState extends BaseModel {
         playerState.cardIds = obj.cardIds ;
         playerState.poisonCounters = obj.poisonCounters || 0;
         playerState.isReady = obj.isReady || false;
+        playerState.nextCardId = obj.nextCardId || 0;
 
         playerState.handCards = obj.handCards || [];
         playerState.landCards = obj.landCards || [];

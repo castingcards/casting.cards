@@ -64,7 +64,7 @@ function NewTokenModal({playerState, open, onClose}: {
             <Grid container direction="row">
                 <Grid item>
                     {tokenDefinitions.length > 0 && <Stack direction="column" spacing={2} padding={2} margin={2}>
-                        {tokenDefinitions.map(token => <Button variant="outlined" onClick={() => {
+                        {tokenDefinitions.map(token => <Button variant="outlined" key={token.name} onClick={() => {
                             handleAddTokenFromDefinition(token);
                         }}>{token.name}</Button>)}
                     </Stack>}

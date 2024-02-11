@@ -20,4 +20,5 @@ node_modules
 /web-client/yarn-error.log*
 
 .localdev
+.firebase
 *.log
