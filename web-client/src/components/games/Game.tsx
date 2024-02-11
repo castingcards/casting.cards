@@ -2,6 +2,7 @@ import React from 'react';
 import {useParams} from 'react-router-dom';
 
 import Grid from '@mui/material/Unstable_Grid2';
+import Button from '@mui/material/Button';
 
 import {useDocument} from 'react-firebase-hooks/firestore';
 import {gameDoc} from '../../firebase-interop/models/game';
@@ -14,6 +15,7 @@ import {ConfigureGame} from './ConfigureGame';
 
 import {playerStateDoc} from '../../firebase-interop/models/playerState';
 import type {Game} from '../../firebase-interop/models/game';
+import { Stack } from '@mui/material';
 
 export function ViewGame() {
     const {gameId} = useParams();
@@ -42,6 +44,7 @@ export function ViewGame() {
 
 function GameContent({game, playerUserId}: {game: Game, playerUserId: string}) {
     const [playerStateResource, loading] = useDocument(playerStateDoc(game.id!)(playerUserId));
+    const [activePlayerID, setActivePlayerID] = React.useState<string>("");
 
     if (loading) {
         return <div>Loading...</div>;
@@ -57,11 +60,20 @@ function GameContent({game, playerUserId}: {game: Game, playerUserId: string}) {
     }
 
     const opponentIds = game.playersId.filter(uid => uid !== playerUserId);
-    const opponentUserId = opponentIds.length > 0 ? opponentIds[0] : playerUserId;
+    const opponentUserId = activePlayerID ?
+        activePlayerID :
+        opponentIds.length > 0 ? opponentIds[0] : playerUserId;
 
     return (
         <Grid container overflow="hidden" direction="column">
-            <h1>{game.name}</h1>
+            <Stack direction="row" sx={{margin: "auto"}} spacing={4}>
+                <h1>{game.name}</h1>
+                {opponentIds.length > 1 && opponentIds.map(uid => <Button
+                    key={uid}
+                    variant={opponentUserId === uid ? "contained" : "outlined"}
+                    onClick={() => setActivePlayerID(uid)}
+                >{uid}</Button> )}
+            </Stack>
             <OpponentGameBoard game={game} uid={opponentUserId} />
             <MyGameBoard game={game} uid={playerUserId} />
         </Grid>
