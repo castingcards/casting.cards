@@ -9,6 +9,7 @@ import Stack from '@mui/material/Stack';
 
 import {NewCounterModal} from "./NewCounter";
 import {Counters} from "./Counters";
+import {CardDetails} from "./CardDetails";
 
 import {mutate} from "../../firebase-interop/baseModel";
 import {CardReference, deckDoc} from "../../firebase-interop/models/deck";
@@ -94,6 +95,7 @@ export function Card({
         mouseY: number;
     } | null>(null);
     const [openNewCounter, setOpenNewCounter] = React.useState(false);
+    const [showDetails, setShowDetails] = React.useState(false);
 
     // TODO(miguel): figure out a good way to report errors.  We probably
     // don't want to just render an error string instead of a card.  Perhaps
@@ -190,18 +192,15 @@ export function Card({
 
     const possibleBucketsForCard = possibleBuckets([bucket, "scry", "library", "search"]);
 
-    const altText = card?.scryfallDetails ?
-        getAltTextForCard(card?.scryfallDetails)
-        : "Unknown Card";
-
     return (
         <Grid container sx={cardStyle}>
             <div style={{
                     position: "relative",
                     transform: cardState.tapped ? 'rotate(90deg)' : 'none',
                 }}
-                title={hidden ? "Hidden Card" : altText}
-                onContextMenu={handleContextMenu} onDoubleClick={handleDoubleClick}
+                onContextMenu={handleContextMenu}
+                onDoubleClick={handleDoubleClick}
+                onClick={() => setShowDetails(true)}
             >
                 <div>
                     {card ? <ScryfallCardImage
@@ -226,6 +225,12 @@ export function Card({
                     />
                 </div>
             </div>
+
+            {showDetails && <CardDetails
+                cardState={cardState}
+                card={card}
+                onClose={() => setShowDetails(false)}
+            />}
 
             {interactive && <Menu
                 open={contextMenu !== null}
