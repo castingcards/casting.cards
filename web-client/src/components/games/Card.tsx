@@ -195,40 +195,44 @@ export function Card({
     }
 
     const handleKeyPress = (event: React.KeyboardEvent) => {
-        if (event.key.toUpperCase() === "T" && enableCardAction("TAP")) {
-            event.preventDefault();
-            handleTap();
-            return false;
-        }
-        if (event.key.toUpperCase() === "-" && enableCardAction("NEW_COUNTER")) {
-            event.preventDefault();
-            handleNewCounter();
-            return false;
-        }
-        if (event.key.toUpperCase() === "F" && enableCardAction("MOVE_TO_TOP_OF_LIBRARY")) {
-            event.preventDefault();
-            handleMoveCardToTopOfLibrary();
-            return false;
-        }
-        if (event.key.toUpperCase() === "B" && enableCardAction("MOVE_TO_BOTTOM_OF_LIBRARY")) {
-            event.preventDefault();
-            handleMoveCardToBottomOfLibrary();
-            return false;
-        }
-        if (event.key.toUpperCase() === "S" && enableCardAction("SEARCH")) {
-            event.preventDefault();
-            handleSearch();
-            return false;
-        }
+        let handled = false;
 
         if (event.metaKey) {
             for (const b of possibleBuckets([bucket, "scry", "library", "search"])) {
-                if (event.key.toUpperCase() === b[0].toUpperCase() && enableCardAction("MOVE_TO_ZONE")) {
-                    event.preventDefault();
+                if (!handled &&
+                    event.key.toUpperCase() === b[0].toUpperCase() &&
+                    enableCardAction("MOVE_TO_ZONE"))
+                {
+                    handled = true;
                     handleMoveCard(b);
-                    return false;
                 }
             }
+        } else {
+            if (event.key.toUpperCase() === "T" && enableCardAction("TAP")) {
+                handled = true;
+                handleTap();
+            }
+            if (event.key.toUpperCase() === "-" && enableCardAction("NEW_COUNTER")) {
+                handled = true;
+                handleNewCounter();
+            }
+            if (event.key.toUpperCase() === "F" && enableCardAction("MOVE_TO_TOP_OF_LIBRARY")) {
+                handled = true;
+                handleMoveCardToTopOfLibrary();
+            }
+            if (event.key.toUpperCase() === "B" && enableCardAction("MOVE_TO_BOTTOM_OF_LIBRARY")) {
+                handled = true;
+                handleMoveCardToBottomOfLibrary();
+            }
+            if (event.key.toUpperCase() === "S" && enableCardAction("SEARCH")) {
+                handled = true;
+                handleSearch();
+            }
+        }
+
+        if (handled) {
+            event.preventDefault();
+            return false;
         }
     }
 
