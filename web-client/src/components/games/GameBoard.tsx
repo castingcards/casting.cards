@@ -303,7 +303,7 @@ export function MyGameBoard({game, uid}: Props) {
     const showSearchModal = playerState.searchBucket !== undefined;
 
     return (
-        <Grid container overflow="hidden" direction="column" sx={{backgroundColor: "#DFFFFF"}}>
+        <Grid container direction="column" sx={{backgroundColor: "#DFFFFF"}}>
             <Grid container
                 direction="row"
                 columns={{ xs: 4, sm: 8, md: 12 }}
@@ -363,7 +363,7 @@ export function OpponentGameBoard({game, uid}: Props) {
     const permanentCreaturesLayout = "column";
 
     return (
-        <Grid container overflow="hidden" direction="column">
+        <Grid container direction="column">
             <Grid container
                 direction="row"
                 columns={{ xs: 4, sm: 8, md: 12 }}
