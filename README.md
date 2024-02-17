@@ -26,10 +26,6 @@ And then start up the UI service in a second window:
 npm start --prefix web-client
 ```
 
-NOTE: you can also `cd` into `backend` and `web-client` and run the commands
-above without the `--prefix`.  `--prefix` just allows you to run commands
-from a parent directory.
-
 Now you should have an app running locally, which you can see at
 http://localhost:3000/
 
