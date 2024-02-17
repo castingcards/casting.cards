@@ -97,6 +97,8 @@ export function Card({
     } | null>(null);
     const [openNewCounter, setOpenNewCounter] = React.useState(false);
     const [showDetails, setShowDetails] = React.useState(false);
+    const [focusing, setFocusing] = React.useState(false);
+    const myRef = React.useRef(null);
 
     // TODO(miguel): figure out a good way to report errors.  We probably
     // don't want to just render an error string instead of a card.  Perhaps
@@ -108,6 +110,11 @@ export function Card({
 
     if (loading) {
         return <LoadingCard/>
+    }
+
+    const focusRef = () =>{
+        const x: any = myRef?.current;
+        x.focus();
     }
 
     const enableCardAction = (cardAction: string) => {
@@ -133,7 +140,7 @@ export function Card({
         );
     };
 
-    const handleTap = (event: React.MouseEvent) => {
+    const handleTap = () => {
         if (!interactive) {
             return;
         }
@@ -187,6 +194,44 @@ export function Card({
         setContextMenu(null);
     }
 
+    const handleKeyPress = (event: React.KeyboardEvent) => {
+        if (event.key.toUpperCase() === "T" && enableCardAction("TAP")) {
+            event.preventDefault();
+            handleTap();
+            return false;
+        }
+        if (event.key.toUpperCase() === "-" && enableCardAction("NEW_COUNTER")) {
+            event.preventDefault();
+            handleNewCounter();
+            return false;
+        }
+        if (event.key.toUpperCase() === "F" && enableCardAction("MOVE_TO_TOP_OF_LIBRARY")) {
+            event.preventDefault();
+            handleMoveCardToTopOfLibrary();
+            return false;
+        }
+        if (event.key.toUpperCase() === "B" && enableCardAction("MOVE_TO_BOTTOM_OF_LIBRARY")) {
+            event.preventDefault();
+            handleMoveCardToBottomOfLibrary();
+            return false;
+        }
+        if (event.key.toUpperCase() === "S" && enableCardAction("SEARCH")) {
+            event.preventDefault();
+            handleSearch();
+            return false;
+        }
+
+        if (event.metaKey) {
+            for (const b of possibleBuckets([bucket, "scry", "library", "search"])) {
+                if (event.key.toUpperCase() === b[0].toUpperCase() && enableCardAction("MOVE_TO_ZONE")) {
+                    event.preventDefault();
+                    handleMoveCard(b);
+                    return false;
+                }
+            }
+        }
+    }
+
     const deck = gameResource?.data();
     const card = deck?.cards.find(card => card.scryfallDetails.id === cardState.scryfallId);
 
@@ -194,17 +239,24 @@ export function Card({
 
     const possibleBucketsForCard = possibleBuckets([bucket, "scry", "library", "search"]);
 
+    const focusStyle = focusing ? {outline: "unset"} : {};
+
     return (
         <Grid container sx={cardStyle}>
             <div style={{
                     position: "relative",
                     transform: cardState.tapped ? 'rotate(90deg)' : 'none',
+                    ...focusStyle,
                 }}
                 onContextMenu={handleContextMenu}
-                onKeyDown={(event) => {
-                    console.log(event.key);
-                }}
-                onClick={() => setShowDetails(true)}
+                onClick={() => !hidden && setShowDetails(true)}
+                onKeyDown={handleKeyPress}
+                onMouseEnter={focusRef}
+                onMouseMove={focusRef}
+                onFocus={() => setFocusing(true)}
+                onBlur={() => setFocusing(false)}
+                tabIndex={-1}
+                ref={myRef}
             >
                 <div>
                     {card ? <ScryfallCardImage
@@ -251,20 +303,25 @@ export function Card({
                     <Typography variant="body2" color="text.secondary">T</Typography>
                 </MenuItem>}
                 {enableCardAction("NEW_COUNTER") && <MenuItem onClick={handleNewCounter}>
-                    New counter
+                    <ListItemText>New Counter</ListItemText>
+                    <Typography variant="body2" color="text.secondary">-</Typography>
                 </MenuItem>}
                 {enableCardAction("MOVE_TO_TOP_OF_LIBRARY") && <MenuItem onClick={handleMoveCardToTopOfLibrary}>
-                    Move to Top of Library
+                    <ListItemText>Front of Library</ListItemText>
+                    <Typography variant="body2" color="text.secondary">F</Typography>
                 </MenuItem>}
                 {enableCardAction("MOVE_TO_BOTTOM_OF_LIBRARY") && <MenuItem onClick={handleMoveCardToBottomOfLibrary}>
-                    Move to Bottom of Library
+                    <ListItemText>Back of Library</ListItemText>
+                    <Typography variant="body2" color="text.secondary">B</Typography>
                 </MenuItem>}
                 {enableCardAction("SEARCH") && <MenuItem onClick={() => handleSearch()}>
-                    Search
+                    <ListItemText>Search</ListItemText>
+                    <Typography variant="body2" color="text.secondary">S</Typography>
                 </MenuItem>}
                 {enableCardAction("MOVE_TO_ZONE") && possibleBucketsForCard.map(bucket => (
                     <MenuItem key={bucket} onClick={() => handleMoveCard(bucket)}>
-                        Move to {bucket}
+                        <ListItemText>Move to {bucket}</ListItemText>
+                        <Typography variant="body2" color="text.secondary">⌘{bucket[0].toUpperCase()}</Typography>
                     </MenuItem>
                 ))}
             </Menu>}

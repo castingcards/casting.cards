@@ -137,6 +137,7 @@ function formatParagraph(paragraph: string): Array<JSX.Element | string> {
             let symbol = symbolMap[part];
             if (symbol) {
                 return <img
+                    key={index}
                     src={symbol.image}
                     alt={symbol.alt}
                     width={32}
