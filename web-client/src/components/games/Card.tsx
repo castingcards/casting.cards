@@ -6,6 +6,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
+import ListItemText from '@mui/material/ListItemText';
 
 import {NewCounterModal} from "./NewCounter";
 import {Counters} from "./Counters";
@@ -132,12 +133,13 @@ export function Card({
         );
     };
 
-    const handleDoubleClick = (event: React.MouseEvent) => {
-        if (!interactive || !enableCardAction("TAP")) {
+    const handleTap = (event: React.MouseEvent) => {
+        if (!interactive) {
             return;
         }
 
         mutate(playerState, toggleTapped(cardState.id));
+        setContextMenu(null);
     }
 
     const handleMoveCard = (location: CARD_BUCKETS) => {
@@ -199,7 +201,9 @@ export function Card({
                     transform: cardState.tapped ? 'rotate(90deg)' : 'none',
                 }}
                 onContextMenu={handleContextMenu}
-                onDoubleClick={handleDoubleClick}
+                onKeyDown={(event) => {
+                    console.log(event.key);
+                }}
                 onClick={() => setShowDetails(true)}
             >
                 <div>
@@ -242,6 +246,10 @@ export function Card({
                     : undefined
                 }
             >
+                {enableCardAction("TAP") && <MenuItem onClick={handleTap}>
+                    <ListItemText>Tap/Untap</ListItemText>
+                    <Typography variant="body2" color="text.secondary">T</Typography>
+                </MenuItem>}
                 {enableCardAction("NEW_COUNTER") && <MenuItem onClick={handleNewCounter}>
                     New counter
                 </MenuItem>}
