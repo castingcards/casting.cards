@@ -10,16 +10,19 @@ authentication integration.
 
 - The frontend, which is a react based app!
 
-To run the magic table in your local dev, you need to first start the
-emulators.  Open up a shell in the top level project dir and run:
+First, you need install dependencies. You can run
 ```
-npm install --prefix backend
+make deps
+```
+
+Then to run the casting.cards in your local dev, you need to first start the
+backend emulators.  Open up a shell in the top level project dir and run:
+```
 npm start --prefix backend
 ```
 
-In a second shell, start the UI:
+And then start up the UI service in a second window:
 ```
-npm install --prefix web-client
 npm start --prefix web-client
 ```
 

@@ -22,3 +22,5 @@ node_modules
 .localdev
 .firebase
 *.log
+
+.genfiles
