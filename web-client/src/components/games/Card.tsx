@@ -286,9 +286,11 @@ export function Card({
                 </div>
             </div>
 
-            {showDetails && <CardDetails
+            {showDetails && card && <CardDetails
                 cardState={cardState}
                 card={card}
+                bucket={bucket}
+                playerState={playerState}
                 onClose={() => setShowDetails(false)}
             />}
 

@@ -4,11 +4,15 @@ import Dialog from '@mui/material/Dialog';
 import Card from '@mui/material/Card';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 import Chip from '@mui/material/Chip';
-import Avatar from '@mui/material/Avatar';
+import Stack from '@mui/material/Stack';
+import LeftIcon from '@mui/icons-material/ArrowBackIos';
+import RightIcon from '@mui/icons-material/ArrowForwardIos';
 
-import type {CardState} from "../../firebase-interop/models/playerState";
+import type {CardState, CARD_BUCKETS, PlayerState} from "../../firebase-interop/models/playerState";
 import {CardReference} from "../../firebase-interop/models/deck";
+import {getCardInDeck} from "../../firebase-interop/business-logic/deck";
 
 interface ImageUris {
     small?: string;
@@ -164,39 +168,83 @@ function formatText(text: string, withParagraphs: boolean = false): Array<JSX.El
         <p key={index} style={{fontSize: "1.2em"}}>{paragraph}</p>));
 }
 
-export function CardDetails({card, cardState, onClose}: {
-    card: CardReference | undefined,
+export function CardDetails({card: initialCard, bucket, playerState, cardState: initialCardState, onClose}: {
+    card: CardReference,
+    bucket: CARD_BUCKETS,
+    playerState: PlayerState,
     cardState: CardState,
     onClose: () => void,
 }) {
     const [faceIndex, setFaceIndex] = React.useState(0);
+    const [currentCard, setCurrentCard] = React.useState<CardReference>(initialCard);
+    const [currentCardState, setCurrentCardState] = React.useState<CardState>(initialCardState);
+    const [inFocus, setInFocus] = React.useState(false);
+    const cardRef = React.useRef(null);
 
-    if (!card) {
-        return <Card variant="outlined">
-            <Grid container spacing={2}>
-                <Grid item>
-                    <h1>Unknown Card</h1>
-                </Grid>
-            </Grid>
-        </Card>;
+    const focusCard = () => {
+        if (cardRef.current) {
+            const current: any = cardRef.current;
+            current.focus();
+        }
     }
-    let details: CoreDetails = card.scryfallDetails;
-    console.log("details", details)
 
-    const hasMultipleFaces = card.scryfallDetails.card_faces.length > 1;
+    React.useEffect(() => {
+        focusCard();
+    }, [cardRef]);
+
+    const onChangeCard = async (event: React.MouseEvent<HTMLButtonElement>, cardState: CardState) => {
+        event.stopPropagation();
+        changeCard(cardState);
+    }
+
+    const changeCard = async (cardState: CardState) => {
+        const card = await getCardInDeck(playerState.deckId, cardState.scryfallId);
+        if (!card) {
+            return;
+        }
+
+        setCurrentCardState(cardState);
+        setCurrentCard(card);
+    };
+
+    let details: CoreDetails = currentCard.scryfallDetails;
+
+    const hasMultipleFaces = currentCard.scryfallDetails.card_faces.length > 1;
     if (hasMultipleFaces) {
-        details = card.scryfallDetails.card_faces[faceIndex];
+        details = currentCard.scryfallDetails.card_faces[faceIndex];
 
         if (!details.image_uris || !details.image_uris.art_crop) {
             details.image_uris = {
-                ...card.scryfallDetails.image_uris,
+                ...currentCard.scryfallDetails.image_uris,
                 ...details.image_uris ?? {},
             };
         }
     }
 
-    return <Dialog open={true} onClose={onClose} onClick={onClose}>
-        <Card variant="outlined" sx={{width: 480, padding: 1, margin: 1}}>
+    const cardIndexInBucket = playerState[`${bucket}Cards`].findIndex((card) => card.id === currentCardState.id);
+    const nextCard = playerState[`${bucket}Cards`][cardIndexInBucket + 1];
+    const previousCard = playerState[`${bucket}Cards`][cardIndexInBucket - 1];
+
+    const onKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+        if (event.key === "ArrowRight" && nextCard) {
+            changeCard(nextCard);
+        }
+        if (event.key === "ArrowLeft" && previousCard) {
+            changeCard(previousCard);
+        }
+    };
+
+    const focusStyle = inFocus ? {outline: "unset"} : {};
+
+    return <Dialog
+        open={true} onClose={onClose} onClick={onClose}
+        onMouseEnter={focusCard} onMouseMove={focusCard}
+        onFocus={() => setInFocus(true)} onBlur={() => setInFocus(false)}
+    >
+        <Card variant="outlined"
+            sx={{width: 480, padding: 1, margin: 1, ...focusStyle}}
+            tabIndex={0} ref={cardRef} onKeyDown={onKeyPress}
+        >
             <Grid container spacing={2}>
                 <Grid item xs={8}>
                     <span style={{
@@ -207,11 +255,19 @@ export function CardDetails({card, cardState, onClose}: {
                     {formatText(details.mana_cost ?? "")}
                 </Grid>
                 <Grid item xs={12} container justifyContent={"center"}>
-                    <img
-                        src={details.image_uris?.art_crop}
-                        alt={details.name}
-                        style={{maxHeight: 320, maxWidth: 480}}
-                    />
+                    <Stack direction="row" spacing={1}>
+                        <IconButton disabled={!previousCard} onClick={(e) => onChangeCard(e, previousCard)}>
+                            <LeftIcon />
+                        </IconButton>
+                        <img
+                            src={details.image_uris?.art_crop}
+                            alt={details.name}
+                            style={{maxHeight: 320, maxWidth: 380}}
+                        />
+                        <IconButton disabled={!nextCard} onClick={(e) => onChangeCard(e, nextCard)}>
+                            <RightIcon />
+                        </IconButton>
+                    </Stack>
                 </Grid>
                 <Grid item xs={12}>
                     <span style={{fontSize: "1.2em"}}>{details.type_line}</span>
@@ -233,7 +289,7 @@ export function CardDetails({card, cardState, onClose}: {
                     {details.defense && <Chip sx={{fontSize: "1.2em"}} label={details.defense} />}
                 </Grid>
                 {hasMultipleFaces && <Grid item xs={12} container justifyContent={"end"}>
-                    {card.scryfallDetails.card_faces.map((face, index) => <Button
+                    {currentCard.scryfallDetails.card_faces.map((face, index) => <Button
                         key={index}
                         variant={index === faceIndex ? "contained" : "outlined"}
                         onClick={(event) => {
