@@ -37,27 +37,30 @@ function CounterDetails({playerState, cardId, counter, index, interactive}: {
         );
     };
 
-    const handleIncrement = () => {
+    const handleIncrement = (e: React.MouseEvent) => {
         if (!interactive) {
             return;
         }
 
+        e.stopPropagation();
         mutate(playerState, incrementCounter(cardId, index));
     };
 
-    const handleDecrement = () => {
+    const handleDecrement = (e: React.MouseEvent) => {
         if (!interactive) {
             return;
         }
 
+        e.stopPropagation();
         mutate(playerState, incrementCounter(cardId, index, -1));
     };
 
-    const handleRemove = () => {
+    const handleRemove = (e: React.MouseEvent) => {
         if (!interactive) {
             return;
         }
 
+        e.stopPropagation();
         mutate(playerState, removeCounter(cardId, index));
         setContextMenu(null);
     };
