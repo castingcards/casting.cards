@@ -13,6 +13,7 @@ import RightIcon from '@mui/icons-material/ArrowForwardIos';
 import type {CardState, CARD_BUCKETS, PlayerState} from "../../firebase-interop/models/playerState";
 import {CardReference} from "../../firebase-interop/models/deck";
 import {getCardInDeck} from "../../firebase-interop/business-logic/deck";
+import {Card as ScryfallCard, CardFace} from "scryfall-sdk";
 
 interface ImageUris {
     small?: string;
@@ -169,17 +170,62 @@ function formatText(text: string, withParagraphs: boolean = false): Array<JSX.El
 }
 
 export function CardDetails({card: initialCard, bucket, playerState, cardState: initialCardState, onClose}: {
-    card: CardReference,
+    card: CardReference | undefined,
     bucket: CARD_BUCKETS,
     playerState: PlayerState,
     cardState: CardState,
     onClose: () => void,
 }) {
     const [faceIndex, setFaceIndex] = React.useState(0);
-    const [currentCard, setCurrentCard] = React.useState<CardReference>(initialCard);
+    let [currentCard, setCurrentCard] = React.useState<CardReference | undefined>(initialCard);
     const [currentCardState, setCurrentCardState] = React.useState<CardState>(initialCardState);
     const [inFocus, setInFocus] = React.useState(false);
     const cardRef = React.useRef(null);
+
+    React.useEffect(() => {
+        focusCard();
+    }, [cardRef]);
+
+
+    if (currentCard === undefined) {
+        // this is probably a token card.
+        if (!currentCardState.tokenName) {
+            return null;
+        }
+
+        // create a mocked card with the token details.
+        const token = currentCardState.tokenName ? playerState.tokenDefinitions.find(token => token.name === currentCardState.tokenName) : undefined;
+        if (!token) {
+            return null;
+        }
+
+        const mockedScryfallCard = new ScryfallCard();
+        const cardFace: CardFace = {
+            object: "card_face",
+            name: currentCardState.tokenName,
+            mana_cost: "",
+            getText: () => "",
+            getCost: () => "",
+            getImageURI(version: keyof ImageUris): string | null | undefined {
+                return "";
+            }
+        };
+        mockedScryfallCard.card_faces = [cardFace];
+        mockedScryfallCard.image_uris = {
+            art_crop: "",
+            small: "",
+            normal: "",
+            large: "",
+            png: "",
+            border_crop: "",
+        };
+        mockedScryfallCard.name = currentCardState.tokenName;
+        mockedScryfallCard.type_line = "Token";
+        mockedScryfallCard.oracle_text = token.abilities;
+        mockedScryfallCard.power = token.power?.toString();
+        mockedScryfallCard.toughness = token.toughness?.toString();
+        currentCard = new CardReference(1, mockedScryfallCard);
+    }
 
     const focusCard = () => {
         if (cardRef.current) {
@@ -188,10 +234,6 @@ export function CardDetails({card: initialCard, bucket, playerState, cardState: 
         }
     }
 
-    React.useEffect(() => {
-        focusCard();
-    }, [cardRef]);
-
     const onChangeCard = async (event: React.MouseEvent<HTMLButtonElement>, cardState: CardState) => {
         event.stopPropagation();
         changeCard(cardState);
@@ -199,9 +241,6 @@ export function CardDetails({card: initialCard, bucket, playerState, cardState: 
 
     const changeCard = async (cardState: CardState) => {
         const card = await getCardInDeck(playerState.deckId, cardState.scryfallId);
-        if (!card) {
-            return;
-        }
 
         setCurrentCardState(cardState);
         setCurrentCard(card);
@@ -224,6 +263,8 @@ export function CardDetails({card: initialCard, bucket, playerState, cardState: 
     const cardIndexInBucket = playerState[`${bucket}Cards`].findIndex((card) => card.id === currentCardState.id);
     const nextCard = playerState[`${bucket}Cards`][cardIndexInBucket + 1];
     const previousCard = playerState[`${bucket}Cards`][cardIndexInBucket - 1];
+
+    console.log({nextCard, previousCard, cardIndexInBucket})
 
     const onKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
         if (event.key === "ArrowRight" && nextCard) {
@@ -259,11 +300,11 @@ export function CardDetails({card: initialCard, bucket, playerState, cardState: 
                         <IconButton disabled={!previousCard} onClick={(e) => onChangeCard(e, previousCard)}>
                             <LeftIcon />
                         </IconButton>
-                        <img
+                        {details.image_uris?.art_crop && <img
                             src={details.image_uris?.art_crop}
                             alt={details.name}
                             style={{maxHeight: 320, maxWidth: 380}}
-                        />
+                        /> }
                         <IconButton disabled={!nextCard} onClick={(e) => onChangeCard(e, nextCard)}>
                             <RightIcon />
                         </IconButton>

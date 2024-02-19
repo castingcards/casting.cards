@@ -286,7 +286,7 @@ export function Card({
                 </div>
             </div>
 
-            {showDetails && card && <CardDetails
+            {showDetails && <CardDetails
                 cardState={cardState}
                 card={card}
                 bucket={bucket}
