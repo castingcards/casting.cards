@@ -107,6 +107,9 @@ export function moveCard(cardId: number, from: CARD_BUCKETS, to: CARD_BUCKETS, f
         } else {
             playerState[`${to}Cards`] = [...playerState[`${to}Cards`], cardToMove];
         }
+
+        cardToMove.tapped = false;
+
         return playerState;
     }
 }
