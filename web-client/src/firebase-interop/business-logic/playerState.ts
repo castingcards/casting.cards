@@ -1,7 +1,7 @@
 
 import {Deck} from '../models/deck';
 import {PlayerState, CardState, CARD_BUCKETS, ALL_CARD_BUCKETS, Token} from '../models/playerState';
-import {shuffle, allScryfallCards} from "./deck"
+import {shuffle, allScryfallCards, pickBestPlaymat} from "./deck"
 
 import type {COUNTER_LOCATION} from '../models/playerState';
 
@@ -52,6 +52,7 @@ export function chooseDeck(deck: Deck) {
         playerState.isReady = false;
         playerState.libraryCards = shuffle(nonCommanderCardStates);
         playerState.commandzoneCards = commanderCardStates;
+        playerState.playmat = pickBestPlaymat(deck);
         return playerState;
     }
 }

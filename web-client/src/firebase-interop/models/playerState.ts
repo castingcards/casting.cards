@@ -57,6 +57,7 @@ export class PlayerState extends BaseModel {
     cardIds: Array<string> = [];
     poisonCounters: number = 0;
     isReady: boolean = false;
+    playmat: string = "";
 
     libraryCards: Array<CardState> = [];
     landCards: Array<CardState> = [];
@@ -80,6 +81,7 @@ export class PlayerState extends BaseModel {
         playerState.poisonCounters = obj.poisonCounters || 0;
         playerState.isReady = obj.isReady || false;
         playerState.nextCardId = obj.nextCardId || 0;
+        playerState.playmat = obj.playmat || "";
 
         playerState.handCards = obj.handCards || [];
         playerState.landCards = obj.landCards || [];
