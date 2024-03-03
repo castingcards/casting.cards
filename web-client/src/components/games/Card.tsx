@@ -405,7 +405,12 @@ export function LoadingCard() {
 export function EmptyCard() {
     // TODO(miguel): Add a proper empty card image
     return (
-        <Grid container sx={{...cardStyle, borderColor: "#AAAAAA"}}>
+        <Grid container sx={{
+            ...cardStyle,
+            borderColor: "#AAAAAA",
+            color: "black",
+            backgroundColor: "rgba(255, 255, 255, 0.6)",
+        }}>
             Empty
         </Grid>
     );
