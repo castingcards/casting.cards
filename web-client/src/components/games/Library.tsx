@@ -4,6 +4,7 @@ import { Grid } from "@mui/material";
 import Typeogrophy from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import Box from '@mui/material/Box';
 
 import {cardStyle, CARD_HEIGHT, CARD_WIDTH } from "./Card";
 import {ScryModal} from "./Scry";
@@ -86,8 +87,10 @@ export function Library({game, player, interactive}: Props) {
     const showScryModal = interactive && player.scryCards.length > 0;
 
     return (
-        <Grid container sx={cardStyle}>
-            <Typeogrophy variant="body1">Library {player.libraryCards.length}</Typeogrophy>
+        <Grid container sx={{
+            ...cardStyle,
+            position: "relative",
+        }}>
             <img
                 src="/card-back.png"
                 alt="a decorative card back"
@@ -99,6 +102,16 @@ export function Library({game, player, interactive}: Props) {
                 onDoubleClick={() => handleDrawCard(1)}
                 onContextMenu={handleContextMenu}
             />
+
+            <Box sx={{
+                position: "absolute",
+                backgroundColor: "white",
+                marginTop: 1,
+                width: 32,
+                borderRadius: 3,
+            }}>
+                <Typeogrophy variant="body1" sx={{color: "black"}}>{player.libraryCards.length}</Typeogrophy>
+            </Box>
 
             {interactive && <Menu
                 open={contextMenu !== null}

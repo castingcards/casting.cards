@@ -15,7 +15,11 @@ import { Grid } from "@mui/material";
 export function NewToken({playerState}: {playerState: PlayerState}) {
     const [open, setOpen] = React.useState(false);
     return <div>
-        <Button variant="outlined" onClickCapture={() => setOpen(true)}>Add Token</Button>
+        <Button variant="outlined" onClickCapture={() => setOpen(true)} sx={{
+            backgroundColor: "rgba(255, 255, 255, 0.6)",
+        }}>
+            Add Token
+        </Button>
         {open && <NewTokenModal playerState={playerState} open={open} onClose={() => setOpen(false)} />}
     </div>;
 }

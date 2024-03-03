@@ -4,6 +4,7 @@ import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typeogrophy from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import {createStyles} from "@mui/material";
 
 import {Card, EmptyCard, CARD_HEIGHT} from "./Card";
 import {Library} from "./Library";
@@ -17,7 +18,7 @@ import {untapAll, finishSearch} from "../../firebase-interop/business-logic/play
 import type {Game} from "../../firebase-interop/models/game";
 import type {CardAction} from "./Card";
 import {ShowStackModal} from "./ShowStack";
-import { Search } from "@mui/icons-material";
+
 
 type Props = {
     game: Game;
@@ -43,7 +44,7 @@ function StackedCardsLayout({
     const top = cardStates[cardStates.length - 1];
 
     return (
-        <Grid container direction="column" alignItems="center">
+        <Grid container direction="column" alignItems="center" sx={zoneStyle()}>
             <Typeogrophy variant="body1">{title} ({cardStates.length})</Typeogrophy>
             <Grid container alignContent="center">
                 <Grid>
@@ -130,6 +131,18 @@ function calculateFishEye(
     return Math.max(minSize, magFactor * (itemCount - Math.pow(Math.abs(hoveredItem - value), 1/4)));
 }
 
+function zoneStyle() {
+    return createStyles({
+        backgroundColor: "rgba(255, 255, 255, 0.4)",
+        borderStyle: "solid",
+        borderColor: "rgba(0, 0, 0, 0.4)",
+        borderWidth: 2,
+        borderRadius: 2,
+        margin: "1px",
+        width: "90%",
+    });
+}
+
 export function ListCardsLayout({
     cardStates,
     bucket,
@@ -171,7 +184,7 @@ export function ListCardsLayout({
 
 
     return (
-        <Grid container direction="column" alignItems="center">
+        <Grid container direction="column" alignItems="center" sx={zoneStyle()}>
             <Typeogrophy variant="body1">{title} ({cardStates.length})</Typeogrophy>
             <Grid container justifyContent="center" maxWidth="50vw" overflow="visible" flexWrap="nowrap">
                 {cardStates.length ? cardStates.map((cardState, i) =>
@@ -269,6 +282,19 @@ function CommandZone({playerState, interactive}: {
     );
 }
 
+
+function playmatStyle(playmat: String, color: String) {
+    return createStyles({
+        backgroundImage: `url("${playmat}")`,
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+        borderRadius: 3,
+        borderColor: color,
+        borderWidth: 3,
+        borderStyle: "solid",
+    });
+}
+
 export function MyGameBoard({game, uid}: Props) {
     const [playerStateDocReference, loading] = useDocument(playerStateDoc(game.id!)(uid));
 
@@ -303,16 +329,14 @@ export function MyGameBoard({game, uid}: Props) {
     const showSearchModal = playerState.searchBucket !== undefined;
 
     return (
-        <Grid container direction="column" sx={{backgroundColor: "#DFFFFF"}}>
+        <Grid container direction="column" sx={playmatStyle(playerState.playmat, "black")}>
             <Grid container
                 direction="row"
                 columns={{ xs: 4, sm: 8, md: 12 }}
             >
                 <Grid container direction={graveyardLayout} width="200px" justifyContent="center" alignItems="center">
                     <PlayerBadge playerState={playerState} interactive={true}/>
-                    <Button onClick={handleUntapAll}>Untap All</Button>
                     <Exile playerState={playerState} interactive={true}/>
-                    <Divider sx={{width: "1em", visibility: "hidden"}}/>
                     <Graveyard playerState={playerState} interactive={true}/>
                 </Grid>
                 <Grid container direction="column" flex="1">
@@ -324,13 +348,20 @@ export function MyGameBoard({game, uid}: Props) {
                         */}
                         <Battleground playerState={playerState} interactive={true}/>
                         <Lands playerState={playerState} interactive={true} />
+                        <Hand playerState={playerState} interactive={true} />
                     </Grid>
-                    <Hand playerState={playerState} interactive={true} />
                 </Grid>
                 <Grid container direction={graveyardLayout} width="200px" justifyContent="center" alignItems="center">
+                    <Button onClick={handleUntapAll} variant="outlined" sx={{
+                        backgroundColor: "rgba(255, 255, 255, 0.6)",
+                    }}>
+                        Untap All
+                    </Button>
+                    <Divider sx={{width: "1em", height: "0.5em", visibility: "hidden"}}/>
                     <NewToken playerState={playerState} />
+                    <Divider sx={{width: "1em", height: "0.5em", visibility: "hidden"}}/>
                     <Library game={game} player={playerState} interactive={true} />
-                    <Divider sx={{width: "1em", visibility: "hidden"}}/>
+                    <Divider sx={{width: "1em", height: "1em", visibility: "hidden"}}/>
                     <CommandZone playerState={playerState} interactive={true}/>
                 </Grid>
                 <Grid container direction={graveyardLayout} width="200px" justifyContent="center" alignItems="center">
@@ -363,7 +394,7 @@ export function OpponentGameBoard({game, uid}: Props) {
     const permanentCreaturesLayout = "column";
 
     return (
-        <Grid container direction="column">
+        <Grid container direction="column" sx={playmatStyle(playerState.playmat, "gray")}>
             <Grid container
                 direction="row"
                 columns={{ xs: 4, sm: 8, md: 12 }}

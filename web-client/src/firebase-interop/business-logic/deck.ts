@@ -28,7 +28,7 @@ export function pickBestPlaymat(deck: Deck): string {
       "G": "mono-green",
       "R": "mono-red",
       "W": "mono-white",
-      "UW": "azorious",
+      "UW": "azorius",
       "RW": "boros",
       "BU": "dimir",
       "BG": "golgari",
