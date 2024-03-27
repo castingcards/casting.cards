@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 
 import Box from '@mui/material/Box';
 import AppBar from '@mui/material/AppBar';
@@ -13,16 +14,18 @@ import WidgetsIcon from '@mui/icons-material/Widgets';
 import Link from '@mui/material/Link';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
+import AccountCircle from '@mui/icons-material/AccountCircle';
 
 import { useAuthState, useSignOut } from 'react-firebase-hooks/auth';
 
 import {auth} from '../../firebase-interop/firebaseInit';
 import {signIn} from '../../firebase-interop/signInFunctions';
-import "./Login.css";
+import "./Header.css";
+
+import type {User} from "firebase/auth"
 
 export function Login() {
   const [user, loading, error] = useAuthState(auth);
-  const [signOut] = useSignOut(auth);
   const [appMenuAnchorEl, setAppMenuAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const openAppMenuButton = (evt: React.MouseEvent<HTMLElement>) => {
@@ -36,18 +39,17 @@ export function Login() {
     signIn();
   }, []);
 
-  let message = "";
+  let message = <div id="header-portal"></div>;
   let authButton = null;
 
   if (loading) {
-    message = "Loading...</p>";
+    message = <div>Loading...</div>;
   } else if (error) {
-    message = `Error: ${error.message}`;
+    message = <div>Error: ${error.message}</div>;
   } else if (user) {
-    message = `Logged in as ${user.displayName}`;
-    authButton = <Button color="inherit" onClick={() => signOut()}>Log Out</Button>;
+    authButton = <Profile user={user} />
   } else {
-    message = "Log in to get started";
+    message = <div>Log in to get started</div>;
     authButton = <Button color="inherit" onClick={handleLogin}>Log In</Button>;
   }
 
@@ -72,12 +74,16 @@ export function Login() {
               onClick={closeAppMenuButton}
             >
               <MenuItem onClick={closeAppMenuButton} sx={{ minWidth: 150 }}>
-                <ListItemIcon><WidgetsIcon fontSize="small"/></ListItemIcon>
-                <Link href="/decks" underline="none">Decks</Link>
+                <Link href="/decks" underline="none">
+                  <ListItemIcon><WidgetsIcon fontSize="small"/></ListItemIcon>
+                  Decks
+                </Link>
               </MenuItem>
               <MenuItem onClick={closeAppMenuButton}>
-                <ListItemIcon><PlayCircleOutlineIcon fontSize="small"/></ListItemIcon>
-                <Link href="/games" underline="none">Games</Link>
+                <Link href="/games" underline="none">
+                  <ListItemIcon><PlayCircleOutlineIcon fontSize="small"/></ListItemIcon>
+                  Games
+                </Link>
               </MenuItem>
           </Menu>
 
@@ -95,4 +101,68 @@ export function Login() {
       </AppBar>
     </Box>
   );
+}
+
+export const HeaderPortal = ({
+  message,
+}: {
+  message: string,
+}) => {
+  const [container] = React.useState(() => {
+    const el = document.getElementById("header-portal");
+    return el
+  })
+
+  return container ? ReactDOM.createPortal(message, container) : null;
+}
+
+function Profile({user}: {
+  user: User,
+}) {
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [signOut] = useSignOut(auth);
+
+  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleSignOut = () => {
+    signOut();
+    handleClose();
+  };
+
+  return <>
+      <Typography>{user.displayName}</Typography>
+      <IconButton
+        size="large"
+        aria-label="account of current user"
+        aria-controls="menu-appbar"
+        aria-haspopup="true"
+        onClick={handleMenu}
+        color="inherit"
+      >
+        <AccountCircle />
+      </IconButton>
+      <Menu
+          id="menu-appbar"
+          anchorEl={anchorEl}
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+          keepMounted
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+          open={Boolean(anchorEl)}
+          onClose={handleClose}
+      >
+          <MenuItem onClick={handleSignOut}>Log Out</MenuItem>
+      </Menu>
+  </>;
 }

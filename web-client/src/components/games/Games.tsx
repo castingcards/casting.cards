@@ -6,6 +6,8 @@ import Typography from '@mui/material/Typography';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
+import { IconButton } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete'
 
 import {CenterLayout} from '../layouts/Center';
 
@@ -13,9 +15,10 @@ import {auth} from "../../firebase-interop/firebaseInit";
 import {useAuthState} from 'react-firebase-hooks/auth';
 import {useCollection} from 'react-firebase-hooks/firestore';
 
-import {myGamesQuery} from '../../firebase-interop/models/game';
+import {myGamesQuery, deleteGame} from '../../firebase-interop/models/game';
 
 import {NewGame} from './NewGame';
+import {HeaderPortal} from '../header/Header';
 
 function GamesContent(): React.ReactElement {
     const [user] = useAuthState(auth);
@@ -36,18 +39,29 @@ function GamesContent(): React.ReactElement {
     return (
         <>
             <Grid container justifyContent="space-between">
-                <Typography variant="h4" gutterBottom>Games</Typography>
+                <HeaderPortal message="Games" />
                 <Typography variant="body2" color="text.secondary">{user?.uid}</Typography>
             </Grid>
             {user && <NewGame />}
             <List>
-                {games.docs.map(game => (
-                    <ListItem key={game.id} sx={{backgroundColor: "#EEEEEE"}}>
-                    <Link to={`/games/${game.id}`}>
-                        <ListItemText primary={game.data().name} />
-                    </Link>
-                    </ListItem>)
-                    )}
+                {games.docs.map(game => {
+                    const gameIsMine = game.data().ownerUserId === user?.uid;
+                    return <ListItem
+                        key={game.id}
+                        sx={{backgroundColor: "#EEEEEE"}}
+                        secondaryAction={
+                            gameIsMine
+                            ? <IconButton edge="end" aria-label="delete" onClick={() => deleteGame(game.id)}>
+                                <DeleteIcon />
+                              </IconButton>
+                            : null
+                        }
+                    >
+                        <Link to={`/games/${game.id}`}>
+                            <ListItemText primary={game.data().name} />
+                        </Link>
+                    </ListItem>
+                })}
             </List>
         </>
     );

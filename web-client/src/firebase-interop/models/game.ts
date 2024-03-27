@@ -1,4 +1,4 @@
-import {query, where, addDoc} from "firebase/firestore";
+import {query, where, addDoc, deleteDoc} from "firebase/firestore";
 import {typedCollection, typedDoc, BaseModel} from "../baseModel";
 
 export type GameStates = "Unstarted" | "Started" | "Finished";
@@ -78,3 +78,16 @@ export async function addGame(game: Game): Promise<Game> {
 
   return game;
 }
+
+export async function deleteGame(gameId: string): Promise<void> {
+  if (!gameId) {
+    throw new Error("Must provide a gameId");
+  }
+
+  try {
+    await deleteDoc(gameDoc(gameId));
+  } catch (e) {
+    console.error("Error deleting document: ", e);
+  }
+}
+

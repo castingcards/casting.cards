@@ -3,7 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 
 import Grid from '@mui/material/Unstable_Grid2';
 
-import {Login} from '../header/Login';
+import {Login} from '../header/Header';
 import {Decks} from '../decks/Decks';
 import {ViewDeck} from '../decks/Deck';
 import {Games} from '../games/Games';
@@ -21,7 +21,7 @@ function AppRoutes(): React.ReactElement {
       <Route path="/decks" element={<PaddedContainer><Decks /></PaddedContainer>} />
       <Route path="/decks/:deckId" element={<PaddedContainer><ViewDeck /></PaddedContainer>} />
       <Route path="/games" element={<PaddedContainer><Games /></PaddedContainer>} />
-      <Route path="/games/:gameId" element={<PaddedContainer><ViewGame /></PaddedContainer>} />
+      <Route path="/games/:gameId" element={<ViewGame />} />
     </Routes>
   );
 }

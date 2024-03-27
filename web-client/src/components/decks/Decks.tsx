@@ -15,6 +15,7 @@ import {useCollection} from 'react-firebase-hooks/firestore';
 
 import {auth} from "../../firebase-interop/firebaseInit";
 import {NewDeck} from "./NewDeck"
+import { HeaderPortal } from "../header/Header";
 import {myDecksQuery, deleteDeck} from "../../firebase-interop/models/deck";
 import {allScryfallCards} from "../../firebase-interop/business-logic/deck"
 
@@ -36,7 +37,7 @@ function DecksContent(): React.ReactElement {
 
   return (
     <>
-        <Typography variant="h4" gutterBottom>Decks</Typography>
+        <HeaderPortal message="Decks" />
         {user && <NewDeck />}
         <List>
           {decks.docs.map(deckReference => {

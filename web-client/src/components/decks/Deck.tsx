@@ -12,7 +12,7 @@ import Button from '@mui/material/Button';
 
 import {deckDoc} from "../../firebase-interop/models/deck";
 import {useDocument} from 'react-firebase-hooks/firestore';
-
+import {HeaderPortal} from '../header/Header';
 import {Deck} from "../../firebase-interop/models/deck";
 import {canBeCommander, imageForCard} from "../../firebase-interop/business-logic/cards";
 import type {CardReference} from "../../firebase-interop/models/deck";
@@ -52,7 +52,7 @@ export function ViewDeck() {
 
     return (
         <Box>
-            <Typography variant="h4" gutterBottom>{deck.name}</Typography>
+            <HeaderPortal message={`Deck: ${deck.name}`} />
             <Grid container spacing={2}>
                 {cards.map(card => {
                     const cardCanBeCommander = canBeCommander(card.scryfallDetails);

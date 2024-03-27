@@ -12,6 +12,7 @@ import {useAuthState} from 'react-firebase-hooks/auth';
 
 import {OpponentGameBoard, MyGameBoard} from './GameBoard';
 import {ConfigureGame} from './ConfigureGame';
+import {HeaderPortal} from '../header/Header';
 
 import {playerStateDoc} from '../../firebase-interop/models/playerState';
 import type {Game} from '../../firebase-interop/models/game';
@@ -67,7 +68,7 @@ function GameContent({game, playerUserId}: {game: Game, playerUserId: string}) {
     return (
         <Grid container overflow="hidden" direction="column">
             <Stack direction="row" sx={{margin: "auto"}} spacing={4}>
-                <h1>{game.name}</h1>
+                <HeaderPortal message={`Game: ${game.name}`} />
                 {opponentIds.length > 1 && opponentIds.map(uid => <Button
                     key={uid}
                     variant={opponentUserId === uid ? "contained" : "outlined"}
