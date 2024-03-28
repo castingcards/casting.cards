@@ -17,9 +17,12 @@ import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 
 import { useAuthState, useSignOut } from 'react-firebase-hooks/auth';
+import {useDocument} from 'react-firebase-hooks/firestore';
 
 import {auth} from '../../firebase-interop/firebaseInit';
 import {signIn} from '../../firebase-interop/signInFunctions';
+import {Profile, profileDoc} from "../../firebase-interop/models/profile";
+
 import "./Header.css";
 
 import type {User} from "firebase/auth"
@@ -47,7 +50,7 @@ export function Login() {
   } else if (error) {
     message = <div>Error: ${error.message}</div>;
   } else if (user) {
-    authButton = <Profile user={user} />
+    authButton = <ProfileView user={user} />
   } else {
     message = <div>Log in to get started</div>;
     authButton = <Button color="inherit" onClick={handleLogin}>Log In</Button>;
@@ -116,10 +119,11 @@ export const HeaderPortal = ({
   return container ? ReactDOM.createPortal(message, container) : null;
 }
 
-function Profile({user}: {
+function ProfileView({user}: {
   user: User,
 }) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [profileSnapshot] = useDocument(profileDoc(user.uid || ""));
   const [signOut] = useSignOut(auth);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -135,8 +139,13 @@ function Profile({user}: {
     handleClose();
   };
 
+  const profile = profileSnapshot?.data();
+
+  console.log("Profile", profile);
+  const userName = profile?.userName ?? user.displayName;
+
   return <>
-      <Typography>{user.displayName}</Typography>
+      <Typography>{userName}</Typography>
       <IconButton
         size="large"
         aria-label="account of current user"
