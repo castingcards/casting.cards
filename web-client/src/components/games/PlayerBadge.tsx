@@ -1,4 +1,5 @@
 import React from "react";
+import {useDocument} from 'react-firebase-hooks/firestore';
 
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
@@ -8,17 +9,22 @@ import { Button } from "@mui/material";
 
 import { mutate } from "../../firebase-interop/baseModel";
 import {adjustLife} from "../../firebase-interop/business-logic/playerState";
+import {profileDoc} from "../../firebase-interop/models/profile";
 
 export function PlayerBadge({playerState, interactive}: {
     playerState: PlayerState,
     interactive?: boolean,
 }) {
+    const [profileSnapshot] = useDocument(profileDoc(playerState.playerId || ""));
+
     const onIncreaseLife = () => {
         mutate(playerState, adjustLife(1));
     }
     const onDecreaseLife = () => {
         mutate(playerState, adjustLife(-1));
     }
+
+    const playerName = profileSnapshot?.data()?.userName ?? playerState.playerId;
 
     return (
         <Grid container direction="column" alignItems="center" spacing={1} border={1} sx={{backgroundColor: "white"}}>
@@ -29,7 +35,7 @@ export function PlayerBadge({playerState, interactive}: {
                     "overflow": "hidden",
                     "textOverflow": "ellipsis",
                 }}>
-                    {playerState.playerId}
+                    {playerName}
                 </Typography>
             </Grid>
             <Grid direction="row">

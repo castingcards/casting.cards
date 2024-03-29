@@ -21,7 +21,9 @@ import {useDocument} from 'react-firebase-hooks/firestore';
 
 import {auth} from '../../firebase-interop/firebaseInit';
 import {signIn} from '../../firebase-interop/signInFunctions';
-import {Profile, profileDoc} from "../../firebase-interop/models/profile";
+import {profileDoc} from "../../firebase-interop/models/profile";
+
+import ProfileModal from "./ProfileModal";
 
 import "./Header.css";
 
@@ -123,6 +125,7 @@ function ProfileView({user}: {
   user: User,
 }) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [showProfile, setShowProfile] = React.useState(false);
   const [profileSnapshot] = useDocument(profileDoc(user.uid || ""));
   const [signOut] = useSignOut(auth);
 
@@ -134,14 +137,17 @@ function ProfileView({user}: {
     setAnchorEl(null);
   };
 
+  const handleShowProfile = () => {
+    setShowProfile(true);
+    handleClose();
+  };
+
   const handleSignOut = () => {
     signOut();
     handleClose();
   };
 
   const profile = profileSnapshot?.data();
-
-  console.log("Profile", profile);
   const userName = profile?.userName ?? user.displayName;
 
   return <>
@@ -171,7 +177,9 @@ function ProfileView({user}: {
           open={Boolean(anchorEl)}
           onClose={handleClose}
       >
+          <MenuItem onClick={handleShowProfile}>Profile</MenuItem>
           <MenuItem onClick={handleSignOut}>Log Out</MenuItem>
       </Menu>
+      <ProfileModal user={user} open={showProfile} onClose={() => setShowProfile(false)} />
   </>;
 }
