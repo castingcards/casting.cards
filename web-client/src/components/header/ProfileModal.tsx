@@ -11,7 +11,7 @@ import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid";
 import Typeography from "@mui/material/Typography";
 
-import {profileDoc, Profile} from "../../firebase-interop/models/profile";
+import {profileDoc, userNameExists, Profile} from "../../firebase-interop/models/profile";
 
 import type {User} from "firebase/auth";
 
@@ -50,13 +50,23 @@ function ProfileDialog({user, profile, open, onClose}: {
 }) {
     const [userName, setUserName] = React.useState(profile.userName);
     const [description, setDescription] = React.useState(profile.description);
+    const [userNameExistsError, setUserNameExistsError] = React.useState(false);
 
     const handleUpdateProfile = async () => {
+        setUserNameExistsError(false);
+        const exists = await userNameExists(userName);
+        if (exists) {
+            setUserNameExistsError(true);
+            return;
+        }
+
         profile.userName = userName;
         profile.description = description;
         await profile.save();
         onClose();
     };
+
+    const canEdit = !!userName;
 
     return <Dialog onClose={onClose} open={open}>
         <DialogTitle>New Token</DialogTitle>
@@ -71,7 +81,9 @@ function ProfileDialog({user, profile, open, onClose}: {
                         <TextField id="user-bio" label="Bio" variant="standard"
                             value={description} onChange={e => setDescription(e.target.value)} />
 
-                        <Button variant="outlined" onClick={handleUpdateProfile}>Update</Button>
+                        {userNameExistsError && <Typeography variant={"body1"} color="red">Username exists</Typeography>}
+
+                        <Button variant="outlined" onClick={handleUpdateProfile} disabled={!canEdit}>Update</Button>
                     </Stack>
                 </Grid>
             </Grid>

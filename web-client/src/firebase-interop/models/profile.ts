@@ -1,4 +1,4 @@
-import {setDoc} from "firebase/firestore";
+import {setDoc, query, where, getDocs} from "firebase/firestore";
 import {typedCollection, typedDoc, BaseModel} from "../baseModel";
 
 export const COLLECTION_PATH = "profiles";
@@ -55,4 +55,52 @@ export async function getOrCreateProfile(uid: string, defaultUserName: string = 
     }
 
     return undefined;
+}
+
+export async function userNameExists(userName: string): Promise<boolean> {
+    try {
+        const usernameQuery = query(profilesCollection, where("userName", "==", userName));
+        const docsReference = await getDocs(usernameQuery);
+        return !docsReference.empty;
+    } catch (e) {
+        console.log("Failed to query profiles for userName", e)
+        return true;
+    }
+}
+
+type GetUserIdResponse = {
+    userID: string;
+    failureReason: "User Not Found" | "Too Many Users" | "ERROR" | null;
+}
+
+export async function getUserId(userName: string): Promise<GetUserIdResponse> {
+    try {
+        const usernameQuery = query(profilesCollection, where("userName", "==", userName));
+        const docsReference = await getDocs(usernameQuery);
+        if (docsReference.empty) {
+            return {
+                userID: "",
+                failureReason: "User Not Found",
+            };
+        }
+
+        const profiles = docsReference.docs;
+        if (profiles.length > 1) {
+            return {
+                userID: "",
+                failureReason: "Too Many Users",
+            };
+        }
+
+        return {
+            userID: profiles[0].id,
+            failureReason: null,
+        };
+    } catch (e) {
+        console.log("Failed to get userID", e);
+        return {
+            userID: "",
+            failureReason: "ERROR",
+        };
+    }
 }

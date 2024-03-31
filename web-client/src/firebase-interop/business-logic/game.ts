@@ -5,7 +5,8 @@ import {Game} from "../models/game"
 import {PlayerState, getPlayerState, getAllPlayerStates} from "../models/playerState";
 import {Deck} from "../models/deck";
 
-import {chooseDeck} from "../business-logic/playerState";
+import {chooseDeck} from "./playerState";
+import {getUserId} from "../models/profile";
 
 export function addPlayerId(userId: string) {
     return async function(game: Game) {
@@ -15,6 +16,34 @@ export function addPlayerId(userId: string) {
         if (game.state === "Started") {
             throw new Error("Game is in progress.");
         }
+
+        game = game.clone();
+        if (game.playersId.indexOf(userId) === -1) {
+            if (game.playersId.length >= game.maxPlayers) {
+                throw new Error(`Can't add more player. Max is ${game.maxPlayers}.`);
+            }
+
+            game.playersId = [...game.playersId, userId];
+        }
+        return game;
+    };
+}
+
+export function addPlayerUserName(userName: string) {
+    return async function(game: Game) {
+        if (game.state === "Finished") {
+            throw new Error("Game is done.")
+        }
+        if (game.state === "Started") {
+            throw new Error("Game is in progress.");
+        }
+
+        const getUserResult = await getUserId(userName);
+        if (getUserResult.failureReason) {
+            throw new Error(getUserResult.failureReason);
+        }
+
+        const userId = getUserResult.userID;
 
         game = game.clone();
         if (game.playersId.indexOf(userId) === -1) {

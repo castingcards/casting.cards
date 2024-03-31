@@ -1,5 +1,7 @@
 import * as React from "react";
 
+import {useDocument} from "react-firebase-hooks/firestore";
+
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
@@ -17,7 +19,8 @@ import { ChooseDeck } from "./ChooseDeck";
 
 import {mutate} from "../../firebase-interop/baseModel";
 import {addPlayerState, PlayerState} from "../../firebase-interop/models/playerState";
-import {addPlayerId, playerIsReady, isGameFull} from "../../firebase-interop/business-logic/game";
+import {profileDoc} from "../../firebase-interop/models/profile";
+import {addPlayerUserName, playerIsReady, isGameFull} from "../../firebase-interop/business-logic/game";
 import type {Game} from "../../firebase-interop/models/game";
 
 
@@ -28,14 +31,14 @@ type Props = {
 };
 
 export function ConfigureGame({game, userId, onImReady}: Props): React.ReactElement {
-  const [newPlayerId, setNewPlayerId] = React.useState<string>("");
+  const [newPlayerUserName, setPlayerUserName] = React.useState<string>("");
   const [selectedDeckId, setSelectedDeckId] = React.useState<string>("");
 
   const addPlayer = React.useCallback(async () => {
-    await mutate(game, addPlayerId(newPlayerId));
-    await addPlayerState(game.id!, newPlayerId, new PlayerState(game.id!, newPlayerId));
-    setNewPlayerId("");
-  }, [newPlayerId, game]);
+    await mutate(game, addPlayerUserName(newPlayerUserName));
+    await addPlayerState(game.id!, newPlayerUserName, new PlayerState(game.id!, newPlayerUserName));
+    setPlayerUserName("");
+  }, [newPlayerUserName, game]);
 
   const imReady = React.useCallback(async () => {
     await mutate(game, playerIsReady(userId));
@@ -60,17 +63,17 @@ export function ConfigureGame({game, userId, onImReady}: Props): React.ReactElem
                          * then then user id.
                          */}
                         <TextField
-                            value={newPlayerId} onChange={e => setNewPlayerId(e.target.value)}
+                            value={newPlayerUserName}
+                            onChange={e => setPlayerUserName(e.target.value)}
+                            label="User Name"
                         />
 
                         <Button variant="outlined" disabled={!isGameFull(game)} onClick={addPlayer}>Add</Button>
 
                         <List>
                           {game.playersId.map(userId => (
-                            <ListItem key={userId} sx={{backgroundColor: "#EEEEEE"}}>
-                              <ListItemText primary={userId} />
-                            </ListItem>)
-                          )}
+                            <UserListItem key={userId} userId={userId} />
+                          ))}
                         </List>
                       </Stack>
 
@@ -89,4 +92,18 @@ export function ConfigureGame({game, userId, onImReady}: Props): React.ReactElem
       </Grid>
     </Grid>
   );
+}
+
+function UserListItem({userId}: {
+  userId: string,
+}) {
+  const [profileSnapshot] = useDocument(profileDoc(userId || ""));
+
+  const profile = profileSnapshot?.data();
+  const userName = profile?.userName ?? "Unknown";
+  const description = profile?.description ?? "";
+
+  return <ListItem sx={{backgroundColor: "#EEEEEE"}}>
+      <ListItemText primary={userName} secondary={description} />
+  </ListItem>;
 }
