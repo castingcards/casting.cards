@@ -54,10 +54,13 @@ function ProfileDialog({user, profile, open, onClose}: {
 
     const handleUpdateProfile = async () => {
         setUserNameExistsError(false);
-        const exists = await userNameExists(userName);
-        if (exists) {
-            setUserNameExistsError(true);
-            return;
+
+        if (profile.userName !== userName) {
+            const exists = await userNameExists(userName);
+            if (exists) {
+                setUserNameExistsError(true);
+                return;
+            }
         }
 
         profile.userName = userName;
