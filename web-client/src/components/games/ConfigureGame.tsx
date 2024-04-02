@@ -20,7 +20,8 @@ import { ChooseDeck } from "./ChooseDeck";
 import {mutate} from "../../firebase-interop/baseModel";
 import {addPlayerState, PlayerState} from "../../firebase-interop/models/playerState";
 import {profileDoc} from "../../firebase-interop/models/profile";
-import {addPlayerUserName, playerIsReady, isGameFull} from "../../firebase-interop/business-logic/game";
+import {getUserId} from "../../firebase-interop/models/profile";
+import {addPlayerUserId, playerIsReady, isGameFull} from "../../firebase-interop/business-logic/game";
 import type {Game} from "../../firebase-interop/models/game";
 
 
@@ -35,8 +36,14 @@ export function ConfigureGame({game, userId, onImReady}: Props): React.ReactElem
   const [selectedDeckId, setSelectedDeckId] = React.useState<string>("");
 
   const addPlayer = React.useCallback(async () => {
-    await mutate(game, addPlayerUserName(newPlayerUserName));
-    await addPlayerState(game.id!, newPlayerUserName, new PlayerState(game.id!, newPlayerUserName));
+    const getUserResult = await getUserId(newPlayerUserName);
+    if (getUserResult.failureReason) {
+        alert("Failed to add user: " + getUserResult.failureReason);
+        return;
+    }
+
+    await mutate(game, addPlayerUserId(getUserResult.userID));
+    await addPlayerState(game.id!, getUserResult.userID, new PlayerState(game.id!, getUserResult.userID));
     setPlayerUserName("");
   }, [newPlayerUserName, game]);
 
