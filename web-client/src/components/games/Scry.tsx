@@ -5,7 +5,7 @@ import Dialog from "@mui/material/Dialog";
 import Box from "@mui/material/Box";
 import { Stack } from "@mui/material";
 
-import { ListCardsLayout } from "./GameBoard";
+import { ListCardsLayout } from "./Layouts";
 
 import {mutate} from "../../firebase-interop/baseModel";
 import { PlayerState } from "../../firebase-interop/models/playerState";

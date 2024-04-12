@@ -10,7 +10,7 @@ import {gameDoc} from '../../firebase-interop/models/game';
 import {auth} from '../../firebase-interop/firebaseInit';
 import {useAuthState} from 'react-firebase-hooks/auth';
 
-import {OpponentGameBoard, MyGameBoard} from './GameBoard';
+import {OpponentGameBoard, MyGameBoard} from './GameBoards';
 import {ConfigureGame} from './ConfigureGame';
 import {HeaderPortal} from '../header/Header';
 
