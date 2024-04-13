@@ -90,7 +90,7 @@ export function shuffleLibrary() {
     }
 }
 
-export function moveCard(cardId: number, from: CARD_BUCKETS, to: CARD_BUCKETS, front: boolean = false) {
+export function moveCard(cardId: number, from: CARD_BUCKETS, to: CARD_BUCKETS, index: number = -1) {
     return async function(playerState: PlayerState) {
         playerState = playerState.clone();
 
@@ -103,8 +103,8 @@ export function moveCard(cardId: number, from: CARD_BUCKETS, to: CARD_BUCKETS, f
 
         playerState[`${from}Cards`].splice(fromCardIndex, 1);
 
-        if (front) {
-            playerState[`${to}Cards`] = [cardToMove, ...playerState[`${to}Cards`], cardToMove];
+        if (index >= 0) {
+            playerState[`${to}Cards`].splice(index, 0, cardToMove);
         } else {
             playerState[`${to}Cards`] = [...playerState[`${to}Cards`], cardToMove];
         }

@@ -163,7 +163,7 @@ export function Card({
             return;
         }
 
-        mutate(playerState, moveCard(cardState.id, bucket, "library", true));
+        mutate(playerState, moveCard(cardState.id, bucket, "library", 0));
         setContextMenu(null);
     }
 

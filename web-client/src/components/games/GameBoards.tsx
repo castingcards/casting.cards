@@ -82,7 +82,7 @@ export function MyGameBoard({game, uid}: Props) {
 
         if (source.droppableId !== destination.droppableId) {
             // Moving cards between buckets
-            mutate(playerState, moveCard(cardId, source.droppableId as CARD_BUCKETS, destination.droppableId as CARD_BUCKETS));
+            mutate(playerState, moveCard(cardId, source.droppableId as CARD_BUCKETS, destination.droppableId as CARD_BUCKETS, destination.index));
         } else {
             // Reordering cards in the same bucket
             mutate(playerState, reorderCard(cardId, source.droppableId as CARD_BUCKETS, destination.index));
