@@ -105,19 +105,28 @@ export function StackedCardsLayout({
     const top = cardStates[cardStates.length - 1];
 
     return (
-        <Grid container direction="column" alignItems="center" sx={zoneStyle()}>
-            <Typeogrophy variant="body1">{title} ({cardStates.length})</Typeogrophy>
-            <Grid container alignContent="center">
-                <Grid>
-                    {top ? <Card
-                        playerState={playerState}
-                        cardState={top}
-                        bucket={bucket}
-                        interactive={interactive}
-                        cardActions={cardActions ?? ["ALL"]} /> : <EmptyCard />}
-                </Grid>
-            </Grid>
-        </Grid>
+        <Droppable droppableId={bucket} direction="horizontal" isDropDisabled={!interactive}>
+            {(provided: any) => (
+                <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                >
+                    <Grid container direction="column" alignItems="center" sx={zoneStyle()}>
+                        <Typeogrophy variant="body1">{title} ({cardStates.length})</Typeogrophy>
+                        <Grid container alignContent="center">
+                            <Grid>
+                                {top ? <Card
+                                    playerState={playerState}
+                                    cardState={top}
+                                    bucket={bucket}
+                                    interactive={interactive}
+                                    cardActions={cardActions ?? ["ALL"]} /> : <EmptyCard />}
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </div>
+            )}
+        </Droppable>
     );
 }
 
