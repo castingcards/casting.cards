@@ -110,6 +110,7 @@ export function zoneStyle() {
         borderRadius: 2,
         margin: "1px",
         width: "90%",
+        minHeight: 154,
     });
 }
 

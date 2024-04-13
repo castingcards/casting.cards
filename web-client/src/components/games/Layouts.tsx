@@ -1,4 +1,5 @@
 import * as React from "react";
+import {Droppable, Draggable} from "react-beautiful-dnd";
 
 import Grid from '@mui/material/Unstable_Grid2';
 import Typeogrophy from '@mui/material/Typography';
@@ -45,31 +46,53 @@ export function ListCardsLayout({
 
 
     return (
-        <Grid container direction="column" alignItems="center" sx={zoneStyle()}>
-            <Typeogrophy variant="body1">{title} ({cardStates.length})</Typeogrophy>
-            <Grid container justifyContent="center" maxWidth="50vw" overflow="visible" flexWrap="nowrap">
-                {cardStates.length ? cardStates.map((cardState, i) => <Grid
-                    container
-                    // +i keeps react happy when we render the same card more than once.
-                    key={cardState.id}
-                    justifyContent="center"
-                    onMouseOver={() => { !hidden && setHoveredItemIndex(i); }}
-                    onMouseOut={() => { !hidden && setHoveredItemIndex(-1); }}
-                    sx={fishEyeTransform(i)}
+        <Droppable droppableId={bucket} direction="horizontal" isDropDisabled={!interactive}>
+            {(provided: any) => (
+                <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
                 >
-                    <Card
-                        playerState={playerState}
-                        cardState={cardState}
-                        bucket={bucket}
-                        hidden={hidden}
-                        interactive={interactive}
-                        cardActions={cardActions ?? ["ALL"]} />
+                <Grid container direction="column" alignItems="center" sx={zoneStyle()}>
+                    <Typeogrophy variant="body1">{title} ({cardStates.length})</Typeogrophy>
+                    <Grid container justifyContent="center" maxWidth="50vw" overflow="visible" flexWrap="nowrap">
+                        {cardStates.map((cardState, i) => <Draggable key={cardState.id} draggableId={cardState.id.toString()} index={i}>
+                            {(provided: any) => (
+                                <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                >
+                                    <Grid
+                                        container
+                                        // +i keeps react happy when we render the same card more than once.
+                                        key={cardState.id}
+                                        justifyContent="center"
+                                        onMouseOver={() => { !hidden && setHoveredItemIndex(i); }}
+                                        onMouseOut={() => { !hidden && setHoveredItemIndex(-1); }}
+                                        sx={fishEyeTransform(i)}
+                                    >
+                                        <Card
+                                            playerState={playerState}
+                                            cardState={cardState}
+                                            bucket={bucket}
+                                            hidden={hidden}
+                                            interactive={interactive}
+                                            cardActions={cardActions ?? ["ALL"]} />
+                                    </Grid>
+                                </div>
+                            )}
+                        </Draggable>
+                        )}
+                        {provided.placeholder}
+                    </Grid>
                 </Grid>
-                ) : <EmptyCard />}
-            </Grid>
-        </Grid>
+            </div>
+        )}
+        </Droppable>
     );
-}export function StackedCardsLayout({
+}
+
+export function StackedCardsLayout({
     cardStates, title, playerState, bucket, interactive, cardActions,
 }: {
     cardStates: Array<CardState>;

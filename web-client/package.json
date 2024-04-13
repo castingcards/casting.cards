@@ -18,6 +18,7 @@
     "axios": "^1.6.7",
     "mtg-decklist-parser": "^2.0.0",
     "react": "^18.2.0",
+    "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.2.0",
     "react-firebase-hooks": "^5.1.1",
     "react-router-dom": "^6.20.1",
@@ -52,6 +53,7 @@
     ]
   },
   "devDependencies": {
+    "@types/react-beautiful-dnd": "^13.1.8",
     "@types/shuffle-seed": "^1.1.3"
   }
 }

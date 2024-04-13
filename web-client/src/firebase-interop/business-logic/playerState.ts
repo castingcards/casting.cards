@@ -115,6 +115,25 @@ export function moveCard(cardId: number, from: CARD_BUCKETS, to: CARD_BUCKETS, f
     }
 }
 
+export function reorderCard(cardId: number, bucket: CARD_BUCKETS, newIndex: number) {
+    return async function(playerState: PlayerState) {
+        playerState = playerState.clone();
+
+        let cardIndex: number = playerState[`${bucket}Cards`].findIndex(card => card.id === cardId);
+        if (cardIndex < 0) {
+            console.warn(`Card ${cardId} not found in ${bucket}`);
+            return playerState;
+        }
+
+        const card = playerState[`${bucket}Cards`][cardIndex];
+
+        playerState[`${bucket}Cards`].splice(cardIndex, 1);
+        playerState[`${bucket}Cards`].splice(newIndex, 0, card);
+
+        return playerState
+    }
+}
+
 export function scryCard() {
     return async function(playerState: PlayerState) {
         playerState = playerState.clone();
